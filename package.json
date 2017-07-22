@@ -2,6 +2,7 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.15.3",
+    "mongoose": "^4.11.3",
     "morgan": "^1.8.2"
   },
   "scripts": {
