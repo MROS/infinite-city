@@ -11,3 +11,5 @@ yarn-error.log*
 # editor
 *.swo
 *.swp
+.vscode/
+
