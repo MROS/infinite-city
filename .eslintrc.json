@@ -6,6 +6,7 @@
         "es6": true
     },
     "parserOptions": {
+        "ecmaVersion": 2017,
         "sourceType": "module",
         "ecmaFeatures": {
             "experimentalObjectRestSpread": true,
@@ -19,6 +20,7 @@
         "guard-for-in": ["error"],
         "no-var": ["error"],
         "no-undef": ["error"],
+        "no-trailing-spaces": ["error"],
         "no-unused-vars": ["warn"],
         "indent": [
             "error",

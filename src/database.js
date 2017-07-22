@@ -23,13 +23,20 @@ mongoose.connect(server.url, server.options)
 );
 
 const board_schema_t = {
-	"father": { type: ObjectId, required: true },
+	"isRoot": { type: Boolean, default: false },
+	"mather": {
+		type: ObjectId,
+		required: function() {
+			if(this.mather) return false;
+			else return !this.isRoot;
+		}
+	},
 	"name": { type: String, required: true },
-	
+
 	// 以下三個其實是函數，這個板下所有的文章／回應／回應表格都要經過它們來渲染
-	"renderContent": String, 
-	"renderComment": String,
-	"renderCommentForm": String,
+	"renderContent": { type: String, default: null },
+	"renderComment": { type: String, default: null },
+	"renderCommentForm": { type: String, default: null },
 
 	"allowDefineContent": { type: Boolean, default: true }, // 允許子板和文章定義「渲染內文」
 	"allowDefineComment": { type: Boolean, default: true }, // 允許子板和文章定義「渲染回應」
@@ -39,7 +46,7 @@ const board_schema_t = {
 	"manager": { // 板主名單
 		type: [String],
 		required: function(){
-			return this.manager.length > 0;
+			return this.manager.length == 0;
 		}
 	}
 };
@@ -47,9 +54,9 @@ const board_schema_t = {
 const article_schema_t = {
 	"board": { type: ObjectId, required: true },
 	"title": { type: String, required: true },
-	
+
 	// 以下三個其實是函數，這篇文章下的內文／回應／回應表格都要經過它們來渲染
-	"renderContent": String, 
+	"renderContent": String,
 	"renderComment": String,
 	"renderCommentForm": String,
 
