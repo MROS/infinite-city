@@ -124,6 +124,8 @@ class Board extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			showSource: false,
+			creatingAritcle: false,
 			articles: []
 		};
 	}
@@ -154,8 +156,32 @@ class Board extends React.Component {
 				<Link to="/">回看板列表</Link>
 				<h5 className="title is-5">{`歡迎來到「${match.params.boardName}」板！！`}</h5>
 				<div>
-					<a className="button" style={{ marginBottom: "25px", marginRight: "12px" }}>發文</a>
-					<a className="button" style={{ marginBottom: "25px" }}>觀看看板源碼</a>
+					<a className={this.state.creatingAritcle ? "button is-primary" : "button"}
+						style={{ marginBottom: "25px", marginRight: "12px" }}
+						onClick={() => {this.setState({creatingAritcle: !this.state.creatingAritcle});}}>
+						發文
+					</a>
+					<a className={this.state.showSource ? "button is-primary" : "button"}
+						style={{ marginBottom: "25px" }}
+						onClick={() => {this.setState({showSource: !this.state.showSource});}}>
+						觀看看板源碼
+					</a>
+				</div>
+				<div style={{marginBottom: "30px"}}>
+					{
+						(() => {
+							if (this.state.showSource) {
+								return <p>源碼</p>;
+							}
+						})()
+					}
+					{
+						(() => {
+							if (this.state.creatingAritcle) {
+								return <input className="input" type="textarea" placeholder="文章內容..." />;
+							}
+						})()
+					}
 				</div>
 				{this.state.articles.map((article) => {
 					return (
