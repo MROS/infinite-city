@@ -14,40 +14,63 @@ class App extends React.Component {
 	}
 	render() {
 		return (
-			<div>
-				<div style={{
-					borderBottomStyle: "solid",
-					borderBottomWidth: "1px",
-					borderBottomColor: "#BFBFBF"
-				}}>
-					<div className="container" style={{ width: "60%" }}>
-						<nav className="navbar">
-							<div className="navbar-brand">
-								<a className="navbar-item" href="/" style={{}}>
-									<h3 className="title is-3">無限城</h3>
-								</a>
-							</div>
-							<div className="navbar-menu">
-								<div className="navbar-end">
-									<a className="navbar-item">登錄</a>
-									<a className="navbar-item">註冊</a>
+			<Router>
+				<div>
+					<div style={{
+						borderBottomStyle: "solid",
+						borderBottomWidth: "1px",
+						borderBottomColor: "#BFBFBF"
+					}}>
+						<div className="container" style={{ width: "60%" }}>
+							<nav className="navbar">
+								<div className="navbar-brand">
+									<Link to="/" className="navbar-item">
+										<h3 className="title is-3">無限城</h3>
+									</Link>
+									<Link to="/" className="navbar-item">
+										首頁
+									</Link>
 								</div>
-							</div>
-						</nav>
+								<div className="navbar-menu">
+									<div className="navbar-end">
+										<Link to="/app/login" className="navbar-item">登入</Link>
+										<Link to="/app/signUp" className="navbar-item">註冊</Link>
+									</div>
+								</div>
+							</nav>
+						</div>
 					</div>
-				</div>
-				<div className="container" style={{marginTop: "35px", width: "420px"}}>
-					<Router>
+					<div className="container" style={{marginTop: "65px", width: "420px"}}>
 						<Switch>
 							<Route exact path="/" component={BoardList} />
 							<Route exact path="/app/" component={BoardList} />
+							<Route exact path="/app/login" component={Login} />
+							<Route exact path="/app/signUp" component={SignUp} />
 							<Route exact path="/app/b/:boardName" component={Board} />
 							<Route path="/app/b/:boardName/a/:articleName" component={Article} />
 						</Switch>
-					</Router>
+					</div>
 				</div>
-			</div>
+			</Router>
 		);
+	}
+}
+
+class SignUp extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+	render() {
+		return <p>註冊</p>;
+	}
+}
+
+class Login extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+	render() {
+		return <p>登入</p>;
 	}
 }
 
