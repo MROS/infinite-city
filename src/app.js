@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 app.use(express.static("frontend/static"));
 
 // NOTE: 首頁一樣會因爲 express.static 而回傳 index.html
-app.get(/\/app\/.*/, function (req, res) {
+app.get(/\/(app\/.*|app)/, function (req, res) {
 	res.sendFile(path.resolve("frontend/static/index.html"));
 });
 
