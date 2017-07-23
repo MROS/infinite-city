@@ -1,10 +1,15 @@
-const ObjectId = require("mongoose").Schema.Types.ObjectId;
 const db = require("../database.js");
 
+/**
+ * @param {String} manager_id 
+ * @param {String} name 
+ * @param {String} mather_id 
+ * @param {Object} rules 
+ */
 async function createBoard(manager_id, name, mather_id, rules) {
-	let mather = await db.Board.find({ id: ObjectId(mather_id) });
-	if(!mather) throw `${mather_id} 看板不存在`;
-	let new_board = {};
+	let mather = await db.Board.findOne({ _id: mather_id }).exec();
+	if(!mather) throw `${ mather_id } 看板不存在`;
+	let new_board = { mather: mather_id };
 	if(mather.allowDefineTitle) {
 		new_board.renderTitle = rules.renderTitle;
 	}
@@ -17,16 +22,16 @@ async function createBoard(manager_id, name, mather_id, rules) {
 	if(mather.allowDefineComment) {
 		new_board.renderComment = rules.renderComment;
 	}
-	new_board.allowDefineTitle = true && mather.allowDefineTitle;
-	new_board.allowDefineContent = true && mather.allowDefineContent;
-	new_board.allowDefineForm = true && mather.allowDefineForm;
-	new_board.allowDefineComment = true && mather.allowDefineComment;
+	new_board.allowDefineTitle = rules.allowDefineTitle && mather.allowDefineTitle;
+	new_board.allowDefineContent = rules.allowDefineContent && mather.allowDefineContent;
+	new_board.allowDefineForm = rules.allowDefineForm && mather.allowDefineForm;
+	new_board.allowDefineComment = rules.allowDefineComment && mather.allowDefineComment;
 
 	new_board.name = name;
 	new_board.manager = [manager_id];
-	await db.createBoard(new_board);
+	await db.Board.create(new_board);
 }
 
-export {
+module.exports = {
 	createBoard
 };

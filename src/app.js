@@ -26,8 +26,9 @@ app.use(session({
 	saveUninitialized: true
 }));
 
-app.use("/api/board", require("./board/router.js"));
 app.use("/api/user", require("./user/router.js"));
+app.use("/api/board", require("./board/router.js"));
+app.use("/api/article", require("./article/router.js"));
 app.use("/api/rule", require("./rule/router.js"));
 
 console.log(`埠口：${config.PORT}`);
