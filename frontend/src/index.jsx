@@ -6,7 +6,7 @@ import {
 	Route,
 	Link
 } from "react-router-dom";
-import example from "./example";
+import Article from "./article.jsx";
 
 class App extends React.Component {
 	constructor(props) {
@@ -14,17 +14,38 @@ class App extends React.Component {
 	}
 	render() {
 		return (
-			<div className="container" style={{marginTop: "35px", width: "420px"}}>
-				<h1 className="title is-1">無限城</h1>
-				<h3 className="subtitle is-4">此處不斷增生</h3>
-				<Router>
-					<Switch>
-						<Route exact path="/" component={BoardList} />
-						<Route exact path="/app/" component={BoardList} />
-						<Route exact path="/app/b/:boardName" component={Board} />
-						<Route path="/app/b/:boardName/a/:articleName" component={Article} />
-					</Switch>
-				</Router>
+			<div>
+				<div style={{
+					borderBottomStyle: "solid",
+					borderBottomWidth: "1px",
+					borderBottomColor: "#BFBFBF"
+				}}>
+					<div className="container" style={{ width: "60%" }}>
+						<nav className="navbar">
+							<div className="navbar-brand">
+								<a className="navbar-item" href="/" style={{}}>
+									<h3 className="title is-3">無限城</h3>
+								</a>
+							</div>
+							<div className="navbar-menu">
+								<div className="navbar-end">
+									<a className="navbar-item">登錄</a>
+									<a className="navbar-item">註冊</a>
+								</div>
+							</div>
+						</nav>
+					</div>
+				</div>
+				<div className="container" style={{marginTop: "35px", width: "420px"}}>
+					<Router>
+						<Switch>
+							<Route exact path="/" component={BoardList} />
+							<Route exact path="/app/" component={BoardList} />
+							<Route exact path="/app/b/:boardName" component={Board} />
+							<Route path="/app/b/:boardName/a/:articleName" component={Article} />
+						</Switch>
+					</Router>
+				</div>
 			</div>
 		);
 	}
@@ -34,19 +55,36 @@ class BoardList extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			// TODO: 改成 AJAX 請求 boards
+			boards: []
+		};
+		this.createBoard = this.createBoard.bind(this);
+	}
+	componentDidMount() {
+		this.getBoards();
+	}
+	getBoards() {
+		// TODO: AJAX
+		this.setState({
 			boards: [
 				"八卦", "棒球", "滑板", "軟體技術", "直譯器少女", "bonbon",
 				"高雄", "清大", "JavaScript", "翻譯", "軍旅", "省錢", "腳踏車",
 				"電影", "教科書解答", "Lisp", "大露營", "以太坊", "筆電", "經濟學",
 				"詩", "料理", "戀愛", "科幻", "書評", "求職", "代數", "創作"
 			]
-		};
+		});
+	}
+	createBoard() {
+		console.log("創建新版");
+		return;
 	}
 	render() {
 		return (
 			<div>
-				<a className="button" style={{ marginBottom: "25px" }}>創建新板</a>
+				<a className="button"
+					style={{ marginBottom: "25px" }}
+					onClick={this.createBoard}>
+					創建新板
+				</a>
 				{this.state.boards.map((board) => {
 					return (
 						<div key={board}>
@@ -63,7 +101,15 @@ class Board extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			// TODO: 改成 AJAX 請求 boards
+			articles: []
+		};
+	}
+	componentDidMount() {
+		this.getArticles();
+	}
+	getArticles() {
+		// TODO: AJAX
+		this.setState({
 			articles: [
 				"獵人真人版也該出來了吧？",
 				"大家有在玩 bonbon 嗎？",
@@ -75,7 +121,7 @@ class Board extends React.Component {
 				"台灣第一名的小吃是啥",
 				"二戰時納粹打蘇聯是對的嗎？"
 			]
-		};
+		});
 	}
 	render() {
 		const match = this.props.match;
@@ -84,7 +130,10 @@ class Board extends React.Component {
 			<div>
 				<Link to="/">回看板列表</Link>
 				<h5 className="title is-5">{`歡迎來到「${match.params.boardName}」板！！`}</h5>
-				<div><a className="button" style={{ marginBottom: "25px" }}>發文</a></div>
+				<div>
+					<a className="button" style={{ marginBottom: "25px", marginRight: "12px" }}>發文</a>
+					<a className="button" style={{ marginBottom: "25px" }}>觀看看板源碼</a>
+				</div>
 				{this.state.articles.map((article) => {
 					return (
 						<div key={article}>
@@ -92,64 +141,6 @@ class Board extends React.Component {
 						</div>
 					);
 				})}
-			</div>
-		);
-	}
-}
-class Article extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			content: example.exampleArticle,
-			comments: [
-				{user: "yc0304", content: "甲"},
-				{user: "lturtsamuel", content: "姆咪姆咪"},
-				{user: "痛哭的人", content: "痛哭流涕"},
-			]
-		};
-	}
-	render() {
-		const match = this.props.match;
-		return (
-			<div>
-				<Link to={"/app/b/" + match.params.boardName}>
-					<div style={{marginBottom: "10px"}}>
-						回{match.params.boardName}板
-					</div>
-				</Link>
-				 <h4 className="title is-4" style={{marginBottom: "8px"}}>{match.params.articleName}</h4>
-				<div>
-					{
-						this.state.content.split("\n").map((p) => {
-							if (p == "") { return <br />; }
-							else { return <p>{p}</p>; }
-						})
-					}
-				</div>
-				 <div>
-					<h5 className="title is-5">留言區</h5>
-					<hr />
-					 {
-						this.state.comments.map((comment) => {
-							return (
-								<div>
-									<span style={{ color: "blue" }}>{comment.user}</span>
-									<span>：</span>
-									<span>{comment.content}</span>
-									<hr />
-								</div>
-							);
-						})
-					}
-				</div>
-				<div className="field has-addons" style={{ marginBottom: "25px" }}>
-					<div className="control is-expanded">
-						<input className="input" type="text" placeholder="說點什麼吧" />
-					</div>
-					<div className="control">
-						<a className="button">我來留言</a>
-					</div>
-				</div>
 			</div>
 		);
 	}
