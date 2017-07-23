@@ -2,48 +2,43 @@ const db = require("./database.js");
 
 let root = {
 	isRoot: true,
-	manager: ["did0u0"],
+	manager: [],
 	name: "無限城",
 
-	renderContent: function(article) {
-		let doms = article.content().map(c => {
-			return <p>{c}</p>;
-		});
-		return <div>{doms}</div>;
-	},
-	renderComment: function(comment) {
-		let doms = Object.keys(comment).map(key => {
-			return <p>{comment[key]}</p>;
-		});
-		return <div>{doms}</div>;
-	},
-	renderCommentForm: function(commentForm) {
-		let doms = [];
-		for(let c of commentForm) {
-			let applyRestrict = function() {
-				let ok = c.restrict(this.value);
-				if(ok) c.style.color = "red";
-				else c.style.color = "black";
-			};
-			let dom = <p>
-				<label>{c.label}</label>
-				<input type="text" name={c.name} onChange={applyRestrict.bind(this)}></input>
-			</p>;
-			doms.push(dom);
-		}
-		return <div>{doms}</div>;
-	}
+	renderTitle: "function(article, info) {"
+	+ "return <h3>[{info.push}]{article.title}</h3>;"
+	+ "}",
+	renderContent: "function(article, info) {"
+	+ "let doms = article.content().map(c => {"
+	+ "return <p>{c}</p>;"
+	+ "});"
+	+ "return <div>{doms}</div>;"
+	+ "}",
+	renderComment: "function(comment) {"
+	+ "let doms = Object.keys(comment).map(key => {"
+	+ "return <p>{comment[key]}</p>;"
+	+ "});"
+	+ "return <div>{doms}</div>;"
+	+ "}",
+	renderCommentForm: "function(commentForm) {"
+	+ "let doms = [];"
+	+ "for(let c of commentForm) {"
+	+ "let applyRestrict = function() {"
+	+ "let ok = c.restrict(this.value);"
+	+ "if(ok) c.style.color = 'red';"
+	+ "else c.style.color = 'black';"
+	+ "};"
+	+ "let dom = <p>"
+	+ "<label>{c.label}</label>"
+	+ "<input type='text' name={c.name} onChange={applyRestrict.bind(this)}></input>"
+	+ "</p>;"
+	+ "doms.push(dom);"
+	+ "}"
+	+ "return <div>{doms}</div>;"
+	+ "}"
 };
 
 async function addRoot(root) {
-	for (let userId of root.manager) {
-		let user = await db.User.findOne({id: userId});
-		if(!user) {
-			console.log(`${userId} 不存在`);
-			process.exit();
-		}
-	}
-
 	try {
 		let res = await db.Board.findOne({ isRoot: true }).exec();
 		if (res) {

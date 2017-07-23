@@ -20,6 +20,7 @@ app.use(session({
 
 app.use("/api/board", require("./board/router.js"));
 app.use("/api/user", require("./user/router.js"));
+app.use("/api/rule", require("./rule/router.js"));
 
 console.log(`埠口：${config.PORT}`);
 app.listen(config.PORT);

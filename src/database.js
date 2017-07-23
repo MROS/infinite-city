@@ -33,40 +33,49 @@ const board_schema_t = {
 	},
 	"name": { type: String, required: true },
 
-	// 以下三個其實是函數，這個板下所有的文章／回應／回應表格都要經過它們來渲染
+	// 以下幾個其實是函數，這個板下所有的文章標題/文章／回應／回應表格都要經過它們來渲染
+	"renderTitle": { type: String, default: null },
 	"renderContent": { type: String, default: null },
-	"renderComment": { type: String, default: null },
 	"renderCommentForm": { type: String, default: null },
+	"renderComment": { type: String, default: null },
 
-	"allowDefineContent": { type: Boolean, default: true }, // 允許子板和文章定義「渲染內文」
-	"allowDefineComment": { type: Boolean, default: true }, // 允許子板和文章定義「渲染回應」
-	"allowDefineForm": { type: Boolean, default: true }, // 允許子板和文章定義「渲染回應表單」
-	// 若禁止定義，則內文或子板就只能定義 content，由板面定義的函數來渲染
+	"allowDefineTitle": { type: Boolean, default: true }, // 允許子板定義「渲染標題」
+	"allowDefineContent": { type: Boolean, default: true }, // 允許子板定義「渲染內文」
+	"allowDefineForm": { type: Boolean, default: true }, // 允許子板定義「渲染回應表單」
+	"allowDefineComment": { type: Boolean, default: true }, // 允許子板「和文章」定義「渲染回應」
+	// 若禁止定義，則內文或子板就只能定義 content 和 commentForm，由板面定義的函數來渲染
 
 	"manager": { // 板主名單
 		type: [String],
 		required: function(){
-			return this.manager.length == 0;
+			return (this.manager.length == 0) && !this.isRoot;
 		}
 	}
 };
 
 const article_schema_t = {
-	"board": { type: ObjectId, required: true },
 	"title": { type: String, required: true },
-
-	// 以下三個其實是函數，這篇文章下的內文／回應／回應表格都要經過它們來渲染
-	"renderContent": String,
-	"renderComment": String,
-	"renderCommentForm": String,
-
-	"arthur": String,
+	"board": { type: ObjectId, required: true },
 	"date": { type: Date, default: Date.now },
+	"arthur": String, // 若是匿名看板，可以無作者
+
+	// 其實是函數，這篇文章下的回應都要經過它來渲染
+	"renderComment": {type: String, default: null},
 
 	// 底下開始是文章真正的資料
 	"content": String, // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
 	"commentForm": String, // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
-	"comment": [{}],
+	"comment": { type: [{}], default: [] },
+};
+
+// 用來儲存不該被文章作者（任意）修改到的東西
+const article_info_schema_t = {
+	"article": { type: ObjectId, required: true },
+	// 一些橫跨全看板的功能？
+	// 匿名性：0代表實名，1代表匿名但本人可見，2代表根本沒儲存留言的人是誰
+	"anonymous": { type: Number, default: 0 },
+	// 推文
+	"push": { type: Number, default: 0 },
 };
 
 const user_schema_t = {
@@ -84,8 +93,12 @@ let Article = mongoose.model("Article", article_schema);
 let user_schema = new Schema(user_schema_t);
 let User = mongoose.model("User", user_schema);
 
+let article_info_schema = new Schema(article_info_schema_t);
+let ArticleInfo = mongoose.model("ArticleInfo", article_info_schema);
+
 module.exports = {
 	Board,
 	Article,
-	User
+	ArticleInfo,
+	User,
 };
