@@ -9,7 +9,7 @@ const RULES = [
 ];
 
 async function findBoard(_id) {
-	return await db.Board.find({_id}).exec();
+	return await db.Board.findOne({_id}).exec();
 }
 function ruleDone(rules) {
 	for(let key of RULES) {
@@ -18,10 +18,10 @@ function ruleDone(rules) {
 	return true;
 }
 
-router.get("/rule/article/:article", async function(req, res) {
+router.get("/article/:article", async function(req, res) {
 	try {
 		let article_id = req.params.article;
-		let article = await db.Article.find({ _id: article_id }).exec();
+		let article = await db.Article.findOne({ _id: article_id }).lean().exec();
 		let board = await findBoard(article.board);
 
 		let rules = {};
@@ -30,10 +30,10 @@ router.get("/rule/article/:article", async function(req, res) {
 			rules["renderComment"] = article.renderComment;
 		}
 		while (true) {
-			for (let key in RULES) {
+			for (let key of RULES) {
 				if (!rules[key]) rules[key] = board[key];
 			}
-			if (ruleDone(rules)) break;
+			if (ruleDone(rules) || board.isRoot) break;
 			else board = await findBoard(board.mather);
 		}
 		res.json(rules);

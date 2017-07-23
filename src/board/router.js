@@ -19,11 +19,11 @@ router.get("/list/:board", async function (req, res) {
 		let max = 10 || Number(req.query.max);
 		let board_id = req.params.board;
 		console.log(board_id, max);
-		let [boardlist, articlelist] = await Promise.all([
+		let [b_list, a_list] = await Promise.all([
 			db.Board.find({ mather: board_id }).limit(max).exec(),
 			db.Article.find({ board: board_id }).limit(max).exec(),
 		]);
-		res.json({ boardlist, articlelist });
+		res.json({ b_list, a_list });
 	} catch (err) {
 		// console.log(err);
 		res.send("FAIL");

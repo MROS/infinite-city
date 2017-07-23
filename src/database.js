@@ -63,8 +63,8 @@ const article_schema_t = {
 	"renderComment": {type: String, default: null},
 
 	// 底下開始是文章真正的資料
-	"content": [String], // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
-	"commentForm": [String], // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
+	"content": { type: [String], required: true }, // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
+	"commentForm": { type: [String], required: true }, // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
 	"comment": { type: [String], default: [] }, // 其實是函數
 };
 
