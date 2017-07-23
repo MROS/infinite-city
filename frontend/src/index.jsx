@@ -6,6 +6,7 @@ import {
 	Route,
 	Link
 } from "react-router-dom";
+import example from "./example";
 
 class App extends React.Component {
 	constructor(props) {
@@ -13,14 +14,15 @@ class App extends React.Component {
 	}
 	render() {
 		return (
-			<div className="container" style={{marginTop: "35px", width: "300px"}}>
+			<div className="container" style={{marginTop: "35px", width: "420px"}}>
 				<h1 className="title is-1">無限城</h1>
 				<h3 className="subtitle is-4">此處不斷增生</h3>
 				<Router>
 					<Switch>
 						<Route exact path="/" component={BoardList} />
-						<Route exact path="/:boardName" component={Board} />
-						<Route path="/:boardName/:articleName" component={Article} />
+						<Route exact path="/app/" component={BoardList} />
+						<Route exact path="/app/b/:boardName" component={Board} />
+						<Route path="/app/b/:boardName/a/:articleName" component={Article} />
 					</Switch>
 				</Router>
 			</div>
@@ -48,7 +50,7 @@ class BoardList extends React.Component {
 				{this.state.boards.map((board) => {
 					return (
 						<div key={board}>
-							<Link to={"/" + board}>{board}</Link>
+							<Link to={"/app/b/" + board}>{board}</Link>
 						</div>
 					);
 				})}
@@ -82,10 +84,11 @@ class Board extends React.Component {
 			<div>
 				<Link to="/">回看板列表</Link>
 				<h5 className="title is-5">{`歡迎來到「${match.params.boardName}」板！！`}</h5>
+				<div><a className="button" style={{ marginBottom: "25px" }}>發文</a></div>
 				{this.state.articles.map((article) => {
 					return (
 						<div key={article}>
-							<Link to={location.pathname + "/" + article}>{article}</Link>
+							<Link to={location.pathname + "/a/" + article}>{article}</Link>
 						</div>
 					);
 				})}
@@ -93,17 +96,60 @@ class Board extends React.Component {
 		);
 	}
 }
-
 class Article extends React.Component {
 	constructor(props) {
 		super(props);
+		this.state = {
+			content: example.exampleArticle,
+			comments: [
+				{user: "yc0304", content: "甲"},
+				{user: "lturtsamuel", content: "姆咪姆咪"},
+				{user: "痛哭的人", content: "痛哭流涕"},
+			]
+		};
 	}
 	render() {
 		const match = this.props.match;
 		return (
 			<div>
-				<Link to={"/" + match.params.boardName}>回{match.params.boardName}板</Link>
-				<h5 className="title is-5">{match.params.articleName}</h5>
+				<Link to={"/app/b/" + match.params.boardName}>
+					<div style={{marginBottom: "10px"}}>
+						回{match.params.boardName}板
+					</div>
+				</Link>
+				 <h4 className="title is-4" style={{marginBottom: "8px"}}>{match.params.articleName}</h4>
+				<div>
+					{
+						this.state.content.split("\n").map((p) => {
+							if (p == "") { return <br />; }
+							else { return <p>{p}</p>; }
+						})
+					}
+				</div>
+				 <div>
+					<h5 className="title is-5">留言區</h5>
+					<hr />
+					 {
+						this.state.comments.map((comment) => {
+							return (
+								<div>
+									<span style={{ color: "blue" }}>{comment.user}</span>
+									<span>：</span>
+									<span>{comment.content}</span>
+									<hr />
+								</div>
+							);
+						})
+					}
+				</div>
+				<div className="field has-addons" style={{ marginBottom: "25px" }}>
+					<div className="control is-expanded">
+						<input className="input" type="text" placeholder="說點什麼吧" />
+					</div>
+					<div className="control">
+						<a className="button">我來留言</a>
+					</div>
+				</div>
 			</div>
 		);
 	}
