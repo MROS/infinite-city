@@ -6,29 +6,34 @@ const db = require("../database.js");
  * @param {String} parent_id 
  * @param {Object} rules 
  */
-async function createBoard(manager_id, name, parent_id, rules) {
+async function createBoard(manager_id, name, parent_id, articleForm, rules) {
 	let parent = await db.Board.findOne({ _id: parent_id }).exec();
 	if(!parent) throw `${ parent_id } 看板不存在`;
 	let new_board = { parent: parent_id };
-	if(parent.allowDefineTitle) {
+	if(parent.canDefTitle) {
 		new_board.renderTitle = rules.renderTitle;
 	}
-	if(parent.allowDefineContent) {
+	if(parent.canDefContent) {
 		new_board.renderContent = rules.renderContent;
 	}
-	if(parent.allowDefineForm) {
+	if(parent.canDefCommentForm) {
 		new_board.renderCommentForm = rules.renderCommentForm;
 	}
-	if(parent.allowDefineComment) {
+	if(parent.canDefComment) {
 		new_board.renderComment = rules.renderComment;
 	}
-	new_board.allowDefineTitle = rules.allowDefineTitle && parent.allowDefineTitle;
-	new_board.allowDefineContent = rules.allowDefineContent && parent.allowDefineContent;
-	new_board.allowDefineForm = rules.allowDefineForm && parent.allowDefineForm;
-	new_board.allowDefineComment = rules.allowDefineComment && parent.allowDefineComment;
+	if(parent.canDefArticleForm) {
+		new_board.renderArticleForm = rules.renderArticleForm;
+	}
+	new_board.canDefTitle = rules.canDefTitle && parent.canDefTitle;
+	new_board.canDefContent = rules.canDefContent && parent.canDefContent;
+	new_board.canDefCommentForm = rules.canDefCommentForm && parent.canDefCommentForm;
+	new_board.canDefComment = rules.canDefComment && parent.canDefComment;
+	new_board.canDefArticleForm = rules.canDefArticleForm && parent.canDefArticleForm;
 
 	new_board.name = name;
 	new_board.manager = [manager_id];
+	new_board.articleForm = articleForm;
 	await db.Board.create(new_board);
 }
 

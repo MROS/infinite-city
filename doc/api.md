@@ -24,13 +24,15 @@
 		+ rules: 鍵值對
 			1. allowDefineTitle: boolean，預設爲真
 			2. allowDefineContent: boolean，預設爲真
-			3. allowDefineForm: boolean，預設爲真
+			3. allowDefineCommentForm: boolean，預設爲真
 			4. allowDefineComment: boolean，預設爲真
-			5. renderTitle 字串，預設爲 null
-			6. renderContent  字串，預設爲 null
-			7. renderCommentForm 字串，預設爲 null
-			8. renderComment  字串，預設爲 null
-			9. 1~8 根據母看板的權限，可能不被允許設定
+			5. allowDefineArticleForm: boolean，預設爲真
+			6. renderTitle 字串，預設爲 null
+			7. renderContent  字串，預設爲 null
+			8. renderCommentForm 字串，預設爲 null
+			9. renderComment  字串，預設爲 null
+			10. renderArticleForm  字串，預設爲 null
+			11. 1~10 根據母看板的權限，可能不被允許設定
 		+ 返回 OK
 * api/article
 	- POST api/article/new
@@ -46,7 +48,7 @@
 * api/rule
 	- GET api/rule/article/:article
 		+ 沿着看板鏈上溯，最多到根看板，尋找 :article 這篇文章的所有渲染規則
-		+ 返回 { renderTitle, renderContent, renderCommentForm, renderComment }
+		+ 返回 { renderTitle, renderContent, renderCommentForm, renderComment, renderArticleForm }
 			- 四個皆爲字串
 	- GET api/rule/board/:board
 		+ 尋沿着看板鏈上溯，找 :board 這個看板的所有渲染規則

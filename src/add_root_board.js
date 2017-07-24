@@ -15,8 +15,8 @@ let root = {
 	+ "return <div>{doms}</div>;"
 	+ "}",
 	renderComment: "function(comment) {"
-	+ "let doms = Object.keys(comment).map(key => {"
-	+ "return <p>{comment[key]}</p>;"
+	+ "let doms = comment.map(obj => {"
+	+ "return <p>{obj}</p>;"
 	+ "});"
 	+ "return <div>{doms}</div>;"
 	+ "}",
@@ -35,7 +35,13 @@ let root = {
 	+ "doms.push(dom);"
 	+ "}"
 	+ "return <div>{doms}</div>;"
-	+ "}"
+	+ "}",
+	renderArticleForm: "function(articleForm) {"
+	+ "let doms = articleForm.map(obj => {"
+	+ "return <p><lebel>{obj.lebel}</lebel><input type='text'/></p>;"
+	+ "});"
+	+ "return <div>{doms}</div>;"
+	+ "}",
 };
 
 async function addRoot(root) {

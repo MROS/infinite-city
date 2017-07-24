@@ -38,11 +38,13 @@ const board_schema_t = {
 	"renderContent": { type: String, default: null },
 	"renderCommentForm": { type: String, default: null },
 	"renderComment": { type: String, default: null },
+	"renderArticleForm": { type: String, default: null },
 
-	"allowDefineTitle": { type: Boolean, default: true }, // 允許子板定義「渲染標題」
-	"allowDefineContent": { type: Boolean, default: true }, // 允許子板定義「渲染內文」
-	"allowDefineForm": { type: Boolean, default: true }, // 允許子板定義「渲染回應表單」
-	"allowDefineComment": { type: Boolean, default: true }, // 允許子板「和文章」定義「渲染回應」
+	"canDefineTitle": { type: Boolean, default: true }, // 允許子板定義「渲染標題」
+	"canDefContent": { type: Boolean, default: true }, // 允許子板定義「渲染內文」
+	"canDefCommentForm": { type: Boolean, default: true }, // 允許子板定義「渲染回應表單」
+	"canDefComment": { type: Boolean, default: true }, // 允許子板「和文章」定義「渲染回應」
+	"canDefArticleForm": { type: Boolean, default: true }, // 允許子板「和文章」定義「渲染回應」
 	// 若禁止定義，則內文或子板就只能定義 content 和 commentForm，由板面定義的函數來渲染
 
 	"manager": { // 板主名單
@@ -50,7 +52,11 @@ const board_schema_t = {
 		required: function(){
 			return (this.manager.length == 0) && !this.isRoot;
 		}
-	}
+	},
+
+	"articleForm" : { type: [String], require: () => {
+		return (this.articleForm.length == 0);
+	}}
 };
 
 const article_schema_t = {

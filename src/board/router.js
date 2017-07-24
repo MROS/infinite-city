@@ -38,7 +38,8 @@ router.post("/new", async function(req, res) {
 		}
 		else {
 			let query = req.body;
-			await createBoard(userId, query.name, query.parent, query.rules);
+			await createBoard(userId, query.name, query.parent,
+				query.articleForm, query.rules);
 			res.send("OK");
 		}
 	} catch(err) {

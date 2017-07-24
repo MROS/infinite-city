@@ -5,7 +5,8 @@ const RULES = [
 	"renderTitle",
 	"renderContent",
 	"renderCommentForm",
-	"renderComment"
+	"renderComment",
+	"renderArticleForm"
 ];
 
 async function findBoard(_id) {
