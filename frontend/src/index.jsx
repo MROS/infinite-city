@@ -11,6 +11,55 @@ import Article from "./article.jsx";
 class App extends React.Component {
 	constructor(props) {
 		super(props);
+		this.state = {
+			login: false,
+			id: ""
+		};
+		this.changeLoginState = this.changeLoginState.bind(this);
+		this.logout = this.logout.bind(this);
+	}
+	logout() {
+		fetch("/api/user/logout", {
+			credentials: "same-origin"
+		}).then((res) => {
+			if (res.ok) {
+				res.text().then((data) => {
+					switch (data) {
+						case "OK":
+							this.changeLoginState(false, "");
+							break;
+						case "尚未登入":
+							console.log("尚未登入");
+							break;
+					}
+				});
+			} else {
+				console.log("登出失敗");
+			}
+		}, (err) => {
+			console.log(`登出失敗：${err}`);
+		});
+	}
+	changeLoginState(login, id) {
+		this.setState({
+			login, id
+		});
+	}
+	componentDidMount() {
+		fetch("/api/user/who", {
+			credentials: "same-origin"
+		}).then((res) => {
+			if (res.ok) {
+				res.json().then((data) => {
+					console.log(data);
+					this.setState(data);
+				});
+			} else {
+				console.log("取得 id 失敗");
+			}
+		}, (err) => {
+			console.log(`取得 id 失敗：${err}`);
+		});
 	}
 	render() {
 		return (
@@ -33,8 +82,23 @@ class App extends React.Component {
 								</div>
 								<div className="navbar-menu">
 									<div className="navbar-end">
-										<Link to="/app/login" className="navbar-item">登入</Link>
-										<Link to="/app/signUp" className="navbar-item">註冊</Link>
+										{
+											(() => {
+												if (this.state.login) {
+													return [
+														<Link key="id" to="/app/login" className="navbar-item">
+															{this.state.id}
+														</Link>,
+														<a key="logout" onClick={this.logout} className="navbar-item">登出</a>
+													];
+												} else {
+													return [
+														<Link key="login" to="/app/login" className="navbar-item">登入</Link>,
+														<Link key="signUp" to="/app/signUp" className="navbar-item">註冊</Link>
+													];
+												}
+											})()
+										}
 									</div>
 								</div>
 							</nav>
@@ -42,12 +106,24 @@ class App extends React.Component {
 					</div>
 					<div className="container" style={{marginTop: "65px", width: "420px"}}>
 						<Switch>
-							<Route exact path="/" component={BoardList} />
-							<Route exact path="/app/" component={BoardList} />
-							<Route exact path="/app/login" component={Login} />
-							<Route exact path="/app/signUp" component={SignUp} />
-							<Route exact path="/app/b/:boardName" component={Board} />
-							<Route path="/app/b/:boardName/a/:articleName" component={Article} />
+							<Route exact path="/" render={(props) => (
+								<BoardList appState={this.state} {...props} />
+							)} />
+							<Route exact path="/app/" render={(props) => (
+								<BoardList appState={this.state} {...props} />
+							)} />
+							<Route exact path="/app/login" render={(props) => (
+								<Login appState={this.state} {...props} />
+							)} />
+							<Route exact path="/app/signUp" render={(props) => (
+								<SignUp appState={this.state} changeLoginState={this.changeLoginState} {...props} />
+							)} />
+							<Route exact path="/app/b/:boardName" render={(props) => (
+								<Board appState={this.state} {...props} />
+							)} />
+							<Route path="/app/b/:boardName/a/:articleName" render={(props) => (
+								<Article appState={this.state} {...props} />
+							)} />
 						</Switch>
 					</div>
 				</div>
@@ -56,12 +132,156 @@ class App extends React.Component {
 	}
 }
 
+// class idPasswordForm extends React.Component {
+
+// }
+
 class SignUp extends React.Component {
 	constructor(props) {
 		super(props);
+		this.state = {
+			info: {
+				message: "",
+				status: "none"
+			},
+			password: "",
+			id: "",
+			justSignUpSuccess: false,  // 剛註冊成功時會打開此旗標，渲染出註冊成功的消息，並在五秒後跳轉回首頁
+		};
+		this.createUser = this.createUser.bind(this);
+		this.handlePasswordChange = this.handlePasswordChange.bind(this);
+		this.handleIDChange = this.handleIDChange.bind(this);
+		this.deleteInfo = this.deleteInfo.bind(this);
+	}
+	handlePasswordChange(event) {
+		this.setState({password: event.target.value});
+	}
+	handleIDChange(event) {
+		this.setState({id: event.target.value});
+	}
+	deleteInfo() {
+		this.setState({
+			info: {
+				status: "none",
+				message: ""
+			}
+		});
+	}
+	createUser() {
+		console.log(`使用者名稱：${this.state.id}`);
+		console.log(`密碼：${this.state.password}`);
+		if (this.state.id.length == 0 || this.state.password.length == 0) {
+			console.log("壞囉");
+			this.setState({
+				info: {
+					status: "error",
+					message: "帳號密碼皆不得爲空",
+				}
+			});
+			return;
+		}
+		fetch("/api/user/new", {
+			method: "POST",
+			credentials: "same-origin",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({id: this.state.id, password: this.state.password})
+		}).then((res) => {
+			if (res.ok) {
+				res.text().then((data) => {
+					console.log(data);
+					switch (data) {
+						case "OK":
+							this.setState({
+								justSignUpSuccess: true
+							});
+							setTimeout(() => {
+								this.props.changeLoginState(true, this.state.id);
+								this.props.history.push("/");
+							}, 5000);
+							break;
+						case "ID 已被使用":
+							this.setState({
+								info: {
+									status: "error",
+									message: `名稱 ${this.state.id} 已被使用過`,
+								}
+							});
+						case "FAIL":
+							console.log("註冊失敗：伺服器不明問題");
+							break;
+					}
+				});
+			}
+		}, (err) => {
+			console.log(err);
+		});
 	}
 	render() {
-		return <p>註冊</p>;
+		if (this.state.justSignUpSuccess) {
+			return (
+				<div>
+					<p>恭喜！{this.state.id}</p>
+					<p>您已經成功註冊，將在五秒內跳轉回首頁</p>
+				</div>
+			);
+		}
+		else if (this.props.appState.login == true) {
+			return (
+				<div>
+					<p>您好！{this.props.appState.id}</p>
+					<p>請先登出再進行註冊</p>
+				</div>
+			);
+		} else {
+			return (
+				<div>
+					<div className="field">
+						<p className="control has-icons-left has-icons-right">
+							<input
+								className="input" placeholder="使用者名稱"
+								value={this.state.id} onChange={this.handleIDChange} />
+							<span className="icon is-small is-left">
+								<i className="fa fa-user-o"></i>
+							</span>
+						</p>
+					</div>
+					<div className="field">
+						<p className="control has-icons-left">
+							<input
+								className="input" type="password" placeholder="密碼"
+								value={this.state.password} onChange={this.handlePasswordChange} />
+							<span className="icon is-small is-left">
+								<i className="fa fa-lock"></i>
+							</span>
+						</p>
+					</div>
+					<div className="field">
+						<p className="control">
+							<button className="button" onClick={this.createUser}>
+								註冊
+							</button>
+						</p>
+					</div>
+					{
+						(() => {
+							switch (this.state.info.status) {
+								case "none":
+									return null;
+								case "error":
+									return (
+										<div className="notification is-danger">
+											<button className="delete" onClick={this.deleteInfo}></button>
+											{this.state.info.message}
+										</div>
+									);
+							}
+						})()
+					}
+				</div>
+			);
+		}
 	}
 }
 

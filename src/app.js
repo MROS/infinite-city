@@ -11,6 +11,12 @@ let app = express();
 
 app.use(morgan("dev"));
 app.use(bodyParser.json());
+app.use(session({
+	secret: "recommand 128 bytes random string",
+	cookie: { maxAge: 60 * 1000 },
+	resave: true,
+	saveUninitialized: true
+}));
 
 app.use(express.static("frontend/static"));
 
@@ -18,13 +24,6 @@ app.use(express.static("frontend/static"));
 app.get(/\/(app\/.*|app)/, function (req, res) {
 	res.sendFile(path.resolve("frontend/static/index.html"));
 });
-
-app.use(session({
-	secret: "recommand 128 bytes random string",
-	cookie: { maxAge: 60 * 1000 },
-	resave: true,
-	saveUninitialized: true
-}));
 
 app.use("/api/user", require("./user/router.js"));
 app.use("/api/board", require("./board/router.js"));

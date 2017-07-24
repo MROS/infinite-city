@@ -7,11 +7,15 @@ async function findUser(query) {
 	return user;
 }
 
+async function userExist(id) {
+	return (await db.User.findOne({ id }).exec());
+}
+
 router.post("/new", async function(req, res) {
 	let query = req.body;
 	let user = null;
 	try {
-		user = await findUser(query);
+		user = await userExist(query.id);
 	} catch(err) {
 		res.send(err);
 	}
@@ -59,6 +63,14 @@ router.get("/logout", async function(req, res) {
 	}
 	else {
 		res.send("尚未登入");
+	}
+});
+
+router.get("/who", async function(req, res) {
+	if(req.session.userId) {
+		res.json({ login: true, id: req.session.userId });
+	} else {
+		res.json({ login: false, id: "" });
 	}
 });
 

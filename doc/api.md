@@ -7,6 +7,8 @@
 		+ { id, password }
 	- GET api/user/logout
 		+ 無其他參數，返回 "OK" 或 "尚未登入"
+	- GET api/user/who
+		+ 返回 { login: bool, id: `${id名稱}` }
 * api/board
 	- GET api/board/rootlist
 		+ 帶參數 max，限制返回陣列最多可以多長
