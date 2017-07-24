@@ -87,7 +87,8 @@ const article_info_schema_t = {
 const user_schema_t = {
 	// id 例如 infinitycity5566
 	"id": { type: String, index: true },
-	"password": { type: String, required: true }
+	"password": { type: String, required: true },
+	"salt": { type: String, required: true },
 };
 
 let board_schema = new Schema(board_schema_t);

@@ -1,14 +1,29 @@
 const db = require("../database.js");
 let router = require("express").Router();
+let crypto = require("crypto");
 
-async function findUser(query) {
-	let [ id, password ] = [ query.id, query.password ];
-	let user = await db.User.findOne({ id, password }).exec();
+async function findUser(id) {
+	let user = await db.User.findOne({ id }).exec();
 	return user;
 }
 
 async function userExist(id) {
 	return (await db.User.findOne({ id }).exec());
+}
+
+
+function encrypt(password, salt) {
+	return crypto.pbkdf2Sync(password, salt, 4096, 256, "sha512").toString("hex");
+}
+function encryptUser(id, password) {
+	return new Promise((resolve, reject) => {
+		crypto.randomBytes(128, function (err, salt) {
+			if(err) reject(err);
+			salt = salt.toString("hex");
+			password = encrypt(password, salt);
+			resolve({ id, password, salt });
+		});
+	});
 }
 
 router.post("/new", async function(req, res) {
@@ -25,10 +40,8 @@ router.post("/new", async function(req, res) {
 	}
 	else {
 		try {
-			await db.User.create({
-				id: query.id,
-				password: query.password
-			});
+			user = await encryptUser(query.id, query.password);
+			await db.User.create(user);
 			req.session.userId = query.id;
 			res.send("OK");
 		} catch(err) {
@@ -40,15 +53,17 @@ router.post("/new", async function(req, res) {
 });
 
 router.post("/login", async function(req, res) {
-	let query = req.body;
+	let { id, password } = req.body;
 	let user = null;
 	try {
-		user = await findUser(query);
+		user = await findUser(id);
 	} catch(err) {
 		res.send(err);
+		console.log(err);
+		return;
 	}
-	if(user) { // 登入成功
-		req.session.userId = user.id;
+	if (user && encrypt(password, user.salt) == user.password) {
+		req.session.userId = id;
 		res.send("OK");
 	}
 	else {
