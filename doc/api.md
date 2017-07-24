@@ -22,11 +22,11 @@
 		+ name: 字串，看板的名字
 		+ parent: 字串，母看板的 id
 		+ rules: 鍵值對
-			1. allowDefineTitle: boolean，預設爲真
-			2. allowDefineContent: boolean，預設爲真
-			3. allowDefineCommentForm: boolean，預設爲真
-			4. allowDefineComment: boolean，預設爲真
-			5. allowDefineArticleForm: boolean，預設爲真
+			1. canDefTitle: boolean，預設爲真
+			2. canDefContent: boolean，預設爲真
+			3. canDefCommentForm: boolean，預設爲真
+			4. canDefComment: boolean，預設爲真
+			5. canDefArticleForm: boolean，預設爲真
 			6. renderTitle 字串，預設爲 null
 			7. renderContent  字串，預設爲 null
 			8. renderCommentForm 字串，預設爲 null

@@ -10,7 +10,7 @@ async function createArticle(arthur, title, board_id, content, form, rules) {
 	let board = await db.Board.findOne({ _id: board_id }).exec();
 	if(!board) throw `${ board_id } 看板不存在`;
 	let new_article = { board: board_id };
-	if(board.allowDefineContent) {
+	if(board.canDefContent) {
 		new_article.renderContent = rules.renderContent;
 	}
 	new_article.arthur = arthur;
