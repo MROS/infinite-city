@@ -24,10 +24,10 @@ mongoose.connect(server.url, server.options)
 
 const board_schema_t = {
 	"isRoot": { type: Boolean, default: false },
-	"mather": {
+	"parent": {
 		type: ObjectId,
 		required: function() {
-			if(this.mather) return false;
+			if(this.parent) return false;
 			else return !this.isRoot;
 		}
 	},

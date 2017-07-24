@@ -24,7 +24,7 @@ async function findRule(board, rules) {
 			if (!rules[key]) rules[key] = board[key];
 		}
 		if (ruleDone(rules) || board.isRoot) break;
-		else board = await findBoard(board.mather);
+		else board = await findBoard(board.parent);
 	}
 }
 

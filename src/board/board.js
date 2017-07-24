@@ -3,29 +3,29 @@ const db = require("../database.js");
 /**
  * @param {String} manager_id 
  * @param {String} name 
- * @param {String} mather_id 
+ * @param {String} parent_id 
  * @param {Object} rules 
  */
-async function createBoard(manager_id, name, mather_id, rules) {
-	let mather = await db.Board.findOne({ _id: mather_id }).exec();
-	if(!mather) throw `${ mather_id } 看板不存在`;
-	let new_board = { mather: mather_id };
-	if(mather.allowDefineTitle) {
+async function createBoard(manager_id, name, parent_id, rules) {
+	let parent = await db.Board.findOne({ _id: parent_id }).exec();
+	if(!parent) throw `${ parent_id } 看板不存在`;
+	let new_board = { parent: parent_id };
+	if(parent.allowDefineTitle) {
 		new_board.renderTitle = rules.renderTitle;
 	}
-	if(mather.allowDefineContent) {
+	if(parent.allowDefineContent) {
 		new_board.renderContent = rules.renderContent;
 	}
-	if(mather.allowDefineForm) {
+	if(parent.allowDefineForm) {
 		new_board.renderCommentForm = rules.renderCommentForm;
 	}
-	if(mather.allowDefineComment) {
+	if(parent.allowDefineComment) {
 		new_board.renderComment = rules.renderComment;
 	}
-	new_board.allowDefineTitle = rules.allowDefineTitle && mather.allowDefineTitle;
-	new_board.allowDefineContent = rules.allowDefineContent && mather.allowDefineContent;
-	new_board.allowDefineForm = rules.allowDefineForm && mather.allowDefineForm;
-	new_board.allowDefineComment = rules.allowDefineComment && mather.allowDefineComment;
+	new_board.allowDefineTitle = rules.allowDefineTitle && parent.allowDefineTitle;
+	new_board.allowDefineContent = rules.allowDefineContent && parent.allowDefineContent;
+	new_board.allowDefineForm = rules.allowDefineForm && parent.allowDefineForm;
+	new_board.allowDefineComment = rules.allowDefineComment && parent.allowDefineComment;
 
 	new_board.name = name;
 	new_board.manager = [manager_id];

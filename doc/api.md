@@ -18,9 +18,9 @@
 		+ 帶參數 max
 		+ 返回 :board 底下所有東西，{ b_list, a_list }
 	- POST api/board/new
-		+ { name, mather, rules }
+		+ { name, parent, rules }
 		+ name: 字串，看板的名字
-		+ mather: 字串，母看板的 id
+		+ parent: 字串，母看板的 id
 		+ rules: 鍵值對
 			1. allowDefineTitle: boolean，預設爲真
 			2. allowDefineContent: boolean，預設爲真

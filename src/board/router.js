@@ -20,7 +20,7 @@ router.get("/list/:board", async function (req, res) {
 		let board_id = req.params.board;
 		console.log(board_id, max);
 		let [b_list, a_list] = await Promise.all([
-			db.Board.find({ mather: board_id }).limit(max).exec(),
+			db.Board.find({ parent: board_id }).limit(max).exec(),
 			db.Article.find({ board: board_id }).limit(max).exec(),
 		]);
 		res.json({ b_list, a_list });
@@ -38,7 +38,7 @@ router.post("/new", async function(req, res) {
 		}
 		else {
 			let query = req.body;
-			await createBoard(userId, query.name, query.mather, query.rules);
+			await createBoard(userId, query.name, query.parent, query.rules);
 			res.send("OK");
 		}
 	} catch(err) {
