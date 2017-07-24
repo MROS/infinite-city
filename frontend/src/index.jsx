@@ -108,10 +108,10 @@ class App extends React.Component {
 					<div className="container" style={{marginTop: "65px", width: "420px"}}>
 						<Switch>
 							<Route exact path="/" render={(props) => (
-								<BoardList appState={this.state} {...props} />
+								<Board appState={this.state} {...props} />
 							)} />
 							<Route exact path="/app/" render={(props) => (
-								<BoardList appState={this.state} {...props} />
+								<Board appState={this.state} {...props} />
 							)} />
 							<Route exact path="/app/login" render={(props) => (
 								<Login appState={this.state} changeLoginState={this.changeLoginState} {...props} />
@@ -133,18 +133,22 @@ class App extends React.Component {
 	}
 }
 
-class BoardList extends React.Component {
+class Board extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			boards: []
+			showSource: false,
+			creatingAritcle: false,
+			boards: [],
+			articles: [],
+			showBoard: false,
+			showArticle: false,
 		};
-		this.createBoard = this.createBoard.bind(this);
 	}
 	componentDidMount() {
-		this.getBoards();
+		this.getBoardsAndArticles();
 	}
-	getBoards() {
+	getBoardsAndArticles() {
 		// TODO: AJAX
 		this.setState({
 			boards: [
@@ -152,48 +156,7 @@ class BoardList extends React.Component {
 				"高雄", "清大", "JavaScript", "翻譯", "軍旅", "省錢", "腳踏車",
 				"電影", "教科書解答", "Lisp", "大露營", "以太坊", "筆電", "經濟學",
 				"詩", "料理", "戀愛", "科幻", "書評", "求職", "代數", "創作"
-			]
-		});
-	}
-	createBoard() {
-		console.log("創建新版");
-		return;
-	}
-	render() {
-		return (
-			<div>
-				<a className="button"
-					style={{ marginBottom: "25px" }}
-					onClick={this.createBoard}>
-					創建新板
-				</a>
-				{this.state.boards.map((board) => {
-					return (
-						<div key={board}>
-							<Link to={"/app/b/" + board}>{board}</Link>
-						</div>
-					);
-				})}
-			</div>
-		);
-	}
-}
-
-class Board extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			showSource: false,
-			creatingAritcle: false,
-			articles: []
-		};
-	}
-	componentDidMount() {
-		this.getArticles();
-	}
-	getArticles() {
-		// TODO: AJAX
-		this.setState({
+			],
 			articles: [
 				"獵人真人版也該出來了吧？",
 				"大家有在玩 bonbon 嗎？",
@@ -216,12 +179,17 @@ class Board extends React.Component {
 				<h5 className="title is-5">{`歡迎來到「${match.params.boardName}」板！！`}</h5>
 				<div>
 					<a className={this.state.creatingAritcle ? "button is-primary" : "button"}
-						style={{ marginBottom: "25px", marginRight: "12px" }}
+						style={{ marginBottom: "15px", marginRight: "12px" }}
 						onClick={() => {this.setState({creatingAritcle: !this.state.creatingAritcle});}}>
 						發文
 					</a>
+					<a className="button"
+						style={{ marginBottom: "15px", marginRight: "12px" }}
+						onClick={this.createBoard}>
+						創建新板
+					</a>
 					<a className={this.state.showSource ? "button is-primary" : "button"}
-						style={{ marginBottom: "25px" }}
+						style={{ marginBottom: "15px" }}
 						onClick={() => {this.setState({showSource: !this.state.showSource});}}>
 						觀看看板源碼
 					</a>
@@ -234,21 +202,62 @@ class Board extends React.Component {
 							}
 						})()
 					}
+				</div>
+				<div style={{marginBottom: "30px"}}>
 					{
 						(() => {
 							if (this.state.creatingAritcle) {
-								return <input className="input" type="textarea" placeholder="文章內容..." />;
+								return <textarea className="textarea" placeholder="文章內容..." />;
 							}
 						})()
 					}
 				</div>
-				{this.state.articles.map((article) => {
-					return (
-						<div key={article}>
-							<Link to={location.pathname + "/a/" + article}>{article}</Link>
-						</div>
-					);
-				})}
+				<div style={{marginBottom: "30px"}}>
+					<h5 className="title is-5">
+						<span>看板 </span>
+						<a onClick={() => {this.setState({showBoard: !this.state.showBoard});}}>
+							{this.state.showBoard ? "收起" : "展開"}
+						</a>
+					</h5>
+					{
+						(() => {
+							if (this.state.showBoard) {
+								return this.state.boards.map((board) => {
+									return (
+										<div key={board}>
+											<Link to={"/app/b/" + board}>{board}</Link>
+										</div>
+									);
+								});
+							} else {
+								return;
+							}
+						})()
+					}
+				</div>
+				<div style={{marginBottom: "30px"}}>
+					<h5 className="title is-5">
+						<span>文章 </span>
+						<a onClick={() => {this.setState({showArticle: !this.state.showArticle});}}>
+							{this.state.showArticle ? "收起" : "展開"}
+						</a>
+					</h5>
+					{
+						(() => {
+							if (this.state.showArticle) {
+								return this.state.articles.map((article) => {
+									return (
+										<div key={article}>
+											<Link to={location.pathname + "/a/" + article}>{article}</Link>
+										</div>
+									);
+								});
+							} else {
+								return;
+							}
+						})()
+					}
+				</div>
 			</div>
 		);
 	}
