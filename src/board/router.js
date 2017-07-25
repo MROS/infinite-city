@@ -1,29 +1,44 @@
 const db = require("../database.js");
 let router = require("express").Router();
 
-let { createBoard } = require("./board.js");
+let { createBoard, getRootId, recursiveGetBoard } = require("./board.js");
 
-router.get("/rootlist", async function(req, res) {
-	let max = 10 || Number(req.query.max);
-	let root_id = "";
+router.get("/browse", async function(req, res) {
 	try {
-		root_id = (await db.Board.findOne({ isRoot: true }, { _id: 1 }).lean().exec())._id;
-		res.redirect(`${req.baseUrl}/list/${root_id}?max=${max}`);
+		let max = Number(req.query.max) || 10;
+		let name = [];
+		if (req.query.name) name = req.query.name.split(",");
+		let root_id = req.query.base;
+		if (!root_id) root_id = await getRootId();
+
+		let board_id = await recursiveGetBoard(root_id, name, 0);
+		res.redirect(`${req.baseUrl}/list/${board_id}?max=${max}`);
 	} catch (err) {
+		res.status(400).send(err.message);
 		console.log(err);
 	}
 });
 
+/*router.get("/rootlist", async function(req, res) {
+	let max = Number(req.query.max) || 10;
+	let root_id = "";
+	try {
+		root_id = await getRootId();
+		res.redirect(`${req.baseUrl}/list/${root_id}?max=${max}`);
+	} catch (err) {
+		console.log(err);
+	}
+})*/
+
 router.get("/list/:board", async function (req, res) {
 	try {
-		let max = 10 || Number(req.query.max);
+		let max = Number(req.query.max) || 10;
 		let board_id = req.params.board;
-		console.log(board_id, max);
 		let [b_list, a_list] = await Promise.all([
 			db.Board.find({ parent: board_id }).limit(max).exec(),
 			db.Article.find({ board: board_id }).limit(max).exec(),
 		]);
-		res.json({ b_list, a_list });
+		res.json({ b_list, a_list, board_id });
 	} catch (err) {
 		// console.log(err);
 		res.send("FAIL");

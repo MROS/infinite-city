@@ -37,6 +37,17 @@ async function createBoard(manager_id, name, parent_id, articleForm, rules) {
 	await db.Board.create(new_board);
 }
 
+async function getRootId() {
+	return (await db.Board.findOne({ isRoot: true }, { _id: 1 }).lean().exec())._id;
+}
+
+async function recursiveGetBoard(id, name, depth=0) {
+	if(depth == name.length) return id;
+	let next_b = await (db.Board.findOne({ name: name[depth], parent: id }).lean().exec());
+	if(!next_b) throw `找不到看板 ${name[depth]}`;
+	return await recursiveGetBoard(next_b._id, name, depth+1);
+}
+
 module.exports = {
-	createBoard
+	createBoard, getRootId, recursiveGetBoard
 };
