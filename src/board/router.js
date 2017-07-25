@@ -35,8 +35,8 @@ router.get("/list/:board", async function (req, res) {
 		let max = Number(req.query.max) || 10;
 		let board_id = req.params.board;
 		let [b_list, a_list] = await Promise.all([
-			db.Board.find({ parent: board_id }).limit(max).exec(),
-			db.Article.find({ board: board_id }).limit(max).exec(),
+			db.Board.find({ parent: board_id }).sort({ date: -1 }).limit(max).exec(),
+			db.Article.find({ board: board_id }).sort({ date: -1 }).limit(max).exec(),
 		]);
 		res.json({ b_list, a_list, board_id });
 	} catch (err) {

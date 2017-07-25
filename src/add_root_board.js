@@ -5,6 +5,10 @@ let root = {
 	manager: [],
 	name: "無限城",
 
+	canRestrictBoard: true,
+	canRestrictPost: true,
+	canRestrictComment: true,
+
 	renderTitle: "function(article, info) {"
 	+ "return <h3>[{info.push}]{article.title}</h3>;"
 	+ "}",

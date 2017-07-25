@@ -1,5 +1,21 @@
 const db = require("../database.js");
 
+// TODO:
+async function getNewBoardRestrict() {
+}
+
+/**
+ * @param {Board} board 
+ * @param {Board} parent 
+ * @param {Object} rules
+ * @param {String} can_key 
+ * @param {String} rule_key
+ */
+function setRule(board, parent, rules, can_key, rule_key) {
+	if(parent[can_key]) board[rule_key] = rules[rule_key];
+	board[can_key] = rules[can_key] && parent[can_key];
+}
+
 /**
  * @param {String} manager_id 
  * @param {String} name 
@@ -10,30 +26,26 @@ async function createBoard(manager_id, name, parent_id, articleForm, rules) {
 	let parent = await db.Board.findOne({ _id: parent_id }).exec();
 	if(!parent) throw `${ parent_id } 看板不存在`;
 	let new_board = { parent: parent_id };
-	if(parent.canDefTitle) {
-		new_board.renderTitle = rules.renderTitle;
-	}
-	if(parent.canDefContent) {
-		new_board.renderContent = rules.renderContent;
-	}
-	if(parent.canDefCommentForm) {
-		new_board.renderCommentForm = rules.renderCommentForm;
-	}
-	if(parent.canDefComment) {
-		new_board.renderComment = rules.renderComment;
-	}
-	if(parent.canDefArticleForm) {
-		new_board.renderArticleForm = rules.renderArticleForm;
-	}
-	new_board.canDefTitle = rules.canDefTitle && parent.canDefTitle;
-	new_board.canDefContent = rules.canDefContent && parent.canDefContent;
-	new_board.canDefCommentForm = rules.canDefCommentForm && parent.canDefCommentForm;
-	new_board.canDefComment = rules.canDefComment && parent.canDefComment;
-	new_board.canDefArticleForm = rules.canDefArticleForm && parent.canDefArticleForm;
+
+	setRule(new_board, parent, rules, "canDefTitle", "renderTitle");
+	setRule(new_board, parent, rules, "canDefCommentForm", "renderCommentForm");
+	setRule(new_board, parent, rules, "canDefContent", "renderContent");
+	setRule(new_board, parent, rules, "canDefArticleForm", "renderArticleForm");
+	setRule(new_board, parent, rules, "canDefTitle", "renderTitle");
+
+	setRule(new_board, parent, rules, "canRestrictBoard", "onNewBoard");
+	setRule(new_board, parent, rules, "canRestrictPost", "onPost");
+	setRule(new_board, parent, rules, "canRestrictComment", "onComment");
 
 	new_board.name = name;
 	new_board.manager = [manager_id];
 	new_board.articleForm = articleForm;
+
+	if(parent.onNewBoard) {
+		let restrictFunc = eval("(" + parent.onNewBoard + ")");
+		restrictFunc(new_board);
+	}
+
 	await db.Board.create(new_board);
 }
 

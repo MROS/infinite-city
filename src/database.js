@@ -24,6 +24,7 @@ mongoose.connect(server.url, server.options)
 
 const board_schema_t = {
 	"isRoot": { type: Boolean, default: false },
+	"date": { type: Date, default: Date.now() },
 	"parent": {
 		type: ObjectId,
 		required: function() {
@@ -33,19 +34,27 @@ const board_schema_t = {
 	},
 	"name": { type: String, required: true },
 
-	// 以下幾個其實是函數，這個板下所有的文章標題/文章／回應／回應表格都要經過它們來渲染
 	"renderTitle": { type: String, default: null },
 	"renderContent": { type: String, default: null },
 	"renderCommentForm": { type: String, default: null },
 	"renderComment": { type: String, default: null },
 	"renderArticleForm": { type: String, default: null },
+	// 以上幾個其實是函數，這個板下所有的文章標題/文章／回應／回應表格都要經過它們來渲染
 
-	"canDefineTitle": { type: Boolean, default: true }, // 允許子板定義「渲染標題」
+	"canDefTitle": { type: Boolean, default: true }, // 允許子板定義「渲染標題」
 	"canDefContent": { type: Boolean, default: true }, // 允許子板定義「渲染內文」
 	"canDefCommentForm": { type: Boolean, default: true }, // 允許子板定義「渲染回應表單」
 	"canDefComment": { type: Boolean, default: true }, // 允許子板「和文章」定義「渲染回應」
 	"canDefArticleForm": { type: Boolean, default: true }, // 允許子板「和文章」定義「渲染回應」
 	// 若禁止定義，則內文或子板就只能定義 content 和 commentForm，由板面定義的函數來渲染
+
+	"onNewBoard": { type: String, default: null }, // 創立子板時在「後端」進行的檢查
+	"onPost": { type: String, default: null }, // 提交文章時在「後端」進行的檢查
+	"onComment": { type: String, default: null }, // 提交留言時在「後端」進行的檢查
+
+	"canRestrictBoard": { type: Boolean, default: false }, // 允許子板自行限制創板
+	"canRestrictPost": { type: Boolean, default: false },
+	"canRestrictComment": { type: Boolean, default: false },
 
 	"manager": { // 板主名單
 		type: [String],
@@ -62,16 +71,18 @@ const board_schema_t = {
 const article_schema_t = {
 	"title": { type: String, required: true },
 	"board": { type: ObjectId, required: true },
-	"date": { type: Date, default: Date.now },
+	"date": { type: Date, default: Date.now() },
 	"arthur": String, // 若是匿名看板，可以無作者
 
 	// 其實是函數，這篇文章下的回應都要經過它來渲染
 	"renderComment": {type: String, default: null},
 
+	"onComment": { type: String, default: null }, // 提交留言時在「後端」進行的檢查
+
 	// 底下開始是文章真正的資料
 	"content": { type: [String], required: true }, // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
 	"commentForm": { type: [String], required: true }, // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
-	"comment": { type: [String], default: [] }, // 其實是函數
+	"comment": { type: [String], default: [] }, // 其實可以是函數
 };
 
 // 用來儲存板主自定義，不該被文章作者（任意）修改到的東西
@@ -82,6 +93,14 @@ const article_info_schema_t = {
 	"anonymous": { type: Number, default: 0 },
 	// 推文
 	"push": { type: Number, default: 0 },
+};
+
+const comment_schema_t = {
+	"article": { type: ObjectId, required: true },
+	"date": { type: Date, default: Date.now() },
+	"arthur": String,
+
+	"msg": { type: [String] } // 其實可以是函數
 };
 
 const user_schema_t = {
@@ -97,6 +116,9 @@ let Board = mongoose.model("Board", board_schema);
 let article_schema = new Schema(article_schema_t);
 let Article = mongoose.model("Article", article_schema);
 
+let comment_schema = new Schema(comment_schema_t);
+let Comment = mongoose.model("Article", comment_schema);
+
 let user_schema = new Schema(user_schema_t);
 let User = mongoose.model("User", user_schema);
 
@@ -106,6 +128,7 @@ let ArticleInfo = mongoose.model("ArticleInfo", article_info_schema);
 module.exports = {
 	Board,
 	Article,
+	Comment,
 	ArticleInfo,
 	User,
 };
