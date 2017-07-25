@@ -18,6 +18,10 @@ app.use(session({
 	saveUninitialized: true
 }));
 
+app.get("/", function (req, res) {
+	res.redirect("/app");
+});
+
 app.use(express.static("frontend/static"));
 
 // NOTE: 首頁一樣會因爲 express.static 而回傳 index.html

@@ -74,10 +74,10 @@ class App extends React.Component {
 						<div className="container" style={{ width: "60%" }}>
 							<nav className="navbar">
 								<div className="navbar-brand">
-									<Link to="/" className="navbar-item">
+									<Link to="/app" className="navbar-item">
 										<h3 className="title is-3">無限城</h3>
 									</Link>
-									<Link to="/" className="navbar-item">
+									<Link to="/app" className="navbar-item">
 										首頁
 									</Link>
 								</div>
@@ -107,22 +107,16 @@ class App extends React.Component {
 					</div>
 					<div className="container" style={{marginTop: "65px", width: "420px"}}>
 						<Switch>
-							<Route exact path="/" render={(props) => (
-								<Board appState={this.state} {...props} />
-							)} />
-							<Route exact path="/app/" render={(props) => (
-								<Board appState={this.state} {...props} />
-							)} />
 							<Route exact path="/app/login" render={(props) => (
 								<Login appState={this.state} changeLoginState={this.changeLoginState} {...props} />
 							)} />
 							<Route exact path="/app/signUp" render={(props) => (
 								<SignUp appState={this.state} changeLoginState={this.changeLoginState} {...props} />
 							)} />
-							<Route exact path="/app/b/:boardName" render={(props) => (
+							<Route exact path="/app(/b/[^/]+)*" render={(props) => (
 								<Board appState={this.state} {...props} />
 							)} />
-							<Route path="/app/b/:boardName/a/:articleName" render={(props) => (
+							<Route path="/app(/b/[^/]+)*/a/:articleName" render={(props) => (
 								<Article appState={this.state} {...props} />
 							)} />
 						</Switch>
@@ -170,13 +164,32 @@ class Board extends React.Component {
 			]
 		});
 	}
+	countPath() {
+		const urlPath = this.props.location.pathname;
+		const path = urlPath.split("/").slice(2).filter((ele, index) => index % 2 == 1);
+		return path;
+	}
 	render() {
-		const match = this.props.match;
 		const location = this.props.location;
 		return (
 			<div>
-				<Link to="/">回看板列表</Link>
-				<h5 className="title is-5">{`歡迎來到「${match.params.boardName}」板！！`}</h5>
+				<div style={{fontSize: "24px", marginBottom: "30px"}}>
+					當前看板：
+					{
+						(() => {
+							let urlPath = "/app";
+							let result = [
+								<Link to={urlPath}><span>根</span></Link>
+							];
+							for (let boardName of this.countPath()) {
+								urlPath += `/b/${boardName}`;
+								result.push(<span> / </span>);
+								result.push(<Link to={urlPath}><span>{boardName}</span></Link>);
+							}
+							return result;
+						})()
+					}
+				</div>
 				<div>
 					<a className={this.state.creatingAritcle ? "button is-primary" : "button"}
 						style={{ marginBottom: "15px", marginRight: "12px" }}
@@ -225,7 +238,7 @@ class Board extends React.Component {
 								return this.state.boards.map((board) => {
 									return (
 										<div key={board}>
-											<Link to={"/app/b/" + board}>{board}</Link>
+											<Link to={location.pathname + "/b/" + board}>{board}</Link>
 										</div>
 									);
 								});
