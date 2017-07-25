@@ -12,6 +12,8 @@ router.get("/browse", async function(req, res) {
 		if (!root_id) root_id = await getRootId();
 
 		let board_id = await recursiveGetBoard(root_id, name, 0);
+		// TODO: 重導向降低效能，直接返回結果即可。
+		// 重複程式碼就抽出處理吧
 		res.redirect(`${req.baseUrl}/list/${board_id}?max=${max}`);
 	} catch (err) {
 		res.status(400).send(err.message);

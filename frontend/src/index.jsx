@@ -127,12 +127,111 @@ class App extends React.Component {
 	}
 }
 
+class CreateArticle extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+	render() {
+		return (
+			<div className="field">
+				<label className="label">文章標題</label>
+				<div className="control">
+					<input className="input" type="text" placeholder="看板名稱" />
+				</div>
+				<label className="label">文章內容</label>
+				<div className="control">
+					<textarea className="textarea" placeholder="文章內容" />
+				</div>
+			</div>
+		);
+	}
+}
+
+class CreateBoard extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+	render() {
+		return (
+			<div>
+				<div className="field">
+					<label className="label">看板名稱</label>
+					<div className="control">
+						<input className="input" type="text" placeholder="看板名稱" />
+					</div>
+				</div>
+				<div className="field">
+					<label className="checkbox">
+						<input type="checkbox" />
+						可定義標題
+					</label>
+				</div>
+				<div className="field">
+					<label className="checkbox">
+						<input type="checkbox" />
+						可定義文章內容
+					</label>
+				</div>
+				<div className="field">
+					<label className="checkbox">
+						<input type="checkbox" />
+						可定義文章表單
+					</label>
+				</div>
+				<div className="field">
+					<label className="checkbox">
+						<input type="checkbox" />
+						可定義留言
+					</label>
+				</div>
+				<div className="field">
+					<label className="checkbox">
+						<input type="checkbox" />
+						可定義留言表單
+					</label>
+				</div>
+				<div className="field">
+					<label className="label">標題渲染函式</label>
+					<div className="control">
+						<textarea className="textarea" placeholder="標題渲染函式" />
+					</div>
+				</div>
+				<div className="field">
+					<label className="label">文章內容渲染函式</label>
+					<div className="control">
+						<textarea className="textarea" placeholder="標題渲染函式" />
+					</div>
+				</div>
+				<div className="field">
+					<label className="label">文章表單渲染函式</label>
+					<div className="control">
+						<textarea className="textarea" placeholder="文章表單渲染函式" />
+					</div>
+				</div>
+				<div className="field">
+					<label className="label">留言渲染函式</label>
+					<div className="control">
+						<textarea className="textarea" placeholder="留言渲染函式" />
+					</div>
+				</div>
+				<div className="field">
+					<label className="label">留言表單渲染函式</label>
+					<div className="control">
+						<textarea className="textarea" placeholder="留言表單渲染函式" />
+					</div>
+				</div>
+			</div>
+		);
+	}
+}
+
 class Board extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			showSource: false,
 			creatingAritcle: false,
+			creatingBoard: false,
 			boards: [],
 			articles: [],
 			showBoard: false,
@@ -190,15 +289,15 @@ class Board extends React.Component {
 						})()
 					}
 				</div>
-				<div>
+				<div style={{ marginBottom: "30px" }}>
 					<a className={this.state.creatingAritcle ? "button is-primary" : "button"}
 						style={{ marginBottom: "15px", marginRight: "12px" }}
 						onClick={() => {this.setState({creatingAritcle: !this.state.creatingAritcle});}}>
 						發文
 					</a>
-					<a className="button"
+					<a className={this.state.creatingBoard ? "button is-primary" : "button"}
 						style={{ marginBottom: "15px", marginRight: "12px" }}
-						onClick={this.createBoard}>
+						onClick={() => {this.setState({creatingBoard: !this.state.creatingBoard});}}>
 						創建新板
 					</a>
 					<a className={this.state.showSource ? "button is-primary" : "button"}
@@ -207,24 +306,41 @@ class Board extends React.Component {
 						觀看看板源碼
 					</a>
 				</div>
-				<div style={{marginBottom: "30px"}}>
-					{
-						(() => {
-							if (this.state.showSource) {
-								return <p>源碼</p>;
-							}
-						})()
-					}
-				</div>
-				<div style={{marginBottom: "30px"}}>
-					{
-						(() => {
-							if (this.state.creatingAritcle) {
-								return <textarea className="textarea" placeholder="文章內容..." />;
-							}
-						})()
-					}
-				</div>
+				{
+					(() => {
+						if (this.state.creatingAritcle) {
+							return (
+								<div className="box" style={{ marginBottom: "30px" }}>
+									<h4 className="title is-4">發文</h4>
+									<CreateArticle />
+								</div>
+							);
+						}
+					})()
+				}
+				{
+					(() => {
+						if (this.state.creatingBoard) {
+							return (
+								<div className="box" style={{ marginBottom: "30px" }}>
+									<h4 className="title is-4">創建新版</h4>
+									<CreateBoard />
+								</div>
+							);
+						}
+					})()
+				}
+				{
+					(() => {
+						if (this.state.showSource) {
+							return (
+								<div style={{ marginBottom: "30px" }}>
+									<p>源碼</p>
+								</div>
+							);
+						}
+					})()
+				}
 				<div style={{marginBottom: "30px"}}>
 					<h5 className="title is-5">
 						<span>看板 </span>
