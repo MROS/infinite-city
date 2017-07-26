@@ -10,9 +10,10 @@
 	- GET api/user/who
 		+ 返回 { login: bool, id: `${id名稱}` }
 * api/board
-	- GET browse?base=?max=?name=?,?,?,...
-		+ 從某個基準看板（base）開始，往下根據名字（可爲中文那個）查找看板
-		+ 帶參數 max，限制返回陣列最多可以多長
+	- GET api/board/browse?base=?&max=?&name=?,?,?,...
+		+ 從某個基準看板（base）開始，往下根據名字（可爲中文）查找看板
+		+ 例如：api/board/browse?base=595cb098f549af236588f88d&max=50&name=運動類,中華職棒,爪爪板
+		+ 帶參數 max，限制返回陣列最多可以多長，預設爲10
 		+ 帶參數 base，爲亂碼 _id，預設爲根看板
 		+ 返回根看板下的所有東西，{ b_list, a_list, board_id }
 		+ a_list 爲文章列表， b_list 爲看板列表，board_id 爲此看板的亂碼 _id
@@ -40,6 +41,8 @@
 			13. onPost: [{ mustObey: boolean, rule: String}] 發文時在後端做的檢查
 			14. onComment: [{ mustObey: boolean, rule: String}] 推文時在後端做的檢查
 				* 11~14 的 mustObey 意指子板或文章是否需要遵循相同標準
+				* 舉例而言，一則推文必須經過 onComment 陣列中每個 rule 檢查，才能進入資料庫
+				* 舉例而言，若在 onEnterBoard 中加入 { mustObey: true, rule: 勃起王禁止進入 } 則這個板及其所有子板都會排擠可憐的勃起王
 		+ 返回 OK
 * api/article
 	- POST api/article/new
