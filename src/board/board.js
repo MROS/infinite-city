@@ -1,9 +1,5 @@
 const db = require("../database.js");
 
-// TODO:
-async function getNewBoardRestrict() {
-}
-
 /**
  * @param {Board} board 
  * @param {Board} parent 
@@ -14,6 +10,15 @@ async function getNewBoardRestrict() {
 function setRule(board, parent, rules, can_key, rule_key) {
 	if(parent[can_key]) board[rule_key] = rules[rule_key];
 	board[can_key] = rules[can_key] && parent[can_key];
+}
+// TODO: 這種做法，如果上層改了限制，下層不會被繼承，應該修改！
+function setRestrict(board, parent, rules, key) {
+	board[key] = rules[key] || [];
+	for(let restrict of parent[key]) {
+		if(restrict.mustObey) {
+			board[key].push(board);
+		}
+	}
 }
 
 /**
@@ -33,16 +38,17 @@ async function createBoard(manager_id, name, parent_id, articleForm, rules) {
 	setRule(new_board, parent, rules, "canDefArticleForm", "renderArticleForm");
 	setRule(new_board, parent, rules, "canDefTitle", "renderTitle");
 
-	setRule(new_board, parent, rules, "canRestrictBoard", "onNewBoard");
-	setRule(new_board, parent, rules, "canRestrictPost", "onPost");
-	setRule(new_board, parent, rules, "canRestrictComment", "onComment");
+	setRestrict(new_board, parent, rules, "onNewBoard");
+	setRestrict(new_board, parent, rules, "onEnterBoard");
+	setRestrict(new_board, parent, rules, "onPost");
+	setRestrict(new_board, parent, rules, "onComment");
 
 	new_board.name = name;
 	new_board.manager = [manager_id];
 	new_board.articleForm = articleForm;
 
-	if(parent.onNewBoard) {
-		let restrictFunc = eval("(" + parent.onNewBoard + ")");
+	for(let on_new_board of parent.onNewBoard) {
+		let restrictFunc = eval("(" + on_new_board.rule + ")");
 		restrictFunc(new_board);
 	}
 

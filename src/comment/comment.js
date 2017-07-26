@@ -1,10 +1,5 @@
 const db = require("../database.js");
 
-// TODO:
-async function getCommentRestrict() {
-
-}
-
 async function createComment(author_id, article_id, msg) {
 	let article = await db.Board.findOne({ _id: article }).exec();
 	if(!article) throw `${ article } 看板不存在`;
@@ -13,8 +8,8 @@ async function createComment(author_id, article_id, msg) {
 		author: author_id,
 		msg: msg,
 	};
-	if(article.onComment) {
-		let restrictFunc = eval("(" + article.onComment + ")");
+	for(let on_comment of article.onComment) {
+		let restrictFunc = eval("(" + on_comment.rule + ")");
 		restrictFunc(new_comment);
 	}
 	db.Comment.create(new_comment);

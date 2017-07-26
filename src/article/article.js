@@ -1,10 +1,5 @@
 const db = require("../database.js");
 
-// TODO:
-async function getPostRestrict() {
-
-}
-
 /**
  * @param {String} author
  * @param {String} title 
@@ -16,16 +11,25 @@ async function createArticle(author, title, board_id, content, form, rules) {
 	if(!board) throw `${ board_id } 看板不存在`;
 
 	let new_article = { board: board_id };
+
 	if(board.canDefContent) {
 		new_article.renderContent = rules.renderContent;
 	}
+
+	// TODO: 這種做法，如果上層改了限制，下層不會被繼承，應該修改！
+	new_article.onComment = rules.onComment;
+	for(let on_comment of board.onComment) {
+		if(on_comment.mustObey) this.onComment.push(on_comment);
+	}
+
 	new_article.author = author;
 	new_article.title = title;
 	new_article.content = content;
 	new_article.commentForm = form;
 
-	if(board.onArticle) {
-		let restrictFunc = eval("(" + board.onArticle + ")");
+
+	for(let on_post of board.onPost) {
+		let restrictFunc = eval("(" + on_post.rule + ")");
 		restrictFunc(new_article); // 可能會丟出錯誤
 	}
 
