@@ -117,7 +117,7 @@ let article_schema = new Schema(article_schema_t);
 let Article = mongoose.model("Article", article_schema);
 
 let comment_schema = new Schema(comment_schema_t);
-let Comment = mongoose.model("Article", comment_schema);
+let Comment = mongoose.model("Comment", comment_schema);
 
 let user_schema = new Schema(user_schema_t);
 let User = mongoose.model("User", user_schema);
