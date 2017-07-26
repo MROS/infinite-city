@@ -160,7 +160,7 @@ class CreateBoard extends React.Component {
 		this.RenderFunction = [
 			{ display: "標題渲染函式", name: "renderTitle" },
 			{ display: "文章內容渲染函式", name: "renderContent" },
-			{ display: "發文表單渲染函式", name: "renderArticleForm" },
+			{ display: "發文表單渲染函式", name: "renderArti key={urlPath}cleForm" },
 			{ display: "留言渲染函式", name: "renderComment" },
 			{ display: "留言表單渲染函式", name: "renderCommentForm" },
 		];
@@ -175,6 +175,7 @@ class CreateBoard extends React.Component {
 		});
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.handleNameChange = this.handleNameChange.bind(this);
+		this.handleOnSubmit = this.handleOnSubmit.bind(this);
 	}
 	handleInputChange(event) {
 		const target = event.target;
@@ -192,6 +193,10 @@ class CreateBoard extends React.Component {
 			name: event.target.value
 		});
 	}
+	handleOnSubmit() {
+		let { name, rules } = this.state;
+		this.props.newBoard({ name, rules });
+	}
 	render() {
 		return (
 			<div>
@@ -208,7 +213,7 @@ class CreateBoard extends React.Component {
 								return (
 									<div key={option.name} className="field">
 										<label className="checkbox">
-											<input onChange={this.handleInputChange} defaultChecked={this.state[[option.name]]} name={option.name} type="checkbox" />
+											<input onChange={this.handleInputChange} defaultChecked={this.state.rules[[option.name]]} name={option.name} type="checkbox" />
 											{option.display}
 										</label>
 									</div>
@@ -238,7 +243,7 @@ class CreateBoard extends React.Component {
 				}
 				<div className="field">
 					<div className="control">
-						<button className="button is-primary">送出</button>
+						<button onClick={this.handleOnSubmit} className="button is-primary">送出</button>
 					</div>
 				</div>
 			</div>
@@ -258,6 +263,7 @@ class Board extends React.Component {
 			showBoard: false,
 			showArticle: false,
 		};
+		this.newBoard = this.newBoard.bind(this);
 	}
 	countPath() {
 		const urlPath = this.props.location.pathname;
@@ -267,14 +273,14 @@ class Board extends React.Component {
 	componentDidMount() {
 		this.getBoardData();
 	}
-	getBoardData() {
-		let url;
-		const path = this.countPath();
-		if (path.length == 0) {
-			url = "/api/board/browse";
-		} else {
-			url = `/api/board/browse?name=${this.countPath().join(",")}`;
+	componentDidUpdate(prevProps, prevState) {
+		if (prevProps.location.pathname != this.props.location.pathname) {
+			this.getBoardData();
 		}
+	}
+	getBoardData() {
+		const path = this.countPath();
+		const url = (path.length == 0) ? "/api/board/browse" : `/api/board/browse?name=${path.join(",")}`;
 		fetch(url, {
 			credentials: "same-origin"
 		}).then((res) => {
@@ -296,10 +302,44 @@ class Board extends React.Component {
 					}
 				});
 			} else {
-				console.log("AJAX失敗，取得看板資料失敗");
+				console.log("取得看板資料：非正常失敗");
 			}
 		}, (err) => {
-			console.log(`登出失敗：${err}`);
+			console.log("AJAX失敗，取得看板資料失敗");
+		});
+	}
+	newBoard(boardDefinition) {
+		fetch("/api/board/new", {
+			method: "POST",
+			credentials: "same-origin",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				parent: this.boardID,
+				name: boardDefinition.name,
+				rules: boardDefinition.rules,
+			})
+		}).then((res) => {
+			if (res.ok) {
+				res.text().then((data) => {
+					switch (data) {
+						case "FAIL":
+							console.log("創建看板失敗");
+							break;
+						case "OK":
+							console.log("創建看板成功");
+							break;
+						case "尚未登入":
+							console.log("尚未登入");
+							break;
+					}
+				});
+			} else {
+				console.log("創建看板：非正常失敗");
+			}
+		}, (err) => {
+			console.log("AJAX失敗，創建看板失敗");
 		});
 	}
 	render() {
@@ -316,8 +356,8 @@ class Board extends React.Component {
 							];
 							for (let boardName of this.countPath()) {
 								urlPath += `/b/${boardName}`;
-								result.push(<span> / </span>);
-								result.push(<Link to={urlPath}><span>{boardName}</span></Link>);
+								result.push(<span key={urlPath + "/"}> / </span>);
+								result.push(<Link key={urlPath} to={urlPath}><span>{boardName}</span></Link>);
 							}
 							return result;
 						})()
@@ -358,7 +398,7 @@ class Board extends React.Component {
 							return (
 								<div className="box" style={{ marginBottom: "30px" }}>
 									<h4 className="title is-4">創建新版</h4>
-									<CreateBoard />
+									<CreateBoard newBoard={this.newBoard} />
 								</div>
 							);
 						}
