@@ -150,6 +150,47 @@ class CreateArticle extends React.Component {
 class CreateBoard extends React.Component {
 	constructor(props) {
 		super(props);
+		this.CanDefine = [
+			{ display: "可定義標題", name: "canDefTitle" },
+			{ display: "可定義文章內容", name: "canDefContent" },
+			{ display: "可定義文章表單", name: "canDefArticleForm" },
+			{ display: "可定義留言", name: "canDefComment" },
+			{ display: "可定義留言表單", name: "canDefCommentForm" },
+		];
+		this.RenderFunction = [
+			{ display: "標題渲染函式", name: "renderTitle" },
+			{ display: "文章內容渲染函式", name: "renderContent" },
+			{ display: "發文表單渲染函式", name: "renderArticleForm" },
+			{ display: "留言渲染函式", name: "renderComment" },
+			{ display: "留言表單渲染函式", name: "renderCommentForm" },
+		];
+		this.state = {
+			rules: {}
+		};
+		this.CanDefine.forEach((option) => {
+			this.state.rules[[option.name]] = true;
+		});
+		this.RenderFunction.forEach((option) => {
+			this.state.rules[[option.name]] = null;
+		});
+		this.handleInputChange = this.handleInputChange.bind(this);
+		this.handleNameChange = this.handleNameChange.bind(this);
+	}
+	handleInputChange(event) {
+		const target = event.target;
+		const value = target.type === "checkbox" ? target.checked : target.value;
+		const name = target.name;
+
+		this.setState({
+			rules: {
+				[name]: value
+			}
+		});
+	}
+	handleNameChange(event) {
+		this.setState({
+			name: event.target.value
+		});
 	}
 	render() {
 		return (
@@ -157,67 +198,47 @@ class CreateBoard extends React.Component {
 				<div className="field">
 					<label className="label">看板名稱</label>
 					<div className="control">
-						<input className="input" type="text" placeholder="看板名稱" />
+						<input onChange={this.handleNameChange} className="input" type="text" placeholder="看板名稱" />
 					</div>
 				</div>
+				{
+					(() => {
+						return (
+							this.CanDefine.map((option) => {
+								return (
+									<div key={option.name} className="field">
+										<label className="checkbox">
+											<input onChange={this.handleInputChange} defaultChecked={this.state[[option.name]]} name={option.name} type="checkbox" />
+											{option.display}
+										</label>
+									</div>
+
+								);
+							}
+
+							)
+						);
+					})()
+				}
+				{
+					(() => {
+						return (
+							this.RenderFunction.map((option) => {
+								return (
+									<div key={option.name} className="field">
+										<label className="label">{option.display}</label>
+										<div className="control">
+											<textarea onChange={this.handleInputChange} className="textarea" placeholder={option.display} />
+										</div>
+									</div>
+								);
+							})
+						);
+					})()
+				}
 				<div className="field">
-					<label className="checkbox">
-						<input type="checkbox" />
-						可定義標題
-					</label>
-				</div>
-				<div className="field">
-					<label className="checkbox">
-						<input type="checkbox" />
-						可定義文章內容
-					</label>
-				</div>
-				<div className="field">
-					<label className="checkbox">
-						<input type="checkbox" />
-						可定義文章表單
-					</label>
-				</div>
-				<div className="field">
-					<label className="checkbox">
-						<input type="checkbox" />
-						可定義留言
-					</label>
-				</div>
-				<div className="field">
-					<label className="checkbox">
-						<input type="checkbox" />
-						可定義留言表單
-					</label>
-				</div>
-				<div className="field">
-					<label className="label">標題渲染函式</label>
 					<div className="control">
-						<textarea className="textarea" placeholder="標題渲染函式" />
-					</div>
-				</div>
-				<div className="field">
-					<label className="label">文章內容渲染函式</label>
-					<div className="control">
-						<textarea className="textarea" placeholder="標題渲染函式" />
-					</div>
-				</div>
-				<div className="field">
-					<label className="label">文章表單渲染函式</label>
-					<div className="control">
-						<textarea className="textarea" placeholder="文章表單渲染函式" />
-					</div>
-				</div>
-				<div className="field">
-					<label className="label">留言渲染函式</label>
-					<div className="control">
-						<textarea className="textarea" placeholder="留言渲染函式" />
-					</div>
-				</div>
-				<div className="field">
-					<label className="label">留言表單渲染函式</label>
-					<div className="control">
-						<textarea className="textarea" placeholder="留言表單渲染函式" />
+						<button className="button is-primary">送出</button>
 					</div>
 				</div>
 			</div>
@@ -238,35 +259,48 @@ class Board extends React.Component {
 			showArticle: false,
 		};
 	}
-	componentDidMount() {
-		this.getBoardsAndArticles();
-	}
-	getBoardsAndArticles() {
-		// TODO: AJAX
-		this.setState({
-			boards: [
-				"八卦", "棒球", "滑板", "軟體技術", "直譯器少女", "bonbon",
-				"高雄", "清大", "JavaScript", "翻譯", "軍旅", "省錢", "腳踏車",
-				"電影", "教科書解答", "Lisp", "大露營", "以太坊", "筆電", "經濟學",
-				"詩", "料理", "戀愛", "科幻", "書評", "求職", "代數", "創作"
-			],
-			articles: [
-				"獵人真人版也該出來了吧？",
-				"大家有在玩 bonbon 嗎？",
-				"楊威利，不敗的魔術師",
-				"母豬母豬，夜裡哭哭！",
-				"何謂民主主義呢？",
-				"有英雄志的八卦嗎？",
-				"醫學系為何還是第一志願?",
-				"台灣第一名的小吃是啥",
-				"二戰時納粹打蘇聯是對的嗎？"
-			]
-		});
-	}
 	countPath() {
 		const urlPath = this.props.location.pathname;
 		const path = urlPath.split("/").slice(2).filter((ele, index) => index % 2 == 1);
 		return path;
+	}
+	componentDidMount() {
+		this.getBoardData();
+	}
+	getBoardData() {
+		let url;
+		const path = this.countPath();
+		if (path.length == 0) {
+			url = "/api/board/browse";
+		} else {
+			url = `/api/board/browse?name=${this.countPath().join(",")}`;
+		}
+		fetch(url, {
+			credentials: "same-origin"
+		}).then((res) => {
+			if (res.ok) {
+				res.json().then((data) => {
+					switch (data) {
+						case "FAIL":
+							console.log("取得看板資料失敗");
+							break;
+						default:
+							console.log(data);
+							this.boardID = data.board_id;
+							const boards = data.b_list.map(b => b.name);
+							const articles = data.a_list.map(a => a.name);
+							this.setState({
+								boards: boards,
+								articles: articles
+							});
+					}
+				});
+			} else {
+				console.log("AJAX失敗，取得看板資料失敗");
+			}
+		}, (err) => {
+			console.log(`登出失敗：${err}`);
+		});
 	}
 	render() {
 		const location = this.props.location;
@@ -278,7 +312,7 @@ class Board extends React.Component {
 						(() => {
 							let urlPath = "/app";
 							let result = [
-								<Link to={urlPath}><span>根</span></Link>
+								<Link key={urlPath} to={urlPath}><span>根</span></Link>
 							];
 							for (let boardName of this.countPath()) {
 								urlPath += `/b/${boardName}`;
@@ -290,17 +324,17 @@ class Board extends React.Component {
 					}
 				</div>
 				<div style={{ marginBottom: "30px" }}>
-					<a className={this.state.creatingAritcle ? "button is-primary" : "button"}
+					<a className={this.state.creatingAritcle ? "button is-success" : "button"}
 						style={{ marginBottom: "15px", marginRight: "12px" }}
 						onClick={() => {this.setState({creatingAritcle: !this.state.creatingAritcle});}}>
 						發文
 					</a>
-					<a className={this.state.creatingBoard ? "button is-primary" : "button"}
+					<a className={this.state.creatingBoard ? "button is-success" : "button"}
 						style={{ marginBottom: "15px", marginRight: "12px" }}
 						onClick={() => {this.setState({creatingBoard: !this.state.creatingBoard});}}>
 						創建新板
 					</a>
-					<a className={this.state.showSource ? "button is-primary" : "button"}
+					<a className={this.state.showSource ? "button is-success" : "button"}
 						style={{ marginBottom: "15px" }}
 						onClick={() => {this.setState({showSource: !this.state.showSource});}}>
 						觀看看板源碼
@@ -353,7 +387,7 @@ class Board extends React.Component {
 							if (this.state.showBoard) {
 								return this.state.boards.map((board) => {
 									return (
-										<div key={board}>
+										<div key={board} key={board}>
 											<Link to={location.pathname + "/b/" + board}>{board}</Link>
 										</div>
 									);
