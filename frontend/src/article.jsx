@@ -4,7 +4,7 @@ import example from "./example";
 
 class Article extends React.Component {
 	constructor(props) {
-		// props 要有屬性 commentForm, renderComment, content, renderContent
+		// props 要有屬性 commentForm, renderComment, content, renderArticleContent
 		// state 則有 
 		// - comments，裡面都是 comment，爲一個陣列，內部可爲字串或函數
 		super(props);

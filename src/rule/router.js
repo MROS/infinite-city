@@ -3,7 +3,7 @@ let router = require("express").Router();
 
 const RULES = [
 	"renderTitle",
-	"renderContent",
+	"renderArticleContent",
 	"renderCommentForm",
 	"renderComment",
 	"renderArticleForm"

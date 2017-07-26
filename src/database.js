@@ -36,14 +36,14 @@ const board_schema_t = {
 	"name": { type: String, required: true },
 
 	"renderTitle": { type: String, default: null },
-	"renderContent": { type: String, default: null },
+	"renderArticleContent": { type: String, default: null },
 	"renderCommentForm": { type: String, default: null },
 	"renderComment": { type: String, default: null },
 	"renderArticleForm": { type: String, default: null },
 	// 以上幾個其實是函數，這個板下所有的文章標題/文章／回應／回應表格都要經過它們來渲染
 
 	"canDefTitle": { type: Boolean, default: true }, // 允許子板定義「渲染標題」
-	"canDefContent": { type: Boolean, default: true }, // 允許子板定義「渲染內文」
+	"canDefArticleContent": { type: Boolean, default: true }, // 允許子板定義「渲染內文」
 	"canDefCommentForm": { type: Boolean, default: true }, // 允許子板定義「渲染回應表單」
 	"canDefComment": { type: Boolean, default: true }, // 允許子板「和文章」定義「渲染回應」
 	"canDefArticleForm": { type: Boolean, default: true }, // 允許子板「和文章」定義「渲染回應」

@@ -8,7 +8,7 @@ let root = {
 	renderTitle: "function(article, info) {"
 	+ "return <h3>[{info.push}]{article.title}</h3>;"
 	+ "}",
-	renderContent: "function(article, info) {"
+	renderArticleContent: "function(article, info) {"
 	+ "let doms = article.content().map(c => {"
 	+ "return <p>{c}</p>;"
 	+ "});"

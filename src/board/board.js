@@ -34,7 +34,7 @@ async function createBoard(manager_id, name, parent_id, articleForm, rules) {
 
 	setRule(new_board, parent, rules, "canDefTitle", "renderTitle");
 	setRule(new_board, parent, rules, "canDefCommentForm", "renderCommentForm");
-	setRule(new_board, parent, rules, "canDefContent", "renderContent");
+	setRule(new_board, parent, rules, "canDefArticleContent", "renderArticleContent");
 	setRule(new_board, parent, rules, "canDefArticleForm", "renderArticleForm");
 	setRule(new_board, parent, rules, "canDefTitle", "renderTitle");
 

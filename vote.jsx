@@ -23,7 +23,7 @@ export default {
 		];
 	},
 
-	renderContent: Default.renderContent,
+	renderArticleContent: Default.renderArticleContent,
 
 	commentForm: function() {
 		return [

@@ -26,12 +26,12 @@
 		+ parent: 字串，母看板的 id
 		+ rules: 鍵值對
 			1. canDefTitle: boolean，預設爲真
-			2. canDefContent: boolean，預設爲真
+			2. canDefArticleContent: boolean，預設爲真
 			3. canDefCommentForm: boolean，預設爲真
 			4. canDefComment: boolean，預設爲真
 			5. canDefArticleForm: boolean，預設爲真
 			6. renderTitle 字串，預設爲 null
-			7. renderContent 字串，預設爲 null
+			7. renderArticleContent 字串，預設爲 null
 			8. renderCommentForm 字串，預設爲 null
 			9. renderComment 字串，預設爲 null
 			10. renderArticleForm  字串，預設爲 null
@@ -53,13 +53,13 @@
 			- 如果 content 的成員是函數，就是一個無參數並返回字串的函數
 		+ commentForm: [Object]，規範每個表格
 		+ rules: 鍵值對
-			1. renderContent 字串，根據母看板的權限，可能不被允許設定
+			1. renderArticleContent 字串，根據母看板的權限，可能不被允許設定
 			2. onComment [{ mustObey, rule }]
 		+ 返回 OK
 * api/rule
 	- GET api/rule/article/:article
 		+ 沿着看板鏈上溯，最多到根看板，尋找 :article 這篇文章的所有渲染規則
-		+ 返回 { renderTitle, renderContent, renderCommentForm, renderComment, renderArticleForm }
+		+ 返回 { renderTitle, renderArticleContent, renderCommentForm, renderComment, renderArticleForm }
 			- 四個皆爲字串
 	- GET api/rule/board/:board
 		+ 尋沿着看板鏈上溯，找 :board 這個看板的所有渲染規則

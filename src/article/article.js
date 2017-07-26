@@ -12,8 +12,8 @@ async function createArticle(author, title, board_id, content, form, rules) {
 
 	let new_article = { board: board_id };
 
-	if(board.canDefContent) {
-		new_article.renderContent = rules.renderContent;
+	if(board.canDefArticleContent) {
+		new_article.renderArticleContent = rules.renderArticleContent;
 	}
 
 	// TODO: 這種做法，如果上層改了限制，下層不會被繼承，應該修改！

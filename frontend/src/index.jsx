@@ -152,14 +152,14 @@ class CreateBoard extends React.Component {
 		super(props);
 		this.CanDefine = [
 			{ display: "可定義標題", name: "canDefTitle" },
-			{ display: "可定義文章內容", name: "canDefContent" },
+			{ display: "可定義文章內容", name: "canDefArticleContent" },
 			{ display: "可定義文章表單", name: "canDefArticleForm" },
 			{ display: "可定義留言", name: "canDefComment" },
 			{ display: "可定義留言表單", name: "canDefCommentForm" },
 		];
 		this.RenderFunction = [
 			{ display: "標題渲染函式", name: "renderTitle" },
-			{ display: "文章內容渲染函式", name: "renderContent" },
+			{ display: "文章內容渲染函式", name: "renderArticleContent" },
 			{ display: "發文表單渲染函式", name: "renderArti key={urlPath}cleForm" },
 			{ display: "留言渲染函式", name: "renderComment" },
 			{ display: "留言表單渲染函式", name: "renderCommentForm" },
@@ -295,9 +295,10 @@ class Board extends React.Component {
 							this.boardID = data.board_id;
 							const boards = data.b_list.map(b => b.name);
 							const articles = data.a_list.map(a => a.name);
+							const showBoard = boards.length >= articles.length;
+							const showArticle = !showBoard;
 							this.setState({
-								boards: boards,
-								articles: articles
+								boards, articles, showBoard, showArticle
 							});
 					}
 				});
