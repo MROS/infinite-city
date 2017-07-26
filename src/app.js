@@ -13,7 +13,7 @@ app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(session({
 	secret: "recommand 128 bytes random string",
-	cookie: { maxAge: 60 * 1000 },
+	cookie: { maxAge: 15 * 24 * 60 * 60 * 1000 }, // 十五天
 	resave: true,
 	saveUninitialized: true
 }));
