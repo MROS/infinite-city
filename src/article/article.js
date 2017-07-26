@@ -6,12 +6,12 @@ async function getPostRestrict() {
 }
 
 /**
- * @param {String} arthur
+ * @param {String} author
  * @param {String} title 
  * @param {String} board_id
  * @param {Object} rules
  */
-async function createArticle(arthur, title, board_id, content, form, rules) {
+async function createArticle(author, title, board_id, content, form, rules) {
 	let board = await db.Board.findOne({ _id: board_id }).exec();
 	if(!board) throw `${ board_id } 看板不存在`;
 
@@ -19,7 +19,7 @@ async function createArticle(arthur, title, board_id, content, form, rules) {
 	if(board.canDefContent) {
 		new_article.renderContent = rules.renderContent;
 	}
-	new_article.arthur = arthur;
+	new_article.author = author;
 	new_article.title = title;
 	new_article.content = content;
 	new_article.commentForm = form;

@@ -5,12 +5,12 @@ async function getCommentRestrict() {
 
 }
 
-async function createComment(arthur_id, article_id, msg) {
+async function createComment(author_id, article_id, msg) {
 	let article = await db.Board.findOne({ _id: article }).exec();
 	if(!article) throw `${ article } 看板不存在`;
 	let new_comment = {
 		article: article_id,
-		arthur: arthur_id,
+		author: author_id,
 		msg: msg,
 	};
 	if(article.onComment) {

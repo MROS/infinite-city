@@ -72,7 +72,7 @@ const article_schema_t = {
 	"title": { type: String, required: true },
 	"board": { type: ObjectId, required: true },
 	"date": { type: Date, default: Date.now() },
-	"arthur": String, // 若是匿名看板，可以無作者
+	"author": String, // 若是匿名看板，可以無作者
 
 	// 其實是函數，這篇文章下的回應都要經過它來渲染
 	"renderComment": {type: String, default: null},
@@ -98,7 +98,7 @@ const article_info_schema_t = {
 const comment_schema_t = {
 	"article": { type: ObjectId, required: true },
 	"date": { type: Date, default: Date.now() },
-	"arthur": String,
+	"author": String,
 
 	"msg": { type: [String] } // 其實可以是函數
 };
