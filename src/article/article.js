@@ -12,8 +12,8 @@ async function createArticle(author, title, board_id, content, form, rules) {
 
 	let new_article = { board: board_id };
 
-	if(board.canDefArticleContent) {
-		new_article.renderArticleContent = rules.renderArticleContent;
+	if(board.canDefComment) {
+		new_article.renderComment = rules.renderComment;
 	}
 
 	// TODO: 這種做法，如果上層改了限制，下層不會被繼承，應該修改！
@@ -26,7 +26,6 @@ async function createArticle(author, title, board_id, content, form, rules) {
 	new_article.title = title;
 	new_article.content = content;
 	new_article.commentForm = form;
-
 
 	for(let on_post of board.onPost) {
 		let restrictFunc = eval("(" + on_post.rule + ")");

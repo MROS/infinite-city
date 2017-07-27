@@ -4,9 +4,7 @@ let router = require("express").Router();
 const RULES = [
 	"renderTitle",
 	"renderArticleContent",
-	"renderCommentForm",
 	"renderComment",
-	"renderArticleForm"
 ];
 
 async function findBoard(_id) {

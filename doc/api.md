@@ -27,20 +27,16 @@
 		+ rules: 鍵值對
 			1. canDefTitle: boolean，預設爲真
 			2. canDefArticleContent: boolean，預設爲真
-			3. canDefCommentForm: boolean，預設爲真
-			4. canDefComment: boolean，預設爲真
-			5. canDefArticleForm: boolean，預設爲真
-			6. renderTitle 字串，預設爲 null
-			7. renderArticleContent 字串，預設爲 null
-			8. renderCommentForm 字串，預設爲 null
-			9. renderComment 字串，預設爲 null
-			10. renderArticleForm  字串，預設爲 null
-				* 1~10 根據母看板的權限，可能不被允許設定
-			11. onEnterBoard: [{ mustObey: boolean, rule: String}] 進入看板時在後端做的檢查
-			12. onNewBoard: [{ mustObey: boolean, rule: String}] 創子板時在後端做的檢查
-			13. onPost: [{ mustObey: boolean, rule: String}] 發文時在後端做的檢查
-			14. onComment: [{ mustObey: boolean, rule: String}] 推文時在後端做的檢查
-				* 11~14 的 mustObey 意指子板或文章是否需要遵循相同標準
+			3. canDefComment: boolean，預設爲真
+			4. renderTitle 字串，預設爲 null
+			5. renderArticleContent 字串，預設爲 null
+			6. renderComment 字串，預設爲 null
+				* 1~6 根據母看板的權限，可能不被允許設定
+			7. onEnterBoard: [{ mustObey: boolean, rule: String}] 進入看板時在後端做的檢查
+			8. onNewBoard: [{ mustObey: boolean, rule: String}] 創子板時在後端做的檢查
+			9. onPost: [{ mustObey: boolean, rule: String}] 發文時在後端做的檢查
+			10. onComment: [{ mustObey: boolean, rule: String}] 推文時在後端做的檢查
+				* 7~10 的 mustObey 意指子板或文章是否需要遵循相同標準
 				* 舉例而言，一則推文必須經過 onComment 陣列中每個 rule 檢查，才能進入資料庫
 				* 舉例而言，若在 onEnterBoard 中加入 { mustObey: true, rule: 勃起王禁止進入 } 則這個板及其所有子板都會排擠可憐的勃起王
 		+ 返回 OK
@@ -53,13 +49,13 @@
 			- 如果 content 的成員是函數，就是一個無參數並返回字串的函數
 		+ commentForm: [Object]，規範每個表格
 		+ rules: 鍵值對
-			1. renderArticleContent 字串，根據母看板的權限，可能不被允許設定
+			1. renderComment 字串，根據母看板的權限，可能不被允許設定
 			2. onComment [{ mustObey, rule }]
 		+ 返回 OK
 * api/rule
 	- GET api/rule/article/:article
 		+ 沿着看板鏈上溯，最多到根看板，尋找 :article 這篇文章的所有渲染規則
-		+ 返回 { renderTitle, renderArticleContent, renderCommentForm, renderComment, renderArticleForm }
+		+ 返回 { renderTitle, renderArticleContent, renderComment }
 			- 四個皆爲字串
 	- GET api/rule/board/:board
 		+ 尋沿着看板鏈上溯，找 :board 這個看板的所有渲染規則

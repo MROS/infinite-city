@@ -33,9 +33,7 @@ async function createBoard(manager_id, name, parent_id, articleForm, rules) {
 	let new_board = { parent: parent_id };
 
 	setRule(new_board, parent, rules, "canDefTitle", "renderTitle");
-	setRule(new_board, parent, rules, "canDefCommentForm", "renderCommentForm");
 	setRule(new_board, parent, rules, "canDefArticleContent", "renderArticleContent");
-	setRule(new_board, parent, rules, "canDefArticleForm", "renderArticleForm");
 	setRule(new_board, parent, rules, "canDefTitle", "renderTitle");
 
 	setRestrict(new_board, parent, rules, "onNewBoard");
@@ -46,6 +44,7 @@ async function createBoard(manager_id, name, parent_id, articleForm, rules) {
 	new_board.name = name;
 	new_board.manager = [manager_id];
 	new_board.articleForm = articleForm;
+	new_board.depth = parent.depth + 1;
 
 	for(let on_new_board of parent.onNewBoard) {
 		let restrictFunc = eval("(" + on_new_board.rule + ")");

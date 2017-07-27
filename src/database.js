@@ -24,7 +24,7 @@ mongoose.connect(server.url, server.options)
 
 const board_schema_t = {
 	"isRoot": { type: Boolean, default: false },
-	"depth": { type:Number, default: true }, // TODO:
+	"depth": { type: Number, required: true }, // TODO:
 	"date": { type: Date, default: Date.now() },
 	"parent": {
 		type: ObjectId,
@@ -37,16 +37,12 @@ const board_schema_t = {
 
 	"renderTitle": { type: String, default: null },
 	"renderArticleContent": { type: String, default: null },
-	"renderCommentForm": { type: String, default: null },
 	"renderComment": { type: String, default: null },
-	"renderArticleForm": { type: String, default: null },
 	// 以上幾個其實是函數，這個板下所有的文章標題/文章／回應／回應表格都要經過它們來渲染
 
 	"canDefTitle": { type: Boolean, default: true }, // 允許子板定義「渲染標題」
 	"canDefArticleContent": { type: Boolean, default: true }, // 允許子板定義「渲染內文」
-	"canDefCommentForm": { type: Boolean, default: true }, // 允許子板定義「渲染回應表單」
 	"canDefComment": { type: Boolean, default: true }, // 允許子板「和文章」定義「渲染回應」
-	"canDefArticleForm": { type: Boolean, default: true }, // 允許子板「和文章」定義「渲染回應」
 	// 若禁止定義，則內文或子板就只能定義 content 和 commentForm，由板面定義的函數來渲染
 
 	// TODO: 這部分的支援

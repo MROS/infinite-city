@@ -2,6 +2,7 @@ const db = require("./database.js");
 
 let root = {
 	isRoot: true,
+	depth: 0,
 	manager: [],
 	name: "無限城",
 
