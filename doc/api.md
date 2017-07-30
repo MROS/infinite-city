@@ -21,36 +21,44 @@
 		+ 帶參數 max
 		+ 返回 :board 底下所有東西，{ b_list, a_list, board_id }
 	- POST api/board/new
-		+ { name, parent, rules }
+		+ { name, parent, formRules, renderRules, backendRules }
 		+ name: 字串，看板的名字
 		+ parent: 字串，母看板的 id
-		+ rules: 鍵值對
-			1. canDefTitle: boolean，預設爲真
-			2. canDefArticleContent: boolean，預設爲真
-			3. canDefComment: boolean，預設爲真
-			4. renderTitle 字串，預設爲 null
-			5. renderArticleContent 字串，預設爲 null
-			6. renderComment 字串，預設爲 null
+		+ formRules: 鍵值對
+			1. articleForm
+			2. commentForm
+			3. canDefArticleForm
+			4. canDefCommentForm
+		+ renderRules: 鍵值對
+			1. renderTitle 字串，預設爲 null
+			2. renderArticleContent 字串，預設爲 null
+			3. renderComment 字串，預設爲 null
+			4. canDefTitle: boolean，預設爲真
+			5. canDefArticleContent: boolean，預設爲真
+			6. canDefComment: boolean，預設爲真
 				* 1~6 根據母看板的權限，可能不被允許設定
-			7. onEnterBoard: [{ mustObey: boolean, rule: String}] 進入看板時在後端做的檢查
-			8. onNewBoard: [{ mustObey: boolean, rule: String}] 創子板時在後端做的檢查
-			9. onPost: [{ mustObey: boolean, rule: String}] 發文時在後端做的檢查
-			10. onComment: [{ mustObey: boolean, rule: String}] 推文時在後端做的檢查
-				* 7~10 的 mustObey 意指子板或文章是否需要遵循相同標準
+		+ backendRules
+			1. onEnterBoard: [rule: String] 進入看板時在後端做的檢查
+			2. onEnterArticle: [rule: String] 進入文章時在後端做的檢查
+			3. onNewBoard: [rule: String] 創子板時在後端做的檢查
+			4. onNewArticle: [rule: String] 發文時在後端做的檢查
+			5. onComment: [rule: String] 推文時在後端做的檢查
 				* 舉例而言，一則推文必須經過 onComment 陣列中每個 rule 檢查，才能進入資料庫
-				* 舉例而言，若在 onEnterBoard 中加入 { mustObey: true, rule: 勃起王禁止進入 } 則這個板及其所有子板都會排擠可憐的勃起王
 		+ 返回 OK
 * api/article
 	- POST api/article/new
-		+ { title, board, content, commentForm, rules }
+		+ { title, board, articleContent, formRules, renderRules, backendRules }
 		+ title: 字串，文章標題
 		+ board: 字串，看板的 id
-		+ content: [String]，每個元素可能是靜態字串，也可能是轉成字串的函數
-			- 如果 content 的成員是函數，就是一個無參數並返回字串的函數
-		+ commentForm: [Object]，規範每個表格
-		+ rules: 鍵值對
+		+ articleContent: [String]，每個元素可能是靜態字串，也可能是轉成字串的函數
+			- 如果其成員是函數，就是一個無參數並返回字串的函數
+		+ formRules: 鍵值對
+			1. commentForm: [Object]，規範每個表格
+		+ renderRules: 鍵值對
 			1. renderComment 字串，根據母看板的權限，可能不被允許設定
-			2. onComment [{ mustObey, rule }]
+		+ backendRules: 鍵值對
+			1. onEnterArticle [String]
+			2. onComment [String]
 		+ 返回 OK
 * api/rule
 	- GET api/rule/article/:article
