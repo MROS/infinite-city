@@ -32,7 +32,6 @@ app.get(/\/(app\/.*|app)/, function (req, res) {
 app.use("/api/user", require("./user/router.js"));
 app.use("/api/board", require("./board/router.js"));
 app.use("/api/article", require("./article/router.js"));
-app.use("/api/rule", require("./rule/router.js"));
 app.use("/api/comment", require("./comment/router.js"));
 
 console.log(`埠口：${config.PORT}`);

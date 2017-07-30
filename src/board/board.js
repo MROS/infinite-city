@@ -1,4 +1,5 @@
 const db = require("../database.js");
+const { findBackendRules, doRestricts } = require("../util.js");
 
 /**
  * @param {Board} board 
@@ -11,15 +12,6 @@ function setRule(board, parent, rules, can_key, rule_key) {
 	if(parent[can_key]) board[rule_key] = rules[rule_key];
 	board[can_key] = rules[can_key] && parent[can_key];
 }
-// TODO: 這種做法，如果上層改了限制，下層不會被繼承，應該修改！
-function setRestrict(board, parent, rules, key) {
-	board[key] = rules[key] || [];
-	for(let restrict of parent[key]) {
-		if(restrict.mustObey) {
-			board[key].push(board);
-		}
-	}
-}
 
 /**
  * @param {String} manager_id 
@@ -27,31 +19,36 @@ function setRestrict(board, parent, rules, key) {
  * @param {String} parent_id 
  * @param {Object} rules 
  */
-async function createBoard(manager_id, name, parent_id, articleForm, rules) {
+async function createBoard(manager_id, name, parent_id,
+	formRules, renderRules, backendRules) {
+
 	let parent = await db.Board.findOne({ _id: parent_id }).exec();
 	if(!parent) throw `${ parent_id } 看板不存在`;
+
 	let new_board = { parent: parent_id };
-
-	setRule(new_board, parent, rules, "canDefTitle", "renderTitle");
-	setRule(new_board, parent, rules, "canDefArticleContent", "renderArticleContent");
-	setRule(new_board, parent, rules, "canDefTitle", "renderTitle");
-
-	setRestrict(new_board, parent, rules, "onNewBoard");
-	setRestrict(new_board, parent, rules, "onEnterBoard");
-	setRestrict(new_board, parent, rules, "onPost");
-	setRestrict(new_board, parent, rules, "onComment");
-
 	new_board.name = name;
 	new_board.manager = [manager_id];
-	new_board.articleForm = articleForm;
 	new_board.depth = parent.depth + 1;
+	// Form Rules
+	setRule(new_board, parent, formRules, "canDefArticleForm", "articleForm");
+	setRule(new_board, parent, formRules, "canDefCommentForm", "commentForm");
+	// Render Rules
+	setRule(new_board, parent, renderRules, "canDefTitle", "renderTitle");
+	setRule(new_board, parent, renderRules, "canDefArticleContent", "renderArticleContent");
+	setRule(new_board, parent, renderRules, "canDefTitle", "renderTitle");
+	// backend Rules
+	new_board.onEnterBoard = backendRules.onEnterBoard;
+	new_board.onNewBoard = backendRules.onNewBoard;
+	new_board.onEnterArticle = backendRules.onEnterArticle;
+	new_board.onNewArticle = backendRules.onNewArticle;
+	new_board.onComment = backendRules.onComment;
 
-	for(let on_new_board of parent.onNewBoard) {
-		let restrictFunc = eval("(" + on_new_board.rule + ")");
-		restrictFunc(new_board);
-	}
+	let restricts_str = findBackendRules({ b_id: parent_id, rule_name: "onNewBoard" });
+	let err_msg = doRestricts(new_board, manager_id, restricts_str);
+	if(err_msg) return err_msg;
 
 	await db.Board.create(new_board);
+	return null;
 }
 
 async function getRootId() {
@@ -65,6 +62,18 @@ async function recursiveGetBoard(id, name, depth=0) {
 	return await recursiveGetBoard(next_b._id, name, depth+1);
 }
 
+async function getList(board_id, max, user_id) {
+	let restricts_str = findBackendRules({ b_id: board_id, rule_name: "onEnterBoard" });
+	let err_msg = doRestricts(board_id, user_id, restricts_str);
+	// TODO: 不能只傳入 board_id，否則難以達到水桶之類的功能！！
+	if(err_msg) return { err_msg };
+	let [ b_list, a_list ] = await Promise.all([
+		db.Board.find({ parent: board_id }).sort({ date: -1 }).limit(max).exec(),
+		db.Article.find({ board: board_id }).sort({ date: -1 }).limit(max).exec(),
+	]);
+	return { a_list, b_list, board_id };
+}
+
 module.exports = {
-	createBoard, getRootId, recursiveGetBoard
+	createBoard, getRootId, recursiveGetBoard, getList
 };

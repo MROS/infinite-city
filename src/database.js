@@ -35,35 +35,29 @@ const board_schema_t = {
 	},
 	"name": { type: String, required: true },
 
+	// 以下為 renderRules
 	"renderTitle": { type: String, default: null },
 	"renderArticleContent": { type: String, default: null },
 	"renderComment": { type: String, default: null },
 	// 以上幾個其實是函數，這個板下所有的文章標題/文章／回應／回應表格都要經過它們來渲染
-
 	"canDefTitle": { type: Boolean, default: true }, // 允許子板定義「渲染標題」
 	"canDefArticleContent": { type: Boolean, default: true }, // 允許子板定義「渲染內文」
 	"canDefComment": { type: Boolean, default: true }, // 允許子板「和文章」定義「渲染回應」
 	// 若禁止定義，則內文或子板就只能定義 content 和 commentForm，由板面定義的函數來渲染
 
-	// TODO: 這部分的支援
-	"onEnterBoard": [{ // 進入看板時在「後端」進行的檢查，可以實現私密看板
-		"mustObey": { type: Boolean, default: true }, // 強迫子板遵守這條規則
-		"rule": String
-	}],
-	"onNewBoard": [{ // 創立子板時在「後端」進行的檢查
-		"mustObey": { type: Boolean, default: true },
-		"rule": String
-	}],
-	"onPost": [{ // 提交文章時在「後端」進行的檢查
-		"mustObey": { type: Boolean, default: true },
-		"rule": String
-	}],
-	"onComment": [{ // 提交留言時在「後端」進行的檢查
-		"mustObey": { type: Boolean, default: true },
-		"rule": String
-	}],
+	// 以下為 Backend Rules TODO: 這部分的支援
+	"onEnterBoard": [String], // 進入看板時在「後端」進行的檢查，可以實現私密看板
+	"onNewBoard": [String], // 創立子板時在「後端」進行的檢查
+	"onEnterArticle": [String], // 進入文章時在「後端」進行的檢查
+	"onNewArticle": [String], // 提交文章時在「後端」進行的檢查
+	"onComment": [String], // 提交留言時在「後端」進行的檢查
 	// 注意，如果完全要禁止子板自行定義限制也是做得到的，只要在 onNewBoard 裡面檢查子看板 onXXX 陣列的長度，假如有多的就禁止創板
-	// 甚至是不限制本看板，卻限制子孫看板的花式條件都做得到！
+
+	// 以下為 Form Rules
+	"articleForm": [String],
+	"commentForm": [String],
+	"canDefArticleForm": { type: Boolean, default: true },
+	"canDefCommentForm": { type: Boolean, default: true },
 
 	"manager": { // 板主名單
 		type: [String],
@@ -71,8 +65,6 @@ const board_schema_t = {
 			return (this.manager.length == 0) && !this.isRoot;
 		}
 	},
-
-	"articleForm": [String]
 };
 
 const article_schema_t = {
@@ -84,12 +76,12 @@ const article_schema_t = {
 	// 其實是函數，這篇文章下的回應都要經過它來渲染
 	"renderComment": { type: String, default: null },
 
-	"onComment": { type: String, default: null }, // 提交留言時在「後端」進行的檢查
+	"onComment": [String], // 提交留言時在「後端」進行的檢查
+	"onEnterArticle": [String], // 進入文章時在「後端」進行的檢查
 
 	// 底下開始是文章真正的資料
-	"content": [String], // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
+	"articleContent": [String], // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
 	"commentForm": [String], // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
-	"comment": [String], // 其實可以是函數
 };
 
 // 用來儲存板主自定義，不該被文章作者（任意）修改到的東西

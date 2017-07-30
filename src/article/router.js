@@ -10,13 +10,15 @@ router.post("/new", async function (req, res) {
 		}
 		else {
 			let query = req.body;
-			await createArticle(userId, query.title, query.board,
-				query.content, query.commentForm, query.rules);
-			res.send("OK");
+			let err_msg = await createArticle(userId, query.title,
+				query.board, query.articleContent,
+				query.formRules, query.renderRules, query.backendRules);
+			if(err_msg) res.send(err_msg);
+			else res.send("OK");
 		}
 	} catch (err) {
 		console.log(err);
-		res.send("FAIL");
+		res.status(400).send("FAIL");
 	}
 });
 

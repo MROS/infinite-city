@@ -1,7 +1,8 @@
 const db = require("../database.js");
+const _ = require("lodash");
 let router = require("express").Router();
 
-let { createBoard, getRootId, recursiveGetBoard } = require("./board.js");
+let { createBoard, getRootId, recursiveGetBoard, getList } = require("./board.js");
 
 router.get("/browse", async function(req, res) {
 	try {
@@ -16,34 +17,21 @@ router.get("/browse", async function(req, res) {
 		// 重複程式碼就抽出處理吧
 		res.redirect(`${req.baseUrl}/list/${board_id}?max=${max}`);
 	} catch (err) {
-		res.status(400).send(err.message);
+		res.status(400).send("FAIL");
 		console.log(err);
 	}
 });
-
-/*router.get("/rootlist", async function(req, res) {
-	let max = Number(req.query.max) || 10;
-	let root_id = "";
-	try {
-		root_id = await getRootId();
-		res.redirect(`${req.baseUrl}/list/${root_id}?max=${max}`);
-	} catch (err) {
-		console.log(err);
-	}
-})*/
 
 router.get("/list/:board", async function (req, res) {
 	try {
 		let max = Number(req.query.max) || 10;
 		let board_id = req.params.board;
-		let [b_list, a_list] = await Promise.all([
-			db.Board.find({ parent: board_id }).sort({ date: -1 }).limit(max).exec(),
-			db.Article.find({ board: board_id }).sort({ date: -1 }).limit(max).exec(),
-		]);
-		res.json({ b_list, a_list, board_id });
+		let list = getList(board_id, max, req.session.userId);
+		if(list.err_msg) res.send(list.err_msg);
+		else res.json(list);
 	} catch (err) {
-		// console.log(err);
-		res.send("FAIL");
+		res.status(400).send("FAIL");
+		console.log(err);
 	}
 });
 
@@ -55,13 +43,14 @@ router.post("/new", async function(req, res) {
 		}
 		else {
 			let query = req.body;
-			await createBoard(userId, query.name, query.parent,
-				query.articleForm, query.rules);
-			res.send("OK");
+			let err_msg = await createBoard(userId, query.name, query.parent,
+				query.formRules, query.renderRules, query.backendRules);
+			if(err_msg) res.send(err_msg);
+			else res.send("OK");
 		}
 	} catch(err) {
 		console.log(err);
-		res.send("FAIL");
+		res.status(400).send("FAIL");
 	}
 });
 

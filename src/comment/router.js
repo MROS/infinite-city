@@ -10,7 +10,9 @@ router.post("/new", async function(req, res) {
 		}
 		else {
 			let query = req.body;
-			await createComment(userId, query.article, query.msg);
+			let err_msg = await createComment(userId, query.article, query.msg);
+			if(err_msg) res.send(err_msg);
+			else res.send("OK");
 		}
 	} catch(err) {
 		console.log(err);
