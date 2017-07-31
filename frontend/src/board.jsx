@@ -111,7 +111,7 @@ class CreateArticle extends React.Component {
 				display: "權限限制",
 				checkbox: [],
 				textarea: [
-					{ display: "進入文章", name: "onEnterAritcle" },
+					{ display: "閱讀文章", name: "onEnter" },
 					{ display: "留言", name: "onComment" },
 				]
 			}
@@ -218,8 +218,7 @@ class CreateBoard extends React.Component {
 				display: "權限限制",
 				checkbox: [],
 				textarea: [
-					{ display: "進入看板", name: "onEnterBoard" },
-					{ display: "進入文章", name: "onEnterAritcle" },
+					{ display: "進入看板（文章）", name: "onEnter" },
 					{ display: "創建看板", name: "onNewBoard" },
 					{ display: "發文", name: "onNewArticle" },
 					{ display: "留言", name: "onComment" },
