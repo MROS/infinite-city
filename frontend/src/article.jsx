@@ -19,29 +19,32 @@ class Article extends React.Component {
 	}
 	render() {
 		const match = this.props.match;
+		const location = this.props.location;
+		const sp = location.pathname.split("/");
+		const boardURL = sp.slice(0, location.length - 2).join("/");
 		return (
 			<div>
-				<Link to={"/app/b/" + match.params.boardName}>
+				<Link to={boardURL}>
 					<div style={{marginBottom: "10px"}}>
-						回{match.params.boardName}板
+						回看板
 					</div>
 				</Link>
 				 <h4 className="title is-4" style={{marginBottom: "8px"}}>{match.params.articleName}</h4>
 				<div>
 					{
-						this.state.content.split("\n").map((p) => {
-							if (p == "") { return <br />; }
-							else { return <p>{p}</p>; }
+						this.state.content.split("\n").map((p, index) => {
+							if (p == "") { return <br key={index} />; }
+							else { return <p key={index}>{p}</p>; }
 						})
 					}
 				</div>
-				 <div>
+				<div>
 					<h5 className="title is-5">留言區</h5>
 					<hr />
-					 {
-						this.state.comments.map((comment) => {
+					{
+						this.state.comments.map((comment, index) => {
 							return (
-								<div>
+								<div key={index}>
 									<span style={{ color: "blue" }}>{comment.user}</span>
 									<span>：</span>
 									<span>{comment.content}</span>

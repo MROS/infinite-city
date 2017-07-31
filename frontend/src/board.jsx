@@ -126,6 +126,8 @@ class CreateArticle extends React.Component {
 			})
 		};
 		addRuleToState(this.state, this.rules);
+		this.handleTitleChange = this.handleTitleChange.bind(this);
+		this.handleOnSubmit = this.handleOnSubmit.bind(this);
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.extendableGroup = this.extendableGroup.bind(this);
 		this.toggleGroup = this.toggleGroup.bind(this);
@@ -134,6 +136,17 @@ class CreateArticle extends React.Component {
 		this.setState({
 			title: event.target.value
 		});
+	}
+	handleOnSubmit() {
+		let { title, articleContent, formRules, renderRules, backendRules } = this.state;
+		let article = {
+			title,
+			articleContent,
+			formRules: formRules.toObject(),
+			renderRules: renderRules.toObject(),
+			backendRules: backendRules.toObject()
+		};
+		this.props.newArticle(article);
 	}
 	render() {
 		return (
@@ -159,6 +172,11 @@ class CreateArticle extends React.Component {
 				{ this.extendableGroup("formRules") }
 				{ this.extendableGroup("renderRules") }
 				{ this.extendableGroup("backendRules") }
+				<div className="field">
+					<div className="control">
+						<button onClick={this.handleOnSubmit} className="button is-primary">送出</button>
+					</div>
+				</div>
 			</div>
 		);
 	}
@@ -273,6 +291,7 @@ class Board extends React.Component {
 			showArticle: false,
 		};
 		this.newBoard = this.newBoard.bind(this);
+		this.newArticle = this.newArticle.bind(this);
 	}
 	countPath() {
 		const urlPath = this.props.location.pathname;
@@ -290,6 +309,7 @@ class Board extends React.Component {
 	getBoardData() {
 		const path = this.countPath();
 		const url = (path.length == 0) ? "/api/board/browse" : `/api/board/browse?name=${path.join(",")}`;
+		console.log(url);
 		fetch(url, {
 			credentials: "same-origin"
 		}).then((res) => {
@@ -301,9 +321,10 @@ class Board extends React.Component {
 							break;
 						default:
 							console.log("取得看板資料成功");
-							this.boardID = data.board_id;
-							const boards = data.b_list.map(b => b.name);
-							const articles = data.a_list.map(a => a.name);
+							console.log(data);
+							this.boardID = data.board._id;
+							const boards = data.b_list;
+							const articles = data.a_list;
 							const showBoard = boards.length >= articles.length;
 							const showArticle = !showBoard;
 							this.setState({
@@ -318,18 +339,48 @@ class Board extends React.Component {
 			console.log("AJAX失敗，取得看板資料失敗");
 		});
 	}
+	newArticle(articleDefinition) {
+		let body = articleDefinition;
+		body.board = this.boardID;
+		fetch("/api/article/new", {
+			method: "POST",
+			credentials: "same-origin",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(body)
+		}).then((res) => {
+			if (res.ok) {
+				res.text().then((data) => {
+					switch (data) {
+						case "FAIL":
+							console.log("發文失敗");
+							break;
+						case "OK":
+							console.log("發文成功");
+							break;
+						case "尚未登入":
+							console.log("尚未登入");
+							break;
+					}
+				});
+			} else {
+				console.log("發文：非正常失敗");
+			}
+		}, (err) => {
+			console.log("AJAX失敗，發文失敗");
+		});
+	}
 	newBoard(boardDefinition) {
+		let body = boardDefinition;
+		body.parent = this.boardID;
 		fetch("/api/board/new", {
 			method: "POST",
 			credentials: "same-origin",
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({
-				parent: this.boardID,
-				name: boardDefinition.name,
-				rules: boardDefinition.rules,
-			})
+			body: JSON.stringify(body)
 		}).then((res) => {
 			if (res.ok) {
 				res.text().then((data) => {
@@ -396,7 +447,7 @@ class Board extends React.Component {
 							return (
 								<div className="box" style={{ marginBottom: "30px" }}>
 									<h4 className="title is-4">發文</h4>
-									<CreateArticle />
+									<CreateArticle newArticle={this.newArticle} />
 								</div>
 							);
 						}
@@ -437,8 +488,8 @@ class Board extends React.Component {
 							if (this.state.showBoard) {
 								return this.state.boards.map((board) => {
 									return (
-										<div key={board} key={board}>
-											<Link to={location.pathname + "/b/" + board}>{board}</Link>
+										<div key={board.name}>
+											<Link to={location.pathname + "/b/" + board.name}>{board.name}</Link>
 										</div>
 									);
 								});
@@ -460,8 +511,8 @@ class Board extends React.Component {
 							if (this.state.showArticle) {
 								return this.state.articles.map((article) => {
 									return (
-										<div key={article}>
-											<Link to={location.pathname + "/a/" + article}>{article}</Link>
+										<div key={article.title}>
+											<Link to={location.pathname + "/a/" + article.title}>{article.title}</Link>
 										</div>
 									);
 								});
