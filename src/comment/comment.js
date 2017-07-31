@@ -12,7 +12,8 @@ async function createComment(author_id, article_id, msg) {
 		author: author_id,
 		msg: msg,
 	};
-	let restricts_str = findBackendRules({ a_id: article_id, rule_name: "onComment" });
+	let restricts_str = await findBackendRules(article.board, "onComment" );
+	restricts_str.push({ caller: article, func: article.onComment });
 	let err_msg = doRestricts(new_comment, author_id, restricts_str);
 	if (err_msg) {
 		return err_msg;

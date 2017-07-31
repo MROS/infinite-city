@@ -1,6 +1,7 @@
 const ROOT = {
 	isRoot: true,
 	depth: 0,
+	manager: [],
 
 	name: "無限城",
 	renderTitle: "function(article, info) {"

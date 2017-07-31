@@ -23,9 +23,6 @@
 				3. date
 				4. renderTitle
 				5. articleForm
-	- GET api/board/list/:board?max=
-		+ 帶參數 max
-		+ 返回 :board 底下所有東西，{ b_list, a_list, board }
 	- POST api/board/new
 		+ { name, parent, formRules, renderRules, backendRules }
 		+ name: 字串，看板的名字
@@ -44,11 +41,10 @@
 			6. canDefComment: boolean，預設爲真
 				* 1~6 根據母看板的權限，可能不被允許設定
 		+ backendRules
-			1. onEnterBoard: [rule: String] 進入看板時在後端做的檢查
-			2. onEnterArticle: [rule: String] 進入文章時在後端做的檢查
-			3. onNewBoard: [rule: String] 創子板時在後端做的檢查
-			4. onNewArticle: [rule: String] 發文時在後端做的檢查
-			5. onComment: [rule: String] 推文時在後端做的檢查
+			1. onEnter: [rule: String] 進入看板或文章時在後端做的檢查
+			2. onNewBoard: [rule: String] 創子板時在後端做的檢查
+			3. onNewArticle: [rule: String] 發文時在後端做的檢查
+			4. onComment: [rule: String] 推文時在後端做的檢查
 				* 舉例而言，一則推文必須經過 onComment 陣列中每個 rule 檢查，才能進入資料庫
 		+ 返回 OK
 * api/article
@@ -63,13 +59,20 @@
 		+ renderRules: 鍵值對
 			1. renderComment 字串，根據母看板的權限，可能不被允許設定
 		+ backendRules: 鍵值對
-			1. onEnterArticle [String]
+			1. onEnter [String]
 			2. onComment [String]
 		+ 返回 OK
-* api/rule
-	- GET api/rule/article/:article
-		+ 沿着看板鏈上溯，最多到根看板，尋找 :article 這篇文章的所有渲染規則
-		+ 返回 { renderTitle, renderArticleContent, renderComment }
-			- 四個皆爲字串
-	- GET api/rule/board/:board
-		+ 尋沿着看板鏈上溯，找 :board 這個看板的所有渲染規則
+	- GET api/article/browse?base=?&name=?,?,?,...&id=?&max=?
+		+ 從某個基準看板（base）開始，往下根據名字（可爲中文）查找看板
+		+ 例如：api/board/browse?base=595cb098f549af236588f88d&max=50&name=運動類,中華職棒,爪爪板&id=5498as845e4156er6115w88d
+		+ 帶參數 base，爲亂碼 _id，預設爲根看板
+		+ 帶參數 max 限制回傳的推文數
+		+ 返回一篇文章 
+			1. title: String
+			2. date
+			3. author: String
+			4. renderComment: String
+			5. renderArticleContent: String
+			6. articleContent: [String]
+			7. commentForm: [String]
+			8. comment: [Object]

@@ -4,16 +4,20 @@
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "express-session": "^1.15.4",
+    "lodash": "^4.17.4",
     "mongoose": "^4.11.3",
     "morgan": "^1.8.2",
     "optimist": "^0.6.1",
     "readline-sync": "^1.4.7"
   },
   "scripts": {
-    "start": "node src/app.js"
+    "start": "node src/app.js",
+    "test": "jest"
   },
   "devDependencies": {
     "eslint": "^4.3.0",
-    "eslint-plugin-react": "^7.1.0"
+    "eslint-plugin-react": "^7.1.0",
+    "jest": "^20.0.4",
+    "rest": "^2.0.0"
   }
 }

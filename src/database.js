@@ -34,9 +34,8 @@ const board_schema_t = {
 	// 若禁止定義，則內文或子板就只能定義 content 和 commentForm，由板面定義的函數來渲染
 
 	// 以下為 Backend Rules TODO: 這部分的支援
-	"onEnterBoard": [String], // 進入看板時在「後端」進行的檢查，可以實現私密看板
+	"onEnter": [String], // 進入看板或文章時在「後端」進行的檢查，可以實現私密看板
 	"onNewBoard": [String], // 創立子板時在「後端」進行的檢查
-	"onEnterArticle": [String], // 進入文章時在「後端」進行的檢查
 	"onNewArticle": [String], // 提交文章時在「後端」進行的檢查
 	"onComment": [String], // 提交留言時在「後端」進行的檢查
 	// 注意，如果完全要禁止子板自行定義限制也是做得到的，只要在 onNewBoard 裡面檢查子看板 onXXX 陣列的長度，假如有多的就禁止創板
@@ -51,7 +50,7 @@ const board_schema_t = {
 		type: [String],
 		required: function(){
 			return (this.manager.length == 0) && !this.isRoot;
-		}
+		},
 	},
 };
 
@@ -61,15 +60,16 @@ const article_schema_t = {
 	"date": { type: Date, default: Date.now() },
 	"author": String, // 若是匿名看板，可以無作者
 
-	// 其實是函數，這篇文章下的回應都要經過它來渲染
+	// Render Rules
 	"renderComment": { type: String, default: null },
-
+	// Backend Rules
 	"onComment": [String], // 提交留言時在「後端」進行的檢查
-	"onEnterArticle": [String], // 進入文章時在「後端」進行的檢查
+	"onEnter": [String], // 進入文章時在「後端」進行的檢查，可以實現告白文（之類的）
+	// Form Rules
+	"commentForm": [String], // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
 
 	// 底下開始是文章真正的資料
 	"articleContent": [String], // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
-	"commentForm": [String], // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
 };
 
 // 用來儲存板主自定義，不該被文章作者（任意）修改到的東西

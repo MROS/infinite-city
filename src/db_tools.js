@@ -41,6 +41,7 @@ async function addRootDialog() {
 	if(res) {
 		let ans = ynPrompt("根看板已存在，是否需要覆寫（本來的資料將會遺失）？");
 		if(!ans) return;
+		else ROOT.manager = res.manager; // 以免覆寫掉板主名單
 	}
 	try {
 		await db.Board.findOneAndUpdate({ isRoot: true }, ROOT, { upsert: true });

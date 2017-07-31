@@ -1,5 +1,5 @@
 const db = require("../database.js");
-const { findBackendRules, doRestricts } = require("../util.js");
+const { findBackendRules, doRestricts, findFrontendRules } = require("../util.js");
 
 /**
  * @param {Board} board 
@@ -23,7 +23,15 @@ async function createBoard(manager_id, name, parent_id,
 	formRules, renderRules, backendRules) {
 
 	let parent = await db.Board.findOne({ _id: parent_id }).exec();
-	if(!parent) {throw `${ parent_id } 看板不存在`;}
+	if(!parent) {
+		throw `${ parent_id } 看板不存在`;
+	}
+
+	let same_name_board = db.Board.findOne({ parent: parent_id, name: name },
+		{ _id: 1 }).exec();
+	if(same_name_board) {
+		throw `名字 ${name} 與其它看板重復`;
+	}
 
 	let new_board = { parent: parent_id };
 	new_board.name = name;
@@ -37,14 +45,13 @@ async function createBoard(manager_id, name, parent_id,
 	setRule(new_board, parent, renderRules, "canDefArticleContent", "renderArticleContent");
 	setRule(new_board, parent, renderRules, "canDefTitle", "renderTitle");
 	// backend Rules
-	new_board.onEnterBoard = backendRules.onEnterBoard;
+	new_board.onEnter = backendRules.onEnter;
 	new_board.onNewBoard = backendRules.onNewBoard;
-	new_board.onEnterArticle = backendRules.onEnterArticle;
 	new_board.onNewArticle = backendRules.onNewArticle;
 	new_board.onComment = backendRules.onComment;
 
-	let restricts_str = findBackendRules({ b_id: parent_id, rule_name: "onNewBoard" });
-	let err_msg = doRestricts(new_board, manager_id, restricts_str);
+	let restricts = await findBackendRules(parent_id, "onNewBoard");
+	let err_msg = doRestricts(new_board, manager_id, restricts);
 	if(err_msg) {
 		return err_msg;
 	}
@@ -53,43 +60,35 @@ async function createBoard(manager_id, name, parent_id,
 	return null;
 }
 
-async function getRootId() {
-	return (await db.Board.findOne({ isRoot: true }, { _id: 1 }).lean().exec())._id;
-}
-
-async function recursiveGetBoard(id, name, depth=0) {
-	if(depth == name.length) {return id;}
-	let next_b = await (db.Board.findOne({ name: name[depth], parent: id }).lean().exec());
-	if(!next_b) {throw `找不到看板 ${name[depth]}`;}
-	return await recursiveGetBoard(next_b._id, name, depth+1);
-}
-
-const ARTICLE_DISPLAY = {
+const ARTICLE_SELECT = {
 	title: 1,
 	date: 1,
 	author: 1,
 	articleContent: 1,
 };
-const BOARD_DISPLAY = {
+const BOARD_SELECT = {
 	name: 1,
 	manager: 1,
 	date: 1,
-	renderTitle: 1, // TODO:
-	articleForm: 1, // TODO: 這兩個在 b_list 中其實不用傳，可以拿掉增進效能
 };
 async function getList(board_id, max, user_id) {
-	let restricts_str = findBackendRules({ b_id: board_id, rule_name: "onEnterBoard" });
-	let err_msg = doRestricts(board_id, user_id, restricts_str);
+	let restricts = await findBackendRules(board_id, "onEnter");
+	let err_msg = doRestricts(board_id, user_id, restricts);
 	// TODO: 不能只傳入 board_id，否則難以達到水桶之類的功能！！
-	if(err_msg) {return { err_msg };}
-	let [ b_list, a_list, board ] = await Promise.all([
-		db.Board.find({ parent: board_id }, BOARD_DISPLAY).sort({ date: -1 }).limit(max).lean().exec(),
-		db.Article.find({ board: board_id }, ARTICLE_DISPLAY).sort({ date: -1 }).limit(max).lean().exec(),
-		db.Board.findOne({ _id: board_id }, BOARD_DISPLAY).lean().exec()
+	if(err_msg) {
+		return { err_msg };
+	}
+	let [ b_list, a_list, board, rules ] = await Promise.all([
+		db.Board.find({ parent: board_id }, BOARD_SELECT).sort({ date: -1 }).limit(max).lean().exec(),
+		db.Article.find({ board: board_id }, ARTICLE_SELECT).sort({ date: -1 }).limit(max).lean().exec(),
+		db.Board.findOne({ _id: board_id }, BOARD_SELECT).lean().exec(),
+		findFrontendRules(board_id, ["renderTitle", "articleForm"])
 	]);
+	board.renderTitle = rules.renderTitle;
+	board.articleForm = rules.articleForm;
 	return { a_list, b_list, board };
 }
 
 module.exports = {
-	createBoard, getRootId, recursiveGetBoard, getList
+	createBoard, getList,
 };
