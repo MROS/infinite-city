@@ -9,7 +9,8 @@ const db = require("./database.js");
  * @return {[String]}
  */
 function findBackendRules(arg) {
-	throw "尚未實作！！";
+	// TODO:
+	return [];
 }
 
 /**

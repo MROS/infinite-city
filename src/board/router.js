@@ -24,7 +24,7 @@ router.get("/list/:board", async function (req, res) {
 	try {
 		let max = Number(req.query.max) || 10;
 		let board_id = req.params.board;
-		let list = getList(board_id, max, req.session.userId);
+		let list = await getList(board_id, max, req.session.userId);
 		if(list.err_msg) res.send(list.err_msg);
 		else res.json(list);
 	} catch (err) {
