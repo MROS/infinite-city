@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { Map } from "immutable";
 import {
 	BrowserRouter as Router,
 	Switch,
@@ -52,14 +53,14 @@ class App extends React.Component {
 		}).then((res) => {
 			if (res.ok) {
 				res.json().then((data) => {
-					console.log(data);
+					console.log("取得登入資料");
 					this.setState(data);
 				});
 			} else {
-				console.log("取得 id 失敗");
+				console.log("取得登入資料失敗");
 			}
 		}, (err) => {
-			console.log(`取得 id 失敗：${err}`);
+			console.log(`取得登入資料失敗：${err}`);
 		});
 	}
 	render() {
@@ -150,43 +151,75 @@ class CreateArticle extends React.Component {
 class CreateBoard extends React.Component {
 	constructor(props) {
 		super(props);
-		this.CanDefine = [
-			{ display: "可定義標題", name: "canDefTitle" },
-			{ display: "可定義文章內容", name: "canDefArticleContent" },
-			{ display: "可定義文章表單", name: "canDefArticleForm" },
-			{ display: "可定義留言", name: "canDefComment" },
-			{ display: "可定義留言表單", name: "canDefCommentForm" },
-		];
-		this.RenderFunction = [
-			{ display: "標題渲染函式", name: "renderTitle" },
-			{ display: "文章內容渲染函式", name: "renderArticleContent" },
-			{ display: "發文表單渲染函式", name: "renderArti key={urlPath}cleForm" },
-			{ display: "留言渲染函式", name: "renderComment" },
-			{ display: "留言表單渲染函式", name: "renderCommentForm" },
-		];
-		this.state = {
-			rules: {}
+		this.rules = {
+			formRules: {
+				display: "表單規則",
+				checkbox: [
+					{ display: "可定義文章表單", name: "canDefArticleForm" },
+					{ display: "可定義留言表單", name: "canDefCommentForm" },
+				],
+				textarea: [
+					{ display: "文章表單格式", name: "articleForm" },
+					{ display: "留言表單格式", name: "commentForm" },
+				]
+			},
+			renderRules: {
+				display: "渲染規則",
+				checkbox: [
+					{ display: "可定義標題", name: "canDefTitle" },
+					{ display: "可定義文章內容", name: "canDefArticleContent" },
+					{ display: "可定義留言", name: "canDefComment" },
+				],
+				textarea: [
+					{ display: "標題渲染函式", name: "renderTitle" },
+					{ display: "文章內容渲染函式", name: "renderArticleContent" },
+					{ display: "留言渲染函式", name: "renderComment" },
+				]
+			},
+			backendRules: {
+				display: "權限限制",
+				checkbox: [],
+				textarea: [
+					{ display: "進入看板", name: "onEnterBoard" },
+					{ display: "進入文章", name: "onEnterAritcle" },
+					{ display: "創建看板", name: "onNewBoard" },
+					{ display: "發文", name: "onNewArticle" },
+					{ display: "留言", name: "onComment" },
+				]
+			}
 		};
-		this.CanDefine.forEach((option) => {
-			this.state.rules[[option.name]] = true;
-		});
-		this.RenderFunction.forEach((option) => {
-			this.state.rules[[option.name]] = null;
+		this.state = {
+			name: "",
+			show: Map({
+				formRules: false,
+				renderRules: false,
+				backendRules: false
+			})
+		};
+		Object.keys(this.rules).forEach((ruleName) => {
+			this.state[ruleName] = Map();
+			this.rules[ruleName].checkbox.forEach((option) => {
+				this.state[ruleName] = this.state[ruleName].set(option.name, true);
+			});
+			this.rules[ruleName].textarea.forEach((option) => {
+				this.state[ruleName] = this.state[ruleName].set(option.name, "");
+			});
 		});
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.handleNameChange = this.handleNameChange.bind(this);
-		this.handleOnSubmit = this.handleOnSubmit.bind(this);
+		this.handleOnSubmit = this.handleOnSubmit.bind(this)	;
+		this.extendableGroup = this.extendableGroup.bind(this);
+		this.toggleGroup = this.toggleGroup.bind(this);
 	}
-	handleInputChange(event) {
-		const target = event.target;
-		const value = target.type === "checkbox" ? target.checked : target.value;
-		const name = target.name;
-
-		this.setState({
-			rules: {
-				[name]: value
-			}
-		});
+	handleInputChange(ruleName) {
+		return (event) => {
+			const target = event.target;
+			const value = target.type === "checkbox" ? target.checked : target.value;
+			const name = target.name;
+			this.setState({
+				[ruleName]: this.state[ruleName].set(name, value)
+			});
+		};
 	}
 	handleNameChange(event) {
 		this.setState({
@@ -194,53 +227,87 @@ class CreateBoard extends React.Component {
 		});
 	}
 	handleOnSubmit() {
-		let { name, rules } = this.state;
-		this.props.newBoard({ name, rules });
+		let { name, formRules, renderRules, backendRules } = this.state;
+		let board = {
+			name,
+			formRules: formRules.toObject(),
+			renderRules: renderRules.toObject(),
+			backendRules: backendRules.toObject()
+		};
+		this.props.newBoard(board);
+	}
+	toggleGroup(ruleName) {
+		return () => {
+			this.setState({
+				show: this.state.show.set(ruleName, !this.state.show.get(ruleName))
+			});
+		};
+	}
+	extendableGroup(ruleName) {
+		return (
+			<div style={{ marginBottom: "35px" }}>
+				<h5 className="title is-5">{this.rules[ruleName].display}</h5>
+				<div>
+					{
+						(() => {
+							if (this.state.show.get(ruleName)) {
+								return <div>
+									<a onClick={this.toggleGroup(ruleName)}>收起</a>
+									{
+										[
+											...(this.rules[ruleName].checkbox.map((option) => {
+												return (
+													<div key={option.name} className="field">
+														<label className="checkbox">
+															<input
+																onChange={this.handleInputChange(ruleName)}
+																checked={this.state[ruleName].get(option.name)}
+																name={option.name}
+																type="checkbox" />
+															{option.display}
+														</label>
+													</div>
+												);
+											})),
+											...(this.rules[ruleName].textarea.map((option) => {
+												return (
+													<div key={option.name} className="field">
+														<label className="label">{option.display}</label>
+														<div className="control">
+															<textarea
+																value={this.state[ruleName].get(option.name)}
+																onChange={this.handleInputChange(ruleName)}
+																name={option.name}
+																className="textarea"
+																placeholder={option.display} />
+														</div>
+													</div>
+												);
+											}))
+										]
+									}
+								</div>;
+							} else {
+								return <div><a onClick={this.toggleGroup(ruleName)}>展開</a></div>;
+							}
+						})()
+					}
+				</div>
+			</div>
+		);
 	}
 	render() {
 		return (
 			<div>
-				<div className="field">
+				<div className="field" style={{marginBottom: "35px"}}>
 					<label className="label">看板名稱</label>
 					<div className="control">
 						<input onChange={this.handleNameChange} className="input" type="text" placeholder="看板名稱" />
 					</div>
 				</div>
-				{
-					(() => {
-						return (
-							this.CanDefine.map((option) => {
-								return (
-									<div key={option.name} className="field">
-										<label className="checkbox">
-											<input onChange={this.handleInputChange} defaultChecked={this.state.rules[[option.name]]} name={option.name} type="checkbox" />
-											{option.display}
-										</label>
-									</div>
-
-								);
-							}
-
-							)
-						);
-					})()
-				}
-				{
-					(() => {
-						return (
-							this.RenderFunction.map((option) => {
-								return (
-									<div key={option.name} className="field">
-										<label className="label">{option.display}</label>
-										<div className="control">
-											<textarea onChange={this.handleInputChange} className="textarea" placeholder={option.display} />
-										</div>
-									</div>
-								);
-							})
-						);
-					})()
-				}
+				{ this.extendableGroup("formRules") }
+				{ this.extendableGroup("renderRules") }
+				{ this.extendableGroup("backendRules") }
 				<div className="field">
 					<div className="control">
 						<button onClick={this.handleOnSubmit} className="button is-primary">送出</button>
@@ -291,7 +358,7 @@ class Board extends React.Component {
 							console.log("取得看板資料失敗");
 							break;
 						default:
-							console.log(data);
+							console.log("取得看板資料成功");
 							this.boardID = data.board_id;
 							const boards = data.b_list.map(b => b.name);
 							const articles = data.a_list.map(a => a.name);
