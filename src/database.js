@@ -1,22 +1,10 @@
-const config = require("./config.js");
 const mongoose = require("mongoose");
+const config = require("./config.js");
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 mongoose.Promise = global.Promise;
 
-let env = require("optimist").argv.env || process.env.env || "dev";
-console.log(`環境：${env}`);
-let server = (() => {
-	switch (env) {
-		case "dev":
-			return config.dev_server;
-		case "test":
-			return config.test_server;
-		default:
-			throw `未知的環境：${env}`;
-	}
-})();
-mongoose.connect(server.url, server.options)
+mongoose.connect(config.server.url, config.server.options)
 .then(
 	() => console.log("資料庫連結成功"),
 	err => console.error("資料庫連結失敗")
@@ -24,7 +12,7 @@ mongoose.connect(server.url, server.options)
 
 const board_schema_t = {
 	"isRoot": { type: Boolean, default: false },
-	"depth": { type: Number, required: true }, // TODO:
+	"depth": { type: Number, required: true },
 	"date": { type: Date, default: Date.now() },
 	"parent": {
 		type: ObjectId,
@@ -98,7 +86,6 @@ const comment_schema_t = {
 	"article": { type: ObjectId, required: true },
 	"date": { type: Date, default: Date.now() },
 	"author": String,
-
 	"msg": { type: [String] } // 其實可以是函數
 };
 
@@ -111,16 +98,12 @@ const user_schema_t = {
 
 let board_schema = new Schema(board_schema_t);
 let Board = mongoose.model("Board", board_schema);
-
 let article_schema = new Schema(article_schema_t);
 let Article = mongoose.model("Article", article_schema);
-
 let comment_schema = new Schema(comment_schema_t);
 let Comment = mongoose.model("Comment", comment_schema);
-
 let user_schema = new Schema(user_schema_t);
 let User = mongoose.model("User", user_schema);
-
 let article_info_schema = new Schema(article_info_schema_t);
 let ArticleInfo = mongoose.model("ArticleInfo", article_info_schema);
 

@@ -1,5 +1,3 @@
-const db = require("../database.js");
-const _ = require("lodash");
 let router = require("express").Router();
 
 let { createBoard, getRootId, recursiveGetBoard, getList } = require("./board.js");
