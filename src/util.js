@@ -72,7 +72,7 @@ function doRestricts(obj, user_id, restricts) {
 	return null;
 }
 
-async function recursiveGetBoard(id, names, depth=0) {
+async function recursiveGetBoard(id, name, depth=0) {
 	if(depth == name.length) {
 		return id;
 	}
