@@ -18,7 +18,7 @@ function encrypt(password, salt) {
 function encryptUser(id, password) {
 	return new Promise((resolve, reject) => {
 		crypto.randomBytes(128, function (err, salt) {
-			if(err) reject(err);
+			if (err) { reject(err); }
 			salt = salt.toString("hex");
 			password = encrypt(password, salt);
 			resolve({ id, password, salt });

@@ -3,7 +3,9 @@ const { findBackendRules, doRestricts } = require("../util.js");
 
 async function createComment(author_id, article_id, msg) {
 	let article = await db.Board.findOne({ _id: article }).exec();
-	if(!article) throw `${ article } 看板不存在`;
+	if (!article) {
+		throw `${ article } 看板不存在`;
+	}
 
 	let new_comment = {
 		article: article_id,
@@ -12,7 +14,9 @@ async function createComment(author_id, article_id, msg) {
 	};
 	let restricts_str = findBackendRules({ a_id: article_id, rule_name: "onComment" });
 	let err_msg = doRestricts(new_comment, author_id, restricts_str);
-	if(err_msg) return err_msg;
+	if (err_msg) {
+		return err_msg;
+	}
 
 	await db.Comment.create(new_comment);
 }

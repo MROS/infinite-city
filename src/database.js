@@ -17,8 +17,8 @@ const board_schema_t = {
 	"parent": {
 		type: ObjectId,
 		required: function() {
-			if(this.parent) return false;
-			else return !this.isRoot;
+			if (this.parent) { return false; }
+			else { return !this.isRoot; }
 		}
 	},
 	"name": { type: String, required: true },

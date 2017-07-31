@@ -21,6 +21,7 @@
         "no-var": ["error"],
         "no-undef": ["error"],
         "no-trailing-spaces": ["error"],
+        "curly": ["error"],
         "no-unused-vars": ["warn"],
         "indent": [
             "error",

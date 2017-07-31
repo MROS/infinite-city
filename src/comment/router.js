@@ -11,8 +11,8 @@ router.post("/new", async function(req, res) {
 		else {
 			let query = req.body;
 			let err_msg = await createComment(userId, query.article, query.msg);
-			if(err_msg) res.send(err_msg);
-			else res.send("OK");
+			if (err_msg) { res.send(err_msg); }
+			else { res.send("OK"); }
 		}
 	} catch(err) {
 		console.log(err);

@@ -11,7 +11,9 @@ async function createArticle(author_id, title, board_id, articleContent,
 	formRules, renderRules, backendRules) {
 
 	let board = await db.Board.findOne({ _id: board_id }).exec();
-	if(!board) throw `${ board_id } 看板不存在`;
+	if(!board) {
+		throw `${ board_id } 看板不存在`;
+	}
 
 	let new_article = { board: board_id };
 	new_article.title = title;
@@ -30,7 +32,7 @@ async function createArticle(author_id, title, board_id, articleContent,
 
 	let restricts_str = findBackendRules({ b_id: board_id, rule_name: "onNewArticle" });
 	let err_msg = doRestricts(new_article, author_id, restricts_str);
-	if(err_msg) return err_msg;
+	if(err_msg) { return err_msg; }
 
 	await db.Article.create(new_article);
 	return null;

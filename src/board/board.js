@@ -9,7 +9,7 @@ const { findBackendRules, doRestricts } = require("../util.js");
  * @param {String} rule_key
  */
 function setRule(board, parent, rules, can_key, rule_key) {
-	if(parent[can_key]) board[rule_key] = rules[rule_key];
+	if(parent[can_key]) {board[rule_key] = rules[rule_key];}
 	board[can_key] = rules[can_key] && parent[can_key];
 }
 
@@ -23,7 +23,7 @@ async function createBoard(manager_id, name, parent_id,
 	formRules, renderRules, backendRules) {
 
 	let parent = await db.Board.findOne({ _id: parent_id }).exec();
-	if(!parent) throw `${ parent_id } 看板不存在`;
+	if(!parent) {throw `${ parent_id } 看板不存在`;}
 
 	let new_board = { parent: parent_id };
 	new_board.name = name;
@@ -45,7 +45,9 @@ async function createBoard(manager_id, name, parent_id,
 
 	let restricts_str = findBackendRules({ b_id: parent_id, rule_name: "onNewBoard" });
 	let err_msg = doRestricts(new_board, manager_id, restricts_str);
-	if(err_msg) return err_msg;
+	if(err_msg) {
+		return err_msg;
+	}
 
 	await db.Board.create(new_board);
 	return null;
@@ -56,9 +58,9 @@ async function getRootId() {
 }
 
 async function recursiveGetBoard(id, name, depth=0) {
-	if(depth == name.length) return id;
+	if(depth == name.length) {return id;}
 	let next_b = await (db.Board.findOne({ name: name[depth], parent: id }).lean().exec());
-	if(!next_b) throw `找不到看板 ${name[depth]}`;
+	if(!next_b) {throw `找不到看板 ${name[depth]}`;}
 	return await recursiveGetBoard(next_b._id, name, depth+1);
 }
 
@@ -79,7 +81,7 @@ async function getList(board_id, max, user_id) {
 	let restricts_str = findBackendRules({ b_id: board_id, rule_name: "onEnterBoard" });
 	let err_msg = doRestricts(board_id, user_id, restricts_str);
 	// TODO: 不能只傳入 board_id，否則難以達到水桶之類的功能！！
-	if(err_msg) return { err_msg };
+	if(err_msg) {return { err_msg };}
 	let [ b_list, a_list, board ] = await Promise.all([
 		db.Board.find({ parent: board_id }, BOARD_DISPLAY).sort({ date: -1 }).limit(max).lean().exec(),
 		db.Article.find({ board: board_id }, ARTICLE_DISPLAY).sort({ date: -1 }).limit(max).lean().exec(),

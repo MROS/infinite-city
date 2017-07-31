@@ -13,8 +13,8 @@ router.post("/new", async function (req, res) {
 			let err_msg = await createArticle(userId, query.title,
 				query.board, query.articleContent,
 				query.formRules, query.renderRules, query.backendRules);
-			if(err_msg) res.send(err_msg);
-			else res.send("OK");
+			if (err_msg) { res.send(err_msg); }
+			else { res.send("OK"); }
 		}
 	} catch (err) {
 		console.log(err);
