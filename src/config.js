@@ -14,20 +14,8 @@ const test_server = {
 	}
 };
 
-let env = require("optimist").argv.env || process.env.env || "dev";
-console.log(`環境：${env}`);
-let server = (() => {
-	switch (env) {
-		case "dev":
-			return dev_server;
-		case "test":
-			return test_server;
-		default:
-			throw `未知的環境：${env}`;
-	}
-})();
-
 module.exports = {
 	PORT,
-	server,
+	test_server,
+	dev_server
 };

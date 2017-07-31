@@ -4,9 +4,29 @@ const Schema = mongoose.Schema;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 mongoose.Promise = global.Promise;
 
-mongoose.connect(config.server.url, config.server.options)
+let env = require("optimist").argv.env || process.env.env || "dev";
+console.log(`環境：${env}`);
+let server = (() => {
+	switch (env) {
+		case "dev":
+			return config.dev_server;
+		case "test":
+			return config.test_server;
+		default:
+			throw `未知的環境：${env}`;
+	}
+})();
+
+mongoose.connect(server.url, server.options)
 .then(
-	() => console.log("資料庫連結成功"),
+	() => {
+		console.log("資料庫連結成功");
+		if(env == "test") {
+			mongoose.connection.dropDatabase()
+			.then(() => console.log("清空資料庫成功"))
+			.catch(() => console.log("清空資料庫成功"));
+		}
+	},
 	err => console.error("資料庫連結失敗")
 );
 
