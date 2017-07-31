@@ -27,7 +27,7 @@ async function createBoard(manager_id, name, parent_id,
 		throw `${ parent_id } 看板不存在`;
 	}
 
-	let same_name_board = db.Board.findOne({ parent: parent_id, name: name },
+	let same_name_board = await db.Board.findOne({ parent: parent_id, name: name },
 		{ _id: 1 }).exec();
 	if(same_name_board) {
 		throw `名字 ${name} 與其它看板重復`;
