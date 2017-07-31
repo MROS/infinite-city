@@ -143,13 +143,14 @@ async function dropDBDialog() {
 	waitEnter();
 }
 
-const [ QUIT, ADD_ROOT, ADD_MANAGER, CLEAR_MANAGER, DROP ] = [ "Q", "R", "M", "C", "D" ];
+const [ QUIT, ADD_ROOT, ADD_MANAGER, CLEAR_MANAGER, DROP, HELP ] = [ "Q", "R", "M", "C", "D", "H" ];
 const OPTIONS = `請從下列選擇欲執行的指令
 	- 新增／修改根看板：${ADD_ROOT}
 	- 新增根看板板主：${ADD_MANAGER}
 	- 清空根看板板主名單：${CLEAR_MANAGER}
 	- 清空資料庫：${DROP}
-	- 結束程式：${QUIT}`;
+	- 結束程式：${QUIT}
+	- 顯示這段訊息：${HELP}`;
 async function main() {
 	let ans = "";
 	while(ans != QUIT) {
@@ -162,6 +163,7 @@ async function main() {
 				else if (ans == ADD_ROOT) await addRootDialog();
 				else if(ans == ADD_MANAGER) await addManagerDialog();
 				else if(ans == CLEAR_MANAGER) await clearManagerDialog();
+				else if(ans == HELP) break;
 				else if(ans == DROP) await dropDBDialog();
 				else {
 					console.log("無此指令！");

@@ -62,16 +62,30 @@ async function recursiveGetBoard(id, name, depth=0) {
 	return await recursiveGetBoard(next_b._id, name, depth+1);
 }
 
+const ARTICLE_DISPLAY = {
+	title: 1,
+	date: 1,
+	author: 1,
+	articleContent: 1,
+};
+const BOARD_DISPLAY = {
+	name: 1,
+	manager: 1,
+	date: 1,
+	renderTitle: 1, // TODO:
+	articleForm: 1, // TODO: 這兩個在 b_list 中其實不用傳，可以拿掉增進效能
+};
 async function getList(board_id, max, user_id) {
 	let restricts_str = findBackendRules({ b_id: board_id, rule_name: "onEnterBoard" });
 	let err_msg = doRestricts(board_id, user_id, restricts_str);
 	// TODO: 不能只傳入 board_id，否則難以達到水桶之類的功能！！
 	if(err_msg) return { err_msg };
-	let [ b_list, a_list ] = await Promise.all([
-		db.Board.find({ parent: board_id }).sort({ date: -1 }).limit(max).exec(),
-		db.Article.find({ board: board_id }).sort({ date: -1 }).limit(max).exec(),
+	let [ b_list, a_list, board ] = await Promise.all([
+		db.Board.find({ parent: board_id }, BOARD_DISPLAY).sort({ date: -1 }).limit(max).lean().exec(),
+		db.Article.find({ board: board_id }, ARTICLE_DISPLAY).sort({ date: -1 }).limit(max).lean().exec(),
+		db.Board.findOne({ _id: board_id }, BOARD_DISPLAY).lean().exec()
 	]);
-	return { a_list, b_list, board_id };
+	return { a_list, b_list, board };
 }
 
 module.exports = {

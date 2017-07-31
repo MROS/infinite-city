@@ -15,11 +15,17 @@
 		+ 例如：api/board/browse?base=595cb098f549af236588f88d&max=50&name=運動類,中華職棒,爪爪板
 		+ 帶參數 max，限制返回陣列最多可以多長，預設爲10
 		+ 帶參數 base，爲亂碼 _id，預設爲根看板
-		+ 返回根看板下的所有東西，{ b_list, a_list, board_id }
-		+ a_list 爲文章列表， b_list 爲看板列表，board_id 爲此看板的亂碼 _id
+		+ 返回根看板下的所有東西，{ b_list, a_list, board }
+		+ a_list 爲文章列表，b_list 爲看板列表，board 為查找的這個看板
+			- board 中的資料如下
+				1. name
+				2. manager
+				3. date
+				4. renderTitle
+				5. articleForm
 	- GET api/board/list/:board?max=
 		+ 帶參數 max
-		+ 返回 :board 底下所有東西，{ b_list, a_list, board_id }
+		+ 返回 :board 底下所有東西，{ b_list, a_list, board }
 	- POST api/board/new
 		+ { name, parent, formRules, renderRules, backendRules }
 		+ name: 字串，看板的名字
