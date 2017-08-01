@@ -105,11 +105,36 @@ describe("測試 api", () => {
 			.send(defaultArticle("a2", bid_array[3])).expect(200);
 			aid_array.push(res.body._id);
 		});
+
+		function assertList(list, expected, key="_id") {
+			list = list.map(e => e[key]);
+			expect(list.sort()).toEqual(expected.sort());
+		}
 		test("瀏覽看板底下東西的功能", async() => {
 			let res = await session.get("/api/board/browse").expect(200);
 			let { a_list, b_list, board } = res.body;
 			expect(board._id).toBe(bid_array[0]);
-			// TODO:
+			assertList(a_list, []);
+			assertList(b_list, [bid_array[1], bid_array[2]]);
+
+			res = await session.get("/api/board/browse?name=b1").expect(200);
+			({ a_list, b_list, board } = res.body);
+			expect(board._id).toBe(bid_array[1]);
+			assertList(a_list, [aid_array[0]]);
+			assertList(b_list, []);
+
+			res = await session.get("/api/board/browse?name=b2").expect(200);
+			({ a_list, b_list, board } = res.body);
+			expect(board._id).toBe(bid_array[2]);
+			assertList(a_list, [aid_array[1]]);
+			assertList(b_list, [bid_array[3], bid_array[4], bid_array[5]]);
+			assertList(b_list, ["b3", "b4", "b5"], "name");
+
+			res = await session.get("/api/board/browse?name=b2,b3").expect(200);
+			({ a_list, b_list, board } = res.body);
+			expect(board._id).toBe(bid_array[3]);
+			assertList(a_list, ["a2"], "title");
+			assertList(b_list, []);
 		});
 	});
 

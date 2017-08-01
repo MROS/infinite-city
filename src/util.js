@@ -25,10 +25,10 @@ async function findFrontendRules(b_id, rule_key) {
 	if(!rule_key || rule_key.length == 0) {
 		throw "未指定欲查找的規則！";
 	}
-	else if(_.isArray(rule_key)) {
+	else if(!_.isArray(rule_key)) {
 		 rule_key = [rule_key];
 	}
-	let rules = {}, select = { _id: 1, isRoot: 1 };
+	let rules = {}, select = { _id: 1, isRoot: 1, parent: 1 };
 	for(let key of rule_key) {
 		rules[key] = [];
 		select[key] = 1;
