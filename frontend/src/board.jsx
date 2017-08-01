@@ -127,6 +127,7 @@ class CreateArticle extends React.Component {
 		};
 		addRuleToState(this.state, this.rules);
 		this.handleTitleChange = this.handleTitleChange.bind(this);
+		this.handleContentChange = this.handleContentChange.bind(this);
 		this.handleOnSubmit = this.handleOnSubmit.bind(this);
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.extendableGroup = this.extendableGroup.bind(this);
@@ -135,6 +136,12 @@ class CreateArticle extends React.Component {
 	handleTitleChange(event) {
 		this.setState({
 			title: event.target.value
+		});
+	}
+	// TODO: 需符合 articleForm
+	handleContentChange(event) {
+		this.setState({
+			articleContent: [event.target.value]
 		});
 	}
 	handleOnSubmit() {
@@ -165,6 +172,7 @@ class CreateArticle extends React.Component {
 					<label className="label">文章內容</label>
 					<div className="control">
 						<textarea
+							onChange={this.handleContentChange}
 							className="textarea"
 							placeholder="文章內容" />
 					</div>
@@ -511,7 +519,7 @@ class Board extends React.Component {
 								return this.state.articles.map((article) => {
 									return (
 										<div key={article.title}>
-											<Link to={location.pathname + "/a/" + article.title}>{article.title}</Link>
+											<Link to={`${location.pathname}/a/${article.title}?id=${article._id}`}>{article.title}</Link>
 										</div>
 									);
 								});
