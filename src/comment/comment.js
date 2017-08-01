@@ -2,7 +2,7 @@ const db = require("../database.js");
 const { findBackendRules, doRestricts } = require("../util.js");
 
 async function createComment(author_id, article_id, msg) {
-	let article = await db.Board.findOne({ _id: article }).exec();
+	let article = await db.Article.findOne({ _id: article_id }).exec();
 	if (!article) {
 		throw `${ article } 看板不存在`;
 	}

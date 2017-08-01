@@ -2,6 +2,44 @@ import React from "react";
 import { Link } from "react-router-dom";
 import example from "./example";
 
+class InputComment extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			comment: ""
+		};
+		this.onChangeComment = this.onChangeComment.bind(this);
+		this.onSubmitComment = this.onSubmitComment.bind(this);
+	}
+	onChangeComment(event) {
+		this.setState({
+			comment: event.target.value
+		});
+	}
+	onSubmitComment() {
+		this.props.submitComment(this.state.comment);
+	}
+	render() {
+		return (
+			<div className="field has-addons" style={{ marginBottom: "25px" }}>
+				<div className="control is-expanded">
+					<input
+						onChange={this.onChangeComment}
+						value={this.state.comment}
+						className="input"
+						type="text"
+						placeholder="說點什麼吧" />
+				</div>
+				<div className="control">
+					<a className="button" onClick={this.onSubmitComment}>
+						留言
+					</a>
+				</div>
+			</div>
+		);
+	}
+}
+
 class Article extends React.Component {
 	constructor(props) {
 		// props 要有屬性 commentForm, renderComment, content, renderArticleContent
@@ -10,11 +48,7 @@ class Article extends React.Component {
 		super(props);
 		this.state = {
 			content: "",
-			comments: [
-				{user: "yc0304", content: "甲"},
-				{user: "lturtsamuel", content: "姆咪姆咪"},
-				{user: "痛哭的人", content: "痛哭流涕"},
-			]
+			comments: []
 		};
 		this.URLquery = {};
 		this.props.location.search.slice(1).split("&").forEach((q) => {
@@ -23,6 +57,7 @@ class Article extends React.Component {
 		});
 		this.countPath = this.countPath.bind(this);
 		this.getArticleData = this.getArticleData.bind(this);
+		this.submitComment = this.submitComment.bind(this);
 	}
 	countPath() {
 		const urlPath = this.props.location.pathname;
@@ -61,7 +96,7 @@ class Article extends React.Component {
 								title: data.title,
 								date: new Date(data.date),
 								content: data.articleContent.join(""),
-								// comments: data.comment
+								comments: data.comment
 							});
 					}
 				});
@@ -70,6 +105,41 @@ class Article extends React.Component {
 			}
 		}, (err) => {
 			console.log("AJAX失敗，取得文章資料失敗");
+		});
+	}
+	submitComment(msg) {
+		const url = "/api/comment/new";
+		const body = {
+			msg,
+			article: this.URLquery.id
+		};
+		console.log(JSON.stringify(body));
+		fetch(url, {
+			method: "POST",
+			credentials: "same-origin",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(body)
+		}).then((res) => {
+			if (res.ok) {
+				res.text().then((data) => {
+					switch (data) {
+						case "OK":
+							console.log("留言成功");
+							break;
+						case "尚未登入":
+							console.log("留言：尚未登入");
+							break;
+						default:
+							console.log(`留言：不明狀況 ${data}`);
+					}
+				});
+			} else {
+				console.log("留言：非正常失敗");
+			}
+		}, (err) => {
+			console.log("AJAX失敗，留言失敗");
 		});
 	}
 	componentDidMount() {
@@ -109,23 +179,16 @@ class Article extends React.Component {
 						this.state.comments.map((comment, index) => {
 							return (
 								<div key={index}>
-									<span style={{ color: "blue" }}>{comment.user}</span>
+									<span style={{ color: "blue" }}>{comment.author}</span>
 									<span>：</span>
-									<span>{comment.content}</span>
+									<span>{comment.msg}</span>
 									<hr />
 								</div>
 							);
 						})
 					}
 				</div>
-				<div className="field has-addons" style={{ marginBottom: "25px" }}>
-					<div className="control is-expanded">
-						<input className="input" type="text" placeholder="說點什麼吧" />
-					</div>
-					<div className="control">
-						<a className="button">我來留言</a>
-					</div>
-				</div>
+				<InputComment submitComment={this.submitComment}/>
 			</div>
 		);
 	}

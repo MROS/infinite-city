@@ -36,7 +36,7 @@ router.get("/browse", async function(req, res) {
 			root_id = await getRootId();
 		}
 		let board_id = await recursiveGetBoard(root_id, name);
-		let article = getArticle(board_id, article_id, max, req.session.userId);
+		let article = await getArticle(board_id, article_id, max, req.session.userId);
 		if(article.err_msg) {
 			res.send(article.err_msg);
 		}
