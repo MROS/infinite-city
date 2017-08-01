@@ -34,10 +34,10 @@ async function createArticle(author_id, title, board_id, articleContent,
 	let restricts = await findBackendRules(board_id, "onNewArticle");
 	let err_msg = doRestricts(new_article, author_id, restricts);
 	if(err_msg) {
-		return err_msg;
+		return { err_msg };
 	}
-	await db.Article.create(new_article);
-	return null;
+	let new_id = (await db.Article.create(new_article))._id;
+	return { _id: new_id };
 }
 
 async function getArticle(board_id, article_id, max, user_id) {
@@ -48,7 +48,9 @@ async function getArticle(board_id, article_id, max, user_id) {
 	if(!article) {
 		throw "無此文章！";
 	}
-	restricts.push({ caller: article, func: article.onEnter });
+	for(let onEnter of article.onEnter) {
+		restricts.push({ caller: article, func: onEnter });
+	}
 	let err_msg = doRestricts(board_id, user_id, restricts);
 	if(err_msg) {
 		return { err_msg };

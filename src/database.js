@@ -19,14 +19,7 @@ let server = (() => {
 
 mongoose.connect(server.url, server.options)
 .then(
-	() => {
-		console.log("資料庫連結成功");
-		if(env == "test") {
-			mongoose.connection.dropDatabase()
-			.then(() => console.log("清空資料庫成功"))
-			.catch(() => console.log("清空資料庫成功"));
-		}
-	},
+	() => console.log("資料庫連結成功"),
 	err => console.error("資料庫連結失敗")
 );
 

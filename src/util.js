@@ -52,7 +52,7 @@ async function findFrontendRules(b_id, rule_key) {
 	}
 }
 
-/**
+/** TODO: 改成 async function ?
  * @param {Object} obj 看板、文章或推文
  * @param {String} user_id
  * @param {[String]} str_restricts 後端限制（字串形式）

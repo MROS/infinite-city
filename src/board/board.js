@@ -54,11 +54,11 @@ async function createBoard(manager_id, name, parent_id,
 	let restricts = await findBackendRules(parent_id, "onNewBoard");
 	let err_msg = doRestricts(new_board, manager_id, restricts);
 	if(err_msg) {
-		return err_msg;
+		return { err_msg };
 	}
 
-	await db.Board.create(new_board);
-	return null;
+	let new_id = (await db.Board.create(new_board))._id;
+	return { _id: new_id };
 }
 
 const ARTICLE_SELECT = {

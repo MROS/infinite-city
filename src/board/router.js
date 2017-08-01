@@ -1,4 +1,5 @@
 let router = require("express").Router();
+let _ = require("lodash");
 let { createBoard, getList } = require("./board.js");
 let { recursiveGetBoard, getRootId } = require("../util.js");
 
@@ -35,14 +36,21 @@ router.post("/new", async function(req, res) {
 		}
 		else {
 			let query = req.body;
-			let err_msg = await createBoard(userId, query.name, query.parent,
+			let new_b = await createBoard(userId, query.name, query.parent,
 				query.formRules, query.renderRules, query.backendRules);
-			if(err_msg) {res.send(err_msg);}
-			else {res.send("OK");}
+			if(new_b.err_msg) {
+				res.send(new_b.err_msg);
+			}
+			else {
+				res.json(new_b);
+			}
 		}
 	} catch(err) {
-		console.log(err);
-		res.status(400).send("FAIL");
+		if(_.isString(err)) { // 自定的錯誤
+			res.send(err);
+		} else {
+			res.status(400).send("FAIL");
+		}
 	}
 });
 

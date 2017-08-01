@@ -1,6 +1,9 @@
 const readlineSync = require("readline-sync");
 const db = require("./database.js");
 const ROOT = require("./root_config.js");
+
+let env = require("optimist").argv.env || process.env.env || "dev";
+
 function clearConsole() {
 	process.stdout.write("\033c");
 }
@@ -34,7 +37,7 @@ function ynPrompt(prompt) {
 async function addRootDialog() {
 	let res = null;
 	try {
-		res = await db.Board.findOne({ isRoot: true }).exec();
+		res = await db.Board.findOne({ isRoot: true }).lean().exec();
 	} catch (err) {
 		console.log(err);
 	}
@@ -44,7 +47,7 @@ async function addRootDialog() {
 		else ROOT.manager = res.manager; // 以免覆寫掉板主名單
 	}
 	try {
-		await db.Board.findOneAndUpdate({ isRoot: true }, ROOT, { upsert: true });
+		await db.Board.findOneAndUpdate({ isRoot: true }, ROOT, { upsert: true }).exec();
 		console.log("成功加入根看板！");
 	} catch(err) {
 		console.log(err.message);
@@ -54,7 +57,7 @@ async function addRootDialog() {
 async function addManagerDialog() {
 	let root
 	try {
-		root = await db.Board.findOne({ isRoot: true }).exec();
+		root = await db.Board.findOne({ isRoot: true }).lean().exec();
 		if(!root) {
 			console.log("尚未創立根看板！");
 			waitEnter();
@@ -75,7 +78,7 @@ async function addManagerDialog() {
 				console.error(`${ans} 已在板主名單中！`)
 			}
 			else {
-				let user = await db.User.findOne({ id: ans });
+				let user = await db.User.findOne({ id: ans }).lean().exec();
 				if (!user) console.error(`查無此帳號：${ans} ！`);
 				else list.push(ans);
 			}
@@ -91,7 +94,7 @@ async function addManagerDialog() {
 			try {
 				await db.Board.findOneAndUpdate({ isRoot: true }, {
 					$push: { "manager": { $each: list } }
-				});
+				}).exec();
 				console.log("新增成功！")
 			} catch(err) {
 				console.error(err.message);
@@ -113,7 +116,7 @@ async function clearManagerDialog() {
 	let ans = ynPrompt(`確定要清空${root.manager.length}位板主？`);
 	if(ans) {
 		try {
-			await db.Board.findOneAndUpdate({ isRoot: true }, { manager: [] });
+			await db.Board.findOneAndUpdate({ isRoot: true }, { manager: [] }).exec();
 			console.log("成功清空板主名單！");
 		} catch(err) {
 			console.error(err.message);
@@ -121,19 +124,25 @@ async function clearManagerDialog() {
 	}
 	waitEnter();
 }
+let P_NAME = "infinite-city";
 async function dropDBDialog() {
-	let ans = question("請輸入專案的名稱 > ", false);
-	if (ans != "infinite-city") console.log("名稱錯誤！");
+	let ans = "";
+	if(env == "test") {
+		ans = P_NAME;
+	} else {
+		let ans = question("請輸入專案的名稱 > ", false);
+	}
+	if (ans != P_NAME) console.log("名稱錯誤！");
 	else {
 		ans = ynPrompt("確定要清空整個資料庫？");
 		if(ans) {
 			try {
 				await Promise.all([
-					db.Article.collection.remove({}),
-					db.ArticleInfo.collection.remove({}),
+					db.Article.remove({}),
+					db.ArticleInfo.remove({}),
 					db.Board.remove({}),
-					db.Comment.collection.remove({}),
-					db.User.collection.remove({}),
+					db.Comment.remove({}),
+					db.User.remove({}),
 				]);
 				console.log("成功清空資料庫！");
 			} catch (err) {

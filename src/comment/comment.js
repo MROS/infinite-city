@@ -13,9 +13,11 @@ async function createComment(author_id, article_id, msg) {
 		msg: msg,
 		date: new Date()
 	};
-	let restricts_str = await findBackendRules(article.board, "onComment" );
-	restricts_str.push({ caller: article, func: article.onComment });
-	let err_msg = doRestricts(new_comment, author_id, restricts_str);
+	let restricts = await findBackendRules(article.board, "onComment" );
+	for(let onComment of article.onComment) {
+		restricts.push({ caller: article, func: onComment });
+	}
+	let err_msg = doRestricts(new_comment, author_id, restricts);
 	if (err_msg) {
 		return err_msg;
 	}

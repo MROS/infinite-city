@@ -1,4 +1,5 @@
 let router = require("express").Router();
+let _ = require("lodash");
 let { createArticle, getArticle } = require("./article.js");
 let { recursiveGetBoard, getRootId } = require("../util.js");
 
@@ -9,18 +10,22 @@ router.post("/new", async function (req, res) {
 			res.send("尚未登入");
 		} else {
 			let query = req.body;
-			let err_msg = await createArticle(userId, query.title,
+			let new_a = await createArticle(userId, query.title,
 				query.board, query.articleContent,
 				query.formRules, query.renderRules, query.backendRules);
-			if (err_msg) {
-				res.send(err_msg);
+			if (new_a.err_msg) {
+				res.send(new_a.err_msg);
 			} else {
-				res.send("OK");
+				res.json(new_a);
 			}
 		}
 	} catch (err) {
 		console.log(err);
-		res.status(400).send("FAIL");
+		if(_.isString(err)) {
+			res.send(err);
+		} else {
+			res.status(400).send("FAIL");
+		}
 	}
 });
 

@@ -46,7 +46,9 @@
 			3. onNewArticle: [rule: String] 發文時在後端做的檢查
 			4. onComment: [rule: String] 推文時在後端做的檢查
 				* 舉例而言，一則推文必須經過 onComment 陣列中每個 rule 檢查，才能進入資料庫
-		+ 返回 OK
+		+ 返回格式有二
+			1. 純字串的錯誤訊息，代表被板主定義的 onNewBoard 婊了（字串也是板主客製的）
+			2. { _id: String } 代表新建立看板的 id
 * api/article
 	- POST api/article/new
 		+ { title, board, articleContent, formRules, renderRules, backendRules }
@@ -61,7 +63,9 @@
 		+ backendRules: 鍵值對
 			1. onEnter [String]
 			2. onComment [String]
-		+ 返回 OK
+		+ 返回格式有二
+			1. 純字串的錯誤訊息，代表被板主定義的 onNewArticle 婊了（字串也是板主客製的）
+			2. { _id: String } 代表新建立文章的 id
 	- GET api/article/browse?base=?&name=?,?,?,...&id=?&max=?
 		+ 從某個基準看板（base）開始，往下根據名字（可爲中文）查找看板
 		+ 例如：api/board/browse?base=595cb098f549af236588f88d&max=50&name=運動類,中華職棒,爪爪板&id=5498as845e4156er6115w88d
