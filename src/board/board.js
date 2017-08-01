@@ -52,7 +52,7 @@ async function createBoard(manager_id, name, parent_id,
 	new_board.onComment = backendRules.onComment;
 
 	let restricts = await findBackendRules(parent_id, "onNewBoard");
-	let err_msg = doRestricts(new_board, manager_id, restricts);
+	let err_msg = doRestricts({ board: new_board }, manager_id, restricts);
 	if(err_msg) {
 		return { err_msg };
 	}
@@ -74,7 +74,7 @@ const BOARD_SELECT = {
 };
 async function getList(board_id, max, user_id) {
 	let restricts = await findBackendRules(board_id, "onEnter");
-	let err_msg = doRestricts(board_id, user_id, restricts);
+	let err_msg = doRestricts({ board: board_id }, user_id, restricts);
 	// TODO: 不能只傳入 board_id，否則難以達到水桶之類的功能！！
 	if(err_msg) {
 		return { err_msg };

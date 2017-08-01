@@ -32,7 +32,8 @@ async function createArticle(author_id, title, board_id, articleContent,
 	new_article.onComment = backendRules.onComment;
 
 	let restricts = await findBackendRules(board_id, "onNewArticle");
-	let err_msg = doRestricts(new_article, author_id, restricts);
+	let err_msg = doRestricts({ article: new_article, board: board }, author_id, restricts);
+
 	if(err_msg) {
 		return { err_msg };
 	}
@@ -51,7 +52,8 @@ async function getArticle(board_id, article_id, max, user_id) {
 	for(let onEnter of article.onEnter) {
 		restricts.push({ caller: article, func: onEnter });
 	}
-	let err_msg = doRestricts(board_id, user_id, restricts);
+	// TODO: 不能只傳入 board id!!
+	let err_msg = doRestricts({ board_id, article }, user_id, restricts);
 	if(err_msg) {
 		return { err_msg };
 	}

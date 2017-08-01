@@ -55,7 +55,7 @@ const board_schema_t = {
 
 	// 以下為 Form Rules
 	"articleForm": [String],
-	"commentForm": [String],
+	"commentForm": [Object],
 	"canDefArticleForm": { type: Boolean, default: true },
 	"canDefCommentForm": { type: Boolean, default: true },
 
@@ -79,7 +79,7 @@ const article_schema_t = {
 	"onComment": [String], // 提交留言時在「後端」進行的檢查
 	"onEnter": [String], // 進入文章時在「後端」進行的檢查，可以實現告白文（之類的）
 	// Form Rules
-	"commentForm": [String], // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
+	"commentForm": [Object], // TODO: 如果傳入非陣列（例如字串），會變成只有一個元素的陣列，應該改掉！
 
 	// 底下開始是文章真正的資料
 	"articleContent": [String], // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染

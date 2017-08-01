@@ -1,10 +1,7 @@
 const ROOT = {
-	isRoot: true,
-	depth: 0,
-	manager: [],
-	date: new Date(),
-
 	name: "無限城",
+
+	// render rules
 	renderTitle: "function(article, info) {"
 	+ "return `${info.push} [${article.author}] ${article.title}`"
 	+ "}",
@@ -13,7 +10,18 @@ const ROOT = {
 	+ "}",
 	renderComment: "function(comment) {"
 	+ "return comment.msg.join('\n')"
+	+ "}",
+	// backend rules
+	onNewArticle: "function(cur_pos) {"
+	+ "if(cur_pos.board.depth == 0) {"
+	+ "throw '不可褻瀆無限城的根';"
 	+ "}"
+	+ "}",
+
+	isRoot: true,
+	depth: 0,
+	manager: [],
+	date: new Date(),
 };
 
 module.exports = ROOT;

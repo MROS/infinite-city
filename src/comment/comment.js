@@ -17,7 +17,7 @@ async function createComment(author_id, article_id, msg) {
 	for(let onComment of article.onComment) {
 		restricts.push({ caller: article, func: onComment });
 	}
-	let err_msg = doRestricts(new_comment, author_id, restricts);
+	let err_msg = doRestricts({ comment: new_comment, article: article }, author_id, restricts);
 	if (err_msg) {
 		return err_msg;
 	}

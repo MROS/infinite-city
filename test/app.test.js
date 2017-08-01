@@ -4,6 +4,7 @@ const db = require("../src/database.js");
 
 const ROOT = require("../src/root_config.js");
 const tester1 = { id: "測試者一號", password: "testtest" };
+const tester2 = { id: "測試者二號", password: "testtest" };
 let env = require("optimist").argv.env || process.env.env || "dev";
 
 async function clearDB() {
@@ -26,6 +27,8 @@ describe("測試 api", () => {
 		await db.Board.create(ROOT);
 		await session.post("/api/user/new").send(tester1).expect("OK");
 		await session.get("/api/user/logout").expect("OK");
+		await session.post("/api/user/new").send(tester2).expect("OK");
+		await session.get("/api/user/logout").expect("OK");
 	});
 	describe("測試 user api", () => {
 		test("登入測試者一號", async () => {
@@ -40,9 +43,9 @@ describe("測試 api", () => {
 	describe("測試 board, article & comment api", () => {
 		/**
 		 * 建立這樣的結構
-		 *        root
+		 *        root              # root 不允許任何人發文
 		 *      /      \
-		 *     b1      b2 -----
+		 *     b1      b2 ------    # b2 只允許板主發文
 		 *     ｜     / | \    |
 		 *     a0    b3 b4 b5 a1
 		 *            |
@@ -59,23 +62,41 @@ describe("測試 api", () => {
 				backendRules: {}
 			};
 		};
-		test("建立樹狀看板結構", async () => {
+		test("建立樹狀看板結構的功能", async () => {
 			let res = await session.get("/api/board/browse").expect(200);
+			expect(res.body).toHaveProperty("board");
 			let _id = res.body.board._id;
 			bid_array.push(_id);
 
 			res = await session.post("/api/board/new").send(defaultBoard("b1", _id)).expect(200);
+			expect(res.body).toHaveProperty("_id");
 			bid_array.push(res.body._id);
 
-			res = await session.post("/api/board/new").send(defaultBoard("b2", _id)).expect(200);
+			let b2 = defaultBoard("b2", _id);
+			b2.backendRules.onNewArticle = `function(cur_pos, user_id, caller) {
+				if(cur_pos.board.depth == caller.depth) {
+					if(!caller.manager.includes(user_id)) {
+						throw "只有板主可在此發文";
+					}
+				}
+			}`;
+
+			res = await session.post("/api/board/new").send(b2).expect(200);
+			expect(res.body).toHaveProperty("_id");
 			_id = res.body._id;
 			bid_array.push(res.body._id);
 
+			// 切換使用者
+			await session.post("/api/user/login").send(tester2).expect("OK");
+
 			res = await session.post("/api/board/new").send(defaultBoard("b3", _id)).expect(200);
+			expect(res.body).toHaveProperty("_id");
 			bid_array.push(res.body._id);
 			res = await session.post("/api/board/new").send(defaultBoard("b4", _id)).expect(200);
+			expect(res.body).toHaveProperty("_id");
 			bid_array.push(res.body._id);
 			res = await session.post("/api/board/new").send(defaultBoard("b5", _id)).expect(200);
+			expect(res.body).toHaveProperty("_id");
 			bid_array.push(res.body._id);
 
 			res = await session.post("/api/board/new").send(defaultBoard("b5", _id))
@@ -92,17 +113,22 @@ describe("測試 api", () => {
 				backendRules: {}
 			};
 		}
-		test("建立文章", async () => {
+		test("建立文章的功能", async () => {
+			await session.post("/api/user/login").send(tester1).expect("OK");
+
 			let res = await session.post("/api/article/new")
 			.send(defaultArticle("a0", bid_array[1])).expect(200);
+			expect(res.body).toHaveProperty("_id");
 			aid_array.push(res.body._id);
 
 			res = await session.post("/api/article/new")
 			.send(defaultArticle("a1", bid_array[2])).expect(200);
+			expect(res.body).toHaveProperty("_id");
 			aid_array.push(res.body._id);
 
 			res = await session.post("/api/article/new")
 			.send(defaultArticle("a2", bid_array[3])).expect(200);
+			expect(res.body).toHaveProperty("_id");
 			aid_array.push(res.body._id);
 		});
 
@@ -135,6 +161,19 @@ describe("測試 api", () => {
 			expect(board._id).toBe(bid_array[3]);
 			assertList(a_list, ["a2"], "title");
 			assertList(b_list, []);
+		});
+		test("瀏覽文章和推文的功能", async() => {
+			// TODO:
+		});
+
+		test("限制 po 文的功能", async () => {
+			await session.post("/api/article/new")
+			.send(defaultArticle("a1", bid_array[0])).expect("不可褻瀆無限城的根");
+
+			await session.post("/api/user/login").send(tester2).expect("OK");
+
+			await session.post("/api/article/new")
+			.send(defaultArticle("aa", bid_array[2])).expect("只有板主可在此發文");
 		});
 	});
 

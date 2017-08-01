@@ -78,5 +78,5 @@
 			4. renderComment: String
 			5. renderArticleContent: String
 			6. articleContent: [String]
-			7. commentForm: [String]
+			7. commentForm: [Object]
 			8. comment: [Object]
