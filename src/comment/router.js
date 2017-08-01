@@ -5,7 +5,7 @@ let { createComment } = require("./comment.js");
 router.post("/new", async function(req, res) {
 	let userId = req.session.userId;
 	try {
-		if(userId) {
+		if(!userId) {
 			res.send("尚未登入");
 		}
 		else {
