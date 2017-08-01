@@ -2,6 +2,10 @@ import React from "react";
 import { Link } from "react-router-dom";
 import example from "./example";
 
+function isNonEmptyString(x) {
+	return (typeof x == "string" && x.length > 0);
+}
+
 class InputComment extends React.Component {
 	constructor(props) {
 		super(props);
@@ -96,6 +100,7 @@ class Article extends React.Component {
 								title: data.title,
 								date: new Date(data.date),
 								content: data.articleContent.join(""),
+								commentForm: data.commentForm,
 								comments: data.comment
 							});
 					}
@@ -188,7 +193,9 @@ class Article extends React.Component {
 						})
 					}
 				</div>
-				<InputComment submitComment={this.submitComment}/>
+				<InputComment
+					submitComment={this.submitComment}
+					commentForm={this.state.commentForm} />
 			</div>
 		);
 	}

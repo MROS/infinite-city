@@ -1,92 +1,145 @@
 import React from "react";
-import { Map } from "immutable";
-import {
-	Link
-} from "react-router-dom";
+import { fromJS, Map } from "immutable";
+import { Link } from "react-router-dom";
 
-function addRuleToState(state, rules) {
+function ruleToState(rules) {
+	let ret = {};
 	Object.keys(rules).forEach((ruleName) => {
-		state[ruleName] = Map();
+		ret[ruleName] = {};
 		rules[ruleName].checkbox.forEach((option) => {
-			state[ruleName] = state[ruleName].set(option.name, true);
+			 ret[ruleName][option.name] = true;
 		});
 		rules[ruleName].textarea.forEach((option) => {
-			state[ruleName] = state[ruleName].set(option.name, "");
+			 ret[ruleName][option.name] = "";
 		});
 	});
+	return fromJS(ret);
 }
 
-function handleInputChange(ruleName) {
-	return (event) => {
-		const target = event.target;
-		const value = target.type === "checkbox" ? target.checked : target.value;
-		const name = target.name;
-		this.setState({
-			[ruleName]: this.state[ruleName].set(name, value)
-		});
-	};
-}
-
-function toggleGroup(ruleName) {
-	return () => {
-		this.setState({
-			show: this.state.show.set(ruleName, !this.state.show.get(ruleName))
-		});
-	};
-}
-
-function extendableGroup(ruleName) {
-	return (
-		<div style={{ marginBottom: "35px" }}>
-			<h5 className="title is-5">{this.rules[ruleName].display}</h5>
-			<div>
+class Extendable extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+	render() {
+		return (
+			<div style={{ marginBottom: "35px" }}>
+				<h5 className="title is-5">{this.props.name}</h5>
 				{
 					(() => {
-						if (this.state.show.get(ruleName)) {
-							return <div>
-								<a onClick={this.toggleGroup(ruleName)}>收起</a>
-								{
-									[
-										...(this.rules[ruleName].checkbox.map((option) => {
-											return (
-												<div key={option.name} className="field">
-													<label className="checkbox">
-														<input
-															onChange={this.handleInputChange(ruleName)}
-															checked={this.state[ruleName].get(option.name)}
-															name={option.name}
-															type="checkbox" />
-														{option.display}
-													</label>
-												</div>
-											);
-										})),
-										...(this.rules[ruleName].textarea.map((option) => {
-											return (
-												<div key={option.name} className="field">
-													<label className="label">{option.display}</label>
-													<div className="control">
-														<textarea
-															value={this.state[ruleName].get(option.name)}
-															onChange={this.handleInputChange(ruleName)}
-															name={option.name}
-															className="textarea"
-															placeholder={option.display} />
-													</div>
-												</div>
-											);
-										}))
-									]
-								}
-							</div>;
+						if (this.props.isExtended) {
+							return (
+								<div>
+									<a onClick={this.props.toggle}>收起</a>
+									{this.props.children}
+								</div>
+							);
 						} else {
-							return <div><a onClick={this.toggleGroup(ruleName)}>展開</a></div>;
+							return <a onClick={this.props.toggle}>展開</a>;
 						}
 					})()
 				}
 			</div>
+		);
+	}
+}
+
+function Checkbox(props) {
+	return (
+		<div key={props.option.name} className="field">
+			<label className="checkbox">
+				<input
+					onChange={props.onChange}
+					checked={props.checked}
+					name={props.option.name}
+					type="checkbox" />
+				{props.option.display}
+			</label>
 		</div>
 	);
+}
+
+function TextArea(props) {
+	return (
+		<div key={props.option.name} className="field">
+			<label className="label">{props.option.display}</label>
+			<div className="control">
+				<textarea
+					value={props.value}
+					onChange={props.onChange}
+					name={props.option.name}
+					className="textarea"
+					placeholder={props.option.display} />
+			</div>
+		</div>
+	);
+}
+
+// props 傳入 ruleDefinition, ruleState, setRules
+class RuleGroup extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			show: Map({
+				formRules: false,
+				renderRules: false,
+				backendRules: false,
+			})
+		};
+		this.toggleExtendable = this.toggleExtendable.bind(this);
+		this.handleRuleChange = this.handleRuleChange.bind(this);
+		this.createExtendable = this.createExtendable.bind(this);
+	}
+	toggleExtendable(someRules) {
+		return () => {
+			this.setState({
+				show: this.state.show.set(someRules, !this.state.show.get(someRules))
+			});
+		};
+	}
+	handleRuleChange(rule, name) {
+		return (event) => {
+			const target = event.target;
+			const value = target.type === "checkbox" ? target.checked : target.value;
+			let c = Map({
+				[rule]: Map({ [name]: value })
+			});
+			this.props.setRules(this.props.ruleState.mergeDeep(c));
+		};
+	}
+	createExtendable(someRules) {
+		return (
+			<Extendable
+				key={someRules}
+				name={this.props.ruleDefinition[someRules].display}
+				toggle={this.toggleExtendable(someRules)}
+				isExtended={this.state.show.get(someRules)}>
+				{
+					[
+						...this.props.ruleDefinition[someRules].textarea.map((option) => {
+							return (
+								<TextArea
+									key={option.name}
+									option={option}
+									value={this.props.ruleState.get(someRules).get(option.name)}
+									onChange={this.handleRuleChange(someRules, option.name)} />
+							);
+						})
+					]
+				}
+			</Extendable>
+		);
+	}
+	render() {
+		return (
+			<div>
+				{
+					Object.keys(this.props.ruleDefinition).map((someRules) => {
+						return this.createExtendable(someRules);
+					})
+				}
+			</div>
+		);
+	}
 }
 
 class CreateArticle extends React.Component {
@@ -96,7 +149,8 @@ class CreateArticle extends React.Component {
 			formRules: {
 				display: "表單規則",
 				checkbox: [],
-				textarea: [
+				textarea: [],
+				formRule: [
 					{ display: "留言表單格式", name: "commentForm" },
 				]
 			},
@@ -119,19 +173,12 @@ class CreateArticle extends React.Component {
 		this.state = {
 			title: "",
 			articleContent: [], // TODO: 待處理，需取得 articleForm
-			show: Map({
-				formRules: false,
-				renderRules: false,
-				backendRules: false
-			})
+			rules: ruleToState(this.rules),
 		};
-		addRuleToState(this.state, this.rules);
 		this.handleTitleChange = this.handleTitleChange.bind(this);
 		this.handleContentChange = this.handleContentChange.bind(this);
 		this.handleOnSubmit = this.handleOnSubmit.bind(this);
-		this.handleInputChange = this.handleInputChange.bind(this);
-		this.extendableGroup = this.extendableGroup.bind(this);
-		this.toggleGroup = this.toggleGroup.bind(this);
+		this.setRules = this.setRules.bind(this);
 	}
 	handleTitleChange(event) {
 		this.setState({
@@ -145,15 +192,22 @@ class CreateArticle extends React.Component {
 		});
 	}
 	handleOnSubmit() {
-		let { title, articleContent, formRules, renderRules, backendRules } = this.state;
+		let { title, articleContent, rules } = this.state;
 		let article = {
 			title,
 			articleContent,
-			formRules: formRules.toObject(),
-			renderRules: renderRules.toObject(),
-			backendRules: backendRules.toObject()
+			formRules: rules.get("formRules").toObject(),
+			renderRules: rules.get("renderRules").toObject(),
+			backendRules: rules.get("backendRules").toObject()
 		};
-		this.props.newArticle(article);
+		console.log(article);
+		// TODO: 打開下面一行
+		// this.props.newArticle(article);
+	}
+	setRules(rules) {
+		this.setState({
+			rules: rules
+		});
 	}
 	render() {
 		return (
@@ -177,9 +231,10 @@ class CreateArticle extends React.Component {
 							placeholder="文章內容" />
 					</div>
 				</div>
-				{ this.extendableGroup("formRules") }
-				{ this.extendableGroup("renderRules") }
-				{ this.extendableGroup("backendRules") }
+				<RuleGroup
+					ruleDefinition={this.rules}
+					ruleState={this.state.rules}
+					setRules={this.setRules}/>
 				<div className="field">
 					<div className="control">
 						<button onClick={this.handleOnSubmit} className="button is-primary">送出</button>
@@ -189,10 +244,6 @@ class CreateArticle extends React.Component {
 		);
 	}
 }
-
-CreateArticle.prototype.handleInputChange = handleInputChange;
-CreateArticle.prototype.extendableGroup = extendableGroup;
-CreateArticle.prototype.toggleGroup = toggleGroup;
 
 class CreateBoard extends React.Component {
 	constructor(props) {
@@ -241,12 +292,8 @@ class CreateBoard extends React.Component {
 				backendRules: false
 			})
 		};
-		addRuleToState(this.state, this.rules);
-		this.handleInputChange = this.handleInputChange.bind(this);
 		this.handleNameChange = this.handleNameChange.bind(this);
 		this.handleOnSubmit = this.handleOnSubmit.bind(this)	;
-		this.extendableGroup = this.extendableGroup.bind(this);
-		this.toggleGroup = this.toggleGroup.bind(this);
 	}
 	handleNameChange(event) {
 		this.setState({
@@ -254,12 +301,12 @@ class CreateBoard extends React.Component {
 		});
 	}
 	handleOnSubmit() {
-		let { name, formRules, renderRules, backendRules } = this.state;
+		let { name, rules } = this.state;
 		let board = {
 			name,
-			formRules: formRules.toObject(),
-			renderRules: renderRules.toObject(),
-			backendRules: backendRules.toObject()
+			formRules: rules.get("formRules").toObject(),
+			renderRules: rules.get("renderRules").toObject(),
+			backendRules: rules.get("backendRules").toObject()
 		};
 		this.props.newBoard(board);
 	}
@@ -272,9 +319,9 @@ class CreateBoard extends React.Component {
 						<input onChange={this.handleNameChange} className="input" type="text" placeholder="看板名稱" />
 					</div>
 				</div>
-				{ this.extendableGroup("formRules") }
+				{/* { this.extendableGroup("formRules") }
 				{ this.extendableGroup("renderRules") }
-				{ this.extendableGroup("backendRules") }
+				{ this.extendableGroup("backendRules") } */}
 				<div className="field">
 					<div className="control">
 						<button onClick={this.handleOnSubmit} className="button is-primary">送出</button>
@@ -518,7 +565,7 @@ class Board extends React.Component {
 							if (this.state.showArticle) {
 								return this.state.articles.map((article) => {
 									return (
-										<div key={article.title}>
+										<div key={article._id}>
 											<Link to={`${location.pathname}/a/${article.title}?id=${article._id}`}>{article.title}</Link>
 										</div>
 									);
@@ -533,9 +580,5 @@ class Board extends React.Component {
 		);
 	}
 }
-
-CreateBoard.prototype.handleInputChange = handleInputChange;
-CreateBoard.prototype.extendableGroup = extendableGroup;
-CreateBoard.prototype.toggleGroup = toggleGroup;
 
 export default Board;
