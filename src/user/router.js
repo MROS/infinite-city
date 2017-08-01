@@ -58,7 +58,7 @@ router.post("/login", async function(req, res) {
 	try {
 		user = await findUser(id);
 	} catch(err) {
-		res.send(err);
+		res.send("FAIL");
 		console.log(err);
 		return;
 	}

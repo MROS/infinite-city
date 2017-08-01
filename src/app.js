@@ -5,7 +5,6 @@ const morgan = require("morgan");
 const path = require("path");
 let bodyParser = require("body-parser");
 let session = require("express-session");
-const config = require("./config");
 
 let app = express();
 
@@ -34,5 +33,4 @@ app.use("/api/board", require("./board/router.js"));
 app.use("/api/article", require("./article/router.js"));
 app.use("/api/comment", require("./comment/router.js"));
 
-console.log(`埠口：${config.PORT}`);
-app.listen(config.PORT);
+module.exports = app;

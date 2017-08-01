@@ -84,7 +84,11 @@ async function recursiveGetBoard(id, name, depth=0) {
 }
 
 async function getRootId() {
-	return (await db.Board.findOne({ isRoot: true }, { _id: 1 }).lean().exec())._id;
+	let root = (await db.Board.findOne({ isRoot: true }, { _id: 1 }).lean().exec());
+	if(!root) {
+		throw "根看板尚未建立！";
+	}
+	return root._id;
 }
 
 

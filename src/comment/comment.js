@@ -11,6 +11,7 @@ async function createComment(author_id, article_id, msg) {
 		article: article_id,
 		author: author_id,
 		msg: msg,
+		date: new Date()
 	};
 	let restricts_str = await findBackendRules(article.board, "onComment" );
 	restricts_str.push({ caller: article, func: article.onComment });

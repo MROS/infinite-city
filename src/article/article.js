@@ -19,6 +19,7 @@ async function createArticle(author_id, title, board_id, articleContent,
 	new_article.title = title;
 	new_article.author = author_id;
 	new_article.articleContent = articleContent;
+	new_article.date = new Date();
 	// Form Rules
 	if(board.canDefCommentForm) {
 		new_article.commentForm = formRules.commentForm;

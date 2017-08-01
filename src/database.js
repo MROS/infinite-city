@@ -33,7 +33,7 @@ mongoose.connect(server.url, server.options)
 const board_schema_t = {
 	"isRoot": { type: Boolean, default: false },
 	"depth": { type: Number, required: true },
-	"date": { type: Date, default: Date.now() },
+	"date": { type: Date, required: true },
 	"parent": {
 		type: ObjectId,
 		required: function() {
@@ -77,7 +77,7 @@ const board_schema_t = {
 const article_schema_t = {
 	"title": { type: String, required: true },
 	"board": { type: ObjectId, required: true },
-	"date": { type: Date, default: Date.now() },
+	"date": { type: Date, required: true },
 	"author": String, // 若是匿名看板，可以無作者
 
 	// Render Rules
@@ -104,7 +104,7 @@ const article_info_schema_t = {
 
 const comment_schema_t = {
 	"article": { type: ObjectId, required: true },
-	"date": { type: Date, default: Date.now() },
+	"date": { type: Date, required: true },
 	"author": String,
 	"msg": { type: [String] } // 其實可以是函數
 };

@@ -2,6 +2,7 @@ const ROOT = {
 	isRoot: true,
 	depth: 0,
 	manager: [],
+	date: new Date(),
 
 	name: "無限城",
 	renderTitle: "function(article, info) {"
