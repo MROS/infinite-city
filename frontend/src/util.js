@@ -6,8 +6,8 @@ export function FormArrayToObject(arr, reserveEvalType=false) {
 	return obj;
 }
 
-export function FormObjectToArray(obj) {
-	return Object.keys(obj).map((label) => {
-		return { body: obj[label], label: label };
+export function FormObjectToArray(obj, form) {
+	return form.map((item) => {
+		return { body: obj[item.label], label: item.label };
 	});
 }

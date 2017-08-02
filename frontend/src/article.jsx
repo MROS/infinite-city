@@ -2,6 +2,7 @@ import React from "react";
 import { fromJS, Map } from "immutable";
 import { Link } from "react-router-dom";
 import { FormArrayToObject, FormObjectToArray } from "./util";
+import VariableInput from "./variableInput.jsx";
 
 function isNonEmptyString(x) {
 	return (typeof x == "string" && x.length > 0);
@@ -19,24 +20,10 @@ class InputComment extends React.Component {
 		this.state = {
 			comment: fromJS(initComment)
 		};
-		this.onChangeComment = this.onChangeComment.bind(this);
+
+		this.isAllValid = this.isAllValid.bind(this);
+		this.changeComment = this.changeComment.bind(this);
 		this.onSubmitComment = this.onSubmitComment.bind(this);
-		this.isValid = this.isValid.bind(this);
-	}
-	isValid(label) {
-		const findRestrict = (label) => {
-			let ans = "";
-			for (let item of this.props.commentForm) {
-				if (item.label == label) {
-					ans = item.restrict;
-					break;
-				}
-			}
-			return ans;
-		};
-		const verifyFunction = eval(`(${findRestrict(label)})`);
-		const comment = this.state.comment.toJS();
-		return verifyFunction(comment[label], comment);
 	}
 	isAllValid() {
 		for (let item of this.props.commentForm) {
@@ -47,16 +34,16 @@ class InputComment extends React.Component {
 		};
 		return true;
 	}
-	onChangeComment(label) {
-		return (event) => {
-			this.setState({
-				comment: this.state.comment.set(label, event.target.value)
-			});
-		};
+	changeComment(comment) {
+		this.setState({
+			comment: comment
+		});
 	}
 	onSubmitComment() {
 		if (this.isAllValid()) {
-			console.log(this.state.comment.toJS());
+			const obj = this.state.comment.toJS();
+			const commentContent = FormObjectToArray(obj, this.props.commentForm);
+			this.props.submitComment(commentContent);
 		} else {
 			console.log("未滿足條件，不發出請求");
 		}
@@ -64,20 +51,10 @@ class InputComment extends React.Component {
 	render() {
 		return (
 			<div className="field" style={{ marginBottom: "25px" }}>
-				{
-					this.props.commentForm.map((item) => {
-						return (
-							<div key={item.label} className="control is-expanded">
-								<input
-									value={this.state.comment.get(item.label)}
-									onChange={this.onChangeComment(item.label)}
-									className={this.isValid(item.label) ? "input is-success" : "input is-danger"}
-									type="text"
-									placeholder={item.label} />
-							</div>
-						);
-					})
-				}
+				<VariableInput
+					data={this.state.comment}
+					dataForm={this.props.commentForm}
+					changeUpper={this.changeComment}/>
 				<div className="control">
 					<a className="button" onClick={this.onSubmitComment}>
 						留言
@@ -161,10 +138,10 @@ class Article extends React.Component {
 			console.log("AJAX失敗，取得文章資料失敗");
 		});
 	}
-	submitComment(msg) {
+	submitComment(commentContent) {
 		const url = "/api/comment/new";
 		const body = {
-			msg,
+			commentContent,
 			article: this.URLquery.id
 		};
 		console.log(JSON.stringify(body));

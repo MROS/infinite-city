@@ -27,7 +27,7 @@ async function createBoard(manager_id, name, parent_id,
 	new_board.depth = parent.depth + 1;
 	new_board.date = new Date();
 	// Form Rules
-	setRule(new_board, formRules, "articleForm", parent, "canDefArticleForm",);
+	setRule(new_board, formRules, "articleForm", parent, "canDefArticleForm");
 	setRule(new_board, formRules, "commentForm", parent, "canDefCommentForm");
 	// Render Rules
 	setRule(new_board, renderRules, "renderTitle", parent, "canDefTitle");
