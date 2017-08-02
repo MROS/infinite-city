@@ -21,10 +21,10 @@ const ROOT = {
 	],
 	// form rules
 	articleForm: [
-		{ label: "內文", restrict: "" }
+		{ label: "內容", restrict: "", evalType: "string" }
 	],
 	commentForm: [
-
+		{ label: "內容", restrict: "", evalType: "string" }
 	],
 
 	isRoot: true,

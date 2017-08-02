@@ -91,7 +91,7 @@ function setRule(obj, rules, rule_key, parent, can_key) {
 	}
 }
 
-function _prepareFindRules(rule_key) {
+function _prepareFindRules(rule_key, is_array) {
 	if(!rule_key || rule_key.length == 0) {
 		throw "未指定欲查找的規則！";
 	}
@@ -100,7 +100,7 @@ function _prepareFindRules(rule_key) {
 	}
 	let rules = {}, select = { _id: 1, isRoot: 1, parent: 1 };
 	for(let key of rule_key) {
-		rules[key] = [];
+		rules[key] = is_array ? [] : null;
 		select[key] = 1;
 	}
 	return { rule_key, select, rules };
@@ -112,7 +112,7 @@ function _prepareFindRules(rule_key) {
  * @return {[Restrict]}
  */
 async function findBackendRules(b_id, key) {
-	let { rule_key, select, rules } = _prepareFindRules(key);
+	let { rule_key, select, rules } = _prepareFindRules(key, true);
 	select["depth"] = 1;
 	select["manager"] = 1;
 	let cur_b = null;
@@ -140,7 +140,7 @@ async function findBackendRules(b_id, key) {
  * @return {[String]}
  */
 async function findFrontendRules(b_id, key) {
-	let { rule_key, select, rules } = _prepareFindRules(key);
+	let { rule_key, select, rules } = _prepareFindRules(key, false);
 	let cur_b = null;
 	let done = 0;
 	do {

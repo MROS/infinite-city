@@ -1,6 +1,7 @@
 const supertest_session = require("supertest-session");
 const app = require("../src/app");
 const db = require("../src/database.js");
+const mock = require("./mocks/api_mock.js");
 
 const ROOT = require("../src/root_config.js");
 const tester1 = { id: "測試者一號", password: "testtest" };
@@ -15,31 +16,6 @@ async function clearDB() {
 		db.Comment.remove({}),
 		db.User.remove({}),
 	]);
-}
-function defaultArticle(title, board) {
-	return {
-		title: title,
-		board: board,
-		articleContent: [],
-		formRules: {},
-		renderRules: {},
-		backendRules: {}
-	};
-}
-function defaultBoard(name, parent) {
-	return {
-		name: name,
-		parent: parent,
-		formRules: {},
-		renderRules: {},
-		backendRules: {}
-	};
-}
-function defaultComment(article) {
-	return {
-		article: article,
-		commentContent: []
-	};
 }
 function assertList(list, expected, key = "_id") {
 	list = list.map(e => e[key]);
@@ -93,20 +69,11 @@ describe("測試 api", () => {
 					let _id = res.body.board._id;
 					bid_array.push(_id);
 
-					res = await session.post("/api/board/new").send(defaultBoard("b1", _id)).expect(200);
+					res = await session.post("/api/board/new").send(mock.b1(_id)).expect(200);
 					expect(res.body).toHaveProperty("_id");
 					bid_array.push(res.body._id);
 
-					let b2 = defaultBoard("b2", _id);
-					b2.backendRules.onNewArticle = [(function(cur_pos, user_id, caller) {
-						if(cur_pos.board.depth == caller.depth) {
-							if(!caller.manager.includes(user_id)) {
-								throw "只有板主可在此發文";
-							}
-						}
-					}).toString()];
-
-					res = await session.post("/api/board/new").send(b2).expect(200);
+					res = await session.post("/api/board/new").send(mock.b2(_id)).expect(200);
 					expect(res.body).toHaveProperty("_id");
 					_id = res.body._id;
 					bid_array.push(res.body._id);
@@ -114,17 +81,17 @@ describe("測試 api", () => {
 					// 切換使用者
 					await session.post("/api/user/login").send(tester2).expect("OK");
 
-					res = await session.post("/api/board/new").send(defaultBoard("b3", _id)).expect(200);
+					res = await session.post("/api/board/new").send(mock.b3(_id)).expect(200);
 					expect(res.body).toHaveProperty("_id");
 					bid_array.push(res.body._id);
-					res = await session.post("/api/board/new").send(defaultBoard("b4", _id)).expect(200);
+					res = await session.post("/api/board/new").send(mock.b4(_id)).expect(200);
 					expect(res.body).toHaveProperty("_id");
 					bid_array.push(res.body._id);
-					res = await session.post("/api/board/new").send(defaultBoard("b5", _id)).expect(200);
+					res = await session.post("/api/board/new").send(mock.b5(_id)).expect(200);
 					expect(res.body).toHaveProperty("_id");
 					bid_array.push(res.body._id);
 
-					res = await session.post("/api/board/new").send(defaultBoard("b5", _id))
+					res = await session.post("/api/board/new").send(mock.b5(_id))
 						.expect("名字 b5 與其它看板重復");
 				});
 
@@ -132,23 +99,17 @@ describe("測試 api", () => {
 					await session.post("/api/user/login").send(tester1).expect("OK");
 
 					let res = await session.post("/api/article/new")
-						.send(defaultArticle("a0", bid_array[1])).expect(200);
+						.send(mock.a0(bid_array[1])).expect(200);
 					expect(res.body).toHaveProperty("_id");
 					aid_array.push(res.body._id);
 
 					res = await session.post("/api/article/new")
-						.send(defaultArticle("a1", bid_array[2])).expect(200);
+						.send(mock.a1(bid_array[2])).expect(200);
 					expect(res.body).toHaveProperty("_id");
 					aid_array.push(res.body._id);
 
-					let a2 = defaultArticle("a2", bid_array[3]);
-					a2.formRules.commentForm = [
-						{ label: "password", restrict: "", evalType: "string" },
-						{ label: "valid", restrict: "(cur, all) => (all.password == cur)", evalType: "string" }
-					];
-
 					res = await session.post("/api/article/new")
-						.send(a2).expect(200);
+						.send(mock.a2(bid_array[3])).expect(200);
 					expect(res.body).toHaveProperty("_id");
 					aid_array.push(res.body._id);
 				});
@@ -157,26 +118,17 @@ describe("測試 api", () => {
 					await session.post("/api/user/login").send(tester1).expect("OK");
 
 					let res = await session.post("/api/comment/new")
-						.send(defaultComment(aid_array[0])).expect(200);
+						.send(mock.c0(aid_array[0])).expect(200);
 					expect(res.body).toHaveProperty("_id");
 					cid_array.push(res.body._id);
 
-					let c = defaultComment(aid_array[2]);
-					c.commentContent = [
-						{ label: "password", body: "1234" },
-						{ label: "valid", body: "1234" },
-					];
 					res = await session.post("/api/comment/new")
-						.send(c).expect(200);
+						.send(mock.c1(aid_array[2])).expect(200);
 					expect(res.body).toHaveProperty("_id");
 					cid_array.push(res.body._id);
 
-					c.commentContent = [
-						{ label: "password", body: "4567" },
-						{ label: "valid", body: "4567" },
-					];
 					res = await session.post("/api/comment/new")
-						.send(c).expect(200);
+						.send(mock.c2(aid_array[2])).expect(200);
 					expect(res.body).toHaveProperty("_id");
 					cid_array.push(res.body._id);
 				});
@@ -229,38 +181,27 @@ describe("測試 api", () => {
 			describe("測試建立的操作", () => {
 				test("用 onNewArticle 限制發文的功能", async () => {
 					await session.post("/api/article/new")
-						.send(defaultArticle("a1", bid_array[0])).expect("不可褻瀆無限城的根");
+						.send(mock.a0(bid_array[0])).expect("不可褻瀆無限城的根");
 
 					await session.post("/api/user/login").send(tester2).expect("OK");
 
 					await session.post("/api/article/new")
-						.send(defaultArticle("aa", bid_array[2])).expect("只有板主可在此發文");
+						.send(mock.a1(bid_array[2])).expect("只有板主可在此發文");
 				});
+
 				test("用 commentForm 限制推文的功能", async () => {
-					let c1 = defaultComment(aid_array[2]);
-					c1.commentContent = [
-						{ label: "password", body: "5678" },
-						{ label: "valid", body: "1234" },
-					];
 					await session.post("/api/comment/new")
-						.send(c1).expect("未通過表格的限制");
+						.send(mock.cx0(aid_array[2])).expect("未通過表格的限制");
 
-					c1.commentContent = [
-						{ label: "password", body: "5678" },
-					];
 					await session.post("/api/comment/new")
-						.send(c1).expect("內文和表格長度不匹配");
+						.send(mock.cx1(aid_array[2])).expect("內文和表格長度不匹配");
 
-					c1.commentContent = [
-						{ label: "password", body: "5678" },
-						{ label: "fuck", body: "1234" },
-					];
 					await session.post("/api/comment/new")
-						.send(c1).expect("標籤不統一 fuck =/= valid");
+						.send(mock.cx2(aid_array[2])).expect("標籤不統一 fuck =/= valid");
 				});
 			});
 			describe("測試瀏覽的操作", () => {
-
+				// TODO:
 			});
 		});
 	});
