@@ -566,17 +566,11 @@ class Board extends React.Component {
 			body: JSON.stringify(body)
 		}).then((res) => {
 			if (res.ok) {
-				res.text().then((data) => {
-					switch (data) {
-						case "FAIL":
-							console.log("創建看板失敗");
-							break;
-						case "OK":
-							console.log("創建看板成功");
-							break;
-						case "尚未登入":
-							console.log("尚未登入");
-							break;
+				res.json().then((data) => {
+					if (data._id) {
+						console.log(`創建看板成功，看板 ID 爲：${data._id}`);
+					} else {
+						console.log(`創建看板失敗：${data}`);
 					}
 				});
 			} else {
