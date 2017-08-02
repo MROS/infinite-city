@@ -1,23 +1,66 @@
+// TODO: 將這份檔案切成要用資料庫的+不用資料庫的
+// TODO: findBackendRules + findFrontendRules + recursiveFind 可否合一？
 const _ = require("lodash");
 const db = require("./database.js");
 
+function array2dict(array, process=null) {
+	let ret = {};
+	for(let e of array) {
+		let label = e.label;
+		if(!_.isString(label)) {
+			throw `${label} 不是合法的標籤`;
+		} else {
+			if(process) {
+				e = process(e);
+			}
+			ret[label] = e;
+		}
+	}
+	return ret;
+}
+
 /**
- * 檢查一個規則是否為空字串
+ * 用來保證一個文章或推文的內文是合法的
+ * @param {Object} content
+ * @param {[{ evalType: String, label: String, restrict: String }]} form
+ */
+function processContent(content, form) {
+	if(content.length != form.length) {
+		throw "內文和表格長度不匹配";
+	}
+	let all = array2dict(content, c => c.body);
+	for(let i = 0; i < content.length; i++) {
+		let [c, f] = [content[i], form[i]];
+		c.evalType = f.evalType;
+		let func = eval("(" + f.restrict + ")");
+		if(func(c.body, all)) {
+			throw "未通過表格的限制";
+		}
+	}
+}
+
+const EVAL_TYPES = ["function", "string"];
+/**
+ * 檢查一個規則是否合法
  * @param {Object|String} rule 
  */
 function _checkRule(rule) {
 	if(!rule) {
 		return false;
-	} else if(_.isString(rule) && rule.trim.length > 0) {
-		return false;
-	} else {
-		return true;
+	} else if(_.isString(rule)) { // render or backend rules
+		return (rule.trim().length > 0);
+	} else { // form rules
+		if(!EVAL_TYPES.includes(rule.evalType)) {
+			throw `不存在的 eval type: ${rule.evalType}`;
+		} else {
+			return true;
+		}
 	}
 }
 
 /**
  * 可處理後端與前端規則
- * @param {Board} obj 
+ * @param {Board | Article} obj 
  * @param {Object} rules
  * @param {String} rule_key
  * @param {Board} parent 
@@ -88,7 +131,7 @@ async function findBackendRules(b_id, key) {
 }
 
 /**
- * 給定一個看板或文章的 id，找到其從根至最下層的所有前段渲染規則
+ * 給定一個看板或文章的 id，找到其從根至最下層的所有前端渲染規則
  * @return {[String]}
  */
 async function findFrontendRules(b_id, key) {
@@ -162,5 +205,6 @@ module.exports = {
 	doRestricts,
 	recursiveGetBoard,
 	getRootId,
-	setRule
+	setRule,
+	processContent
 };

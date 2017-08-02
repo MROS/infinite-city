@@ -1,11 +1,14 @@
 const db = require("../database.js");
-const { findBackendRules, doRestricts } = require("../util.js");
+const { findBackendRules, doRestricts, findFrontendRules, processContent } = require("../util.js");
 
 async function createComment(author_id, article_id, msg) {
 	let article = await db.Article.findOne({ _id: article_id }).exec();
 	if (!article) {
 		throw `${ article } 看板不存在`;
 	}
+
+	let form = article.commentForm || await findFrontendRules(article.board, "commentForm");
+	processContent(msg, form);
 
 	let new_comment = {
 		article: article_id,

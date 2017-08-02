@@ -28,8 +28,8 @@
 		+ name: 字串，看板的名字
 		+ parent: 字串，母看板的 id
 		+ formRules: 鍵值對
-			1. articleForm
-			2. commentForm
+			1. articleForm: [{ evalType, restrict, label }]
+			2. commentForm: [{ evalType, restrict, label }]
 			3. canDefArticleForm
 			4. canDefCommentForm
 		+ renderRules: 鍵值對
@@ -54,10 +54,9 @@
 		+ { title, board, articleContent, formRules, renderRules, backendRules }
 		+ title: 字串，文章標題
 		+ board: 字串，看板的 id
-		+ articleContent: [String]，每個元素可能是靜態字串，也可能是轉成字串的函數
-			- 如果其成員是函數，就是一個無參數並返回字串的函數
+		+ articleContent: [{ body, label }]
 		+ formRules: 鍵值對
-			1. commentForm: [Object]，規範每個表格
+			1. commentForm
 		+ renderRules: 鍵值對
 			1. renderComment 字串，根據母看板的權限，可能不被允許設定
 		+ backendRules: 鍵值對

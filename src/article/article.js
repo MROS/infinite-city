@@ -1,5 +1,5 @@
 const db = require("../database.js");
-const { findBackendRules, findFrontendRules, doRestricts, setRule } = require("../util.js");
+const { findBackendRules, findFrontendRules, doRestricts, setRule, processContent } = require("../util.js");
 
 /**
  * @param {String} author
@@ -14,6 +14,10 @@ async function createArticle(author_id, title, board_id, articleContent,
 	if(!board) {
 		throw `${ board_id } 看板不存在`;
 	}
+
+	// TODO: 是否能和 findBackendRUles 一起做？
+	let form = await findFrontendRules(board_id, "articleForm");
+	processContent(articleContent, form);
 
 	let new_article = { board: board_id };
 	new_article.title = title;
