@@ -1,6 +1,6 @@
 import React from "react";
 
-// props 有 data, dataForm(得知輸入的格式)、changeUpper(改變上層資料)
+// props 有 data, dataForm(得知輸入的格式)、changeUpper(改變上層資料)、oneline(若爲真則使用input，假則使用textarea)
 class VariableInput extends React.Component {
 	constructor(props) {
 		super(props);
@@ -35,12 +35,21 @@ class VariableInput extends React.Component {
 					this.props.dataForm.map((item) => {
 						return (
 							<div key={item.label} className="control is-expanded">
-								<input
-									value={this.props.data.get(item.label)}
-									onChange={this.onChangeData(item.label)}
-									className={this.isValid(item.label) ? "input is-success" : "input is-danger"}
-									type="text"
-									placeholder={item.label} />
+								{
+									this.props.oneline == true ?
+										<input
+											value={this.props.data.get(item.label)}
+											onChange={this.onChangeData(item.label)}
+											className={this.isValid(item.label) ? "input is-success" : "input is-danger"}
+											placeholder={item.label} />
+										:
+										<textarea
+											value={this.props.data.get(item.label)}
+											onChange={this.onChangeData(item.label)}
+											className={this.isValid(item.label) ? "textarea is-success" : "textarea is-danger"}
+											placeholder={item.label} />
+
+								}
 							</div>
 						);
 					})

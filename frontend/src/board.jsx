@@ -1,6 +1,7 @@
 import React from "react";
 import { fromJS, Map, List } from "immutable";
 import { Link } from "react-router-dom";
+import VariableInput from "./variableInput.jsx";
 
 function ruleToState(rules) {
 	let ret = {};
@@ -106,7 +107,7 @@ class FormRule extends React.Component {
 		this.changeEvaltype = this.changeEvaltype.bind(this);
 	}
 	addItem() {
-		const newValue = this.props.value.push(Map({ label: "", restrict: "" }));
+		const newValue = this.props.value.push(Map({ label: "", restrict: "", evalType: "string" }));
 		this.props.changeUpper(newValue);
 	}
 	deleteItem(index) {
@@ -292,15 +293,20 @@ class CreateArticle extends React.Component {
 				formRule: []
 			}
 		};
+		let initArticle = {};
+		this.props.articleForm.forEach((item) => {
+			initArticle[item.label] = "";
+		});
 		this.state = {
 			title: "",
-			articleContent: [], // TODO: 待處理，需取得 articleForm
+			articleContent: fromJS(initArticle),
 			rules: ruleToState(this.rules),
 		};
 		this.handleTitleChange = this.handleTitleChange.bind(this);
 		this.handleContentChange = this.handleContentChange.bind(this);
 		this.handleOnSubmit = this.handleOnSubmit.bind(this);
 		this.setRules = this.setRules.bind(this);
+		this.setArticleContent = this.setArticleContent.bind(this);
 	}
 	handleTitleChange(event) {
 		this.setState({
@@ -330,6 +336,11 @@ class CreateArticle extends React.Component {
 			rules: rules
 		});
 	}
+	setArticleContent(articleContent) {
+		this.setState({
+			articleContent: articleContent
+		});
+	}
 	render() {
 		return (
 			<div>
@@ -345,12 +356,10 @@ class CreateArticle extends React.Component {
 				</div>
 				<div className="field" style={{marginBottom: "35px"}}>
 					<label className="label">文章內容</label>
-					<div className="control">
-						<textarea
-							onChange={this.handleContentChange}
-							className="textarea"
-							placeholder="文章內容" />
-					</div>
+					<VariableInput
+						data={this.state.articleContent}
+						dataForm={this.props.articleForm}
+						changeUpper={this.setArticleContent}/>
 				</div>
 				<RuleGroup
 					ruleDefinition={this.rules}
@@ -509,7 +518,8 @@ class Board extends React.Component {
 							const showBoard = boards.length >= articles.length;
 							const showArticle = !showBoard;
 							this.setState({
-								boards, articles, showBoard, showArticle
+								boards, articles, showBoard, showArticle,
+								articleForm: data.board.articleForm,
 							});
 					}
 				});
@@ -520,6 +530,7 @@ class Board extends React.Component {
 			console.log("AJAX失敗，取得看板資料失敗");
 		});
 	}
+	// TODO: 和 newBoard 一樣修正對回傳值的處理
 	newArticle(articleDefinition) {
 		let body = articleDefinition;
 		body.board = this.boardID;
@@ -634,7 +645,9 @@ class Board extends React.Component {
 							return (
 								<div className="box" style={{ marginBottom: "30px" }}>
 									<h4 className="title is-4">發文</h4>
-									<CreateArticle newArticle={this.newArticle} />
+									<CreateArticle
+										newArticle={this.newArticle}
+										articleForm={this.state.articleForm}/>
 								</div>
 							);
 						}

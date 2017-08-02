@@ -52,6 +52,7 @@ class InputComment extends React.Component {
 		return (
 			<div className="field" style={{ marginBottom: "25px" }}>
 				<VariableInput
+					oneline={true}
 					data={this.state.comment}
 					dataForm={this.props.commentForm}
 					changeUpper={this.changeComment}/>
