@@ -98,18 +98,34 @@ class TextArea extends React.Component {
 class FormRule extends React.Component {
 	constructor(props) {
 		super(props);
-		this.addTag = this.addTag.bind(this);
-		this.deleteTag = this.deleteTag.bind(this);
+		this.addItem = this.addItem.bind(this);
+		this.deleteItem = this.deleteItem.bind(this);
+		this.changeLabel = this.changeLabel.bind(this);
+		this.changeRestrict = this.changeRestrict.bind(this);
 	}
-	addTag() {
+	addItem() {
 		const newValue = this.props.value.push(Map({ label: "", restrict: "" }));
 		this.props.changeUpper(newValue);
 	}
-	deleteTag(index) {
+	deleteItem(index) {
 		return () => {
 			console.log(index);
 			const newValue = this.props.value.delete(index);
 			console.log(newValue.toObject());
+			this.props.changeUpper(newValue);
+		};
+	}
+	changeLabel(index) {
+		return (event) => {
+			const newItem = this.props.value.get(index).set("label", event.target.value);
+			const newValue = this.props.value.set(index, newItem);
+			this.props.changeUpper(newValue);
+		};
+	}
+	changeRestrict(index) {
+		return (event) => {
+			const newItem = this.props.value.get(index).set("restrict", event.target.value);
+			const newValue = this.props.value.set(index, newItem);
 			this.props.changeUpper(newValue);
 		};
 	}
@@ -124,24 +140,25 @@ class FormRule extends React.Component {
 								<div key={index}>
 									<div className="field has-addons">
 										<a className="button is-danger"
-											onClick={this.deleteTag(index)}>
+											onClick={this.deleteItem(index)}>
 											刪除
 										</a>
 										<input
 											className="input"
+											onChange={this.changeLabel(index)}
 											value={v.get("label")}
 											placeholder={"標籤名 " + (index + 1)} />
 									</div>
 									<textarea
 										value={v.get("restrict")}
-										onChange={this.props.onChange}
+										onChange={this.changeRestrict(index)}
 										className="textarea"
 										placeholder="限制條件"/>
 								</div>
 							);
 						})
 					}
-					<a className="button" onClick={this.addTag}>更多標籤</a>
+					<a className="button" onClick={this.addItem}>更多標籤</a>
 				</div>
 			</div>
 		);
@@ -289,9 +306,8 @@ class CreateArticle extends React.Component {
 			renderRules: rules.get("renderRules").toObject(),
 			backendRules: rules.get("backendRules").toObject()
 		};
-		console.log(article);
-		// TODO: 打開下面一行
-		// this.props.newArticle(article);
+		console.log(`創建文章 ${article}`);
+		this.props.newArticle(article);
 	}
 	setRules(rules) {
 		this.setState({
@@ -379,11 +395,6 @@ class CreateBoard extends React.Component {
 		this.state = {
 			name: "",
 			rules: ruleToState(this.rules),
-			show: Map({
-				formRules: false,
-				renderRules: false,
-				backendRules: false
-			})
 		};
 		this.handleNameChange = this.handleNameChange.bind(this);
 		this.handleOnSubmit = this.handleOnSubmit.bind(this)	;
@@ -398,10 +409,11 @@ class CreateBoard extends React.Component {
 		let { name, rules } = this.state;
 		let board = {
 			name,
-			formRules: rules.get("formRules").toObject(),
-			renderRules: rules.get("renderRules").toObject(),
-			backendRules: rules.get("backendRules").toObject()
+			formRules: rules.get("formRules").toJS(),
+			renderRules: rules.get("renderRules").toJS(),
+			backendRules: rules.get("backendRules").toJS()
 		};
+		console.log(`創建看板 ${board}`);
 		this.props.newBoard(board);
 	}
 	setRules(rules) {
