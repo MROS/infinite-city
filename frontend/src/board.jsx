@@ -13,7 +13,7 @@ function ruleToState(rules) {
 			 ret[ruleName][option.name] = "";
 		});
 		rules[ruleName].formRule.forEach((option) => {
-			 ret[ruleName][option.name] = [{ label: "", restrict: "" }];
+			 ret[ruleName][option.name] = [{ label: "", restrict: "", evalType: "string" }];
 		});
 	});
 	return fromJS(ret);
@@ -103,6 +103,7 @@ class FormRule extends React.Component {
 		this.deleteItem = this.deleteItem.bind(this);
 		this.changeLabel = this.changeLabel.bind(this);
 		this.changeRestrict = this.changeRestrict.bind(this);
+		this.changeEvaltype = this.changeEvaltype.bind(this);
 	}
 	addItem() {
 		const newValue = this.props.value.push(Map({ label: "", restrict: "" }));
@@ -126,6 +127,13 @@ class FormRule extends React.Component {
 	changeRestrict(index) {
 		return (event) => {
 			const newItem = this.props.value.get(index).set("restrict", event.target.value);
+			const newValue = this.props.value.set(index, newItem);
+			this.props.changeUpper(newValue);
+		};
+	}
+	changeEvaltype(index) {
+		return (event) => {
+			const newItem = this.props.value.get(index).set("evalType", event.target.value);
 			const newValue = this.props.value.set(index, newItem);
 			this.props.changeUpper(newValue);
 		};
@@ -156,11 +164,17 @@ class FormRule extends React.Component {
 										onChange={this.changeRestrict(index)}
 										className="textarea"
 										placeholder="限制條件"/>
+									<div className="select">
+										<select value={v.get("evalType")} onChange={this.changeEvaltype(index)}>
+											<option value="string">字串（單純文字）</option>
+											<option value="function">函式</option>
+										</select>
+									</div>
 								</div>
 							);
 						})
 					}
-					<a className="button" onClick={this.addItem}>更多標籤</a>
+					<a className="button" style={{marginTop: "15px"}} onClick={this.addItem}>更多欄位</a>
 				</div>
 			</div>
 		);
@@ -415,7 +429,6 @@ class CreateBoard extends React.Component {
 			renderRules: rules.get("renderRules").toJS(),
 			backendRules: rules.get("backendRules").toJS()
 		};
-		console.log(`創建看板 ${board}`);
 		this.props.newBoard(board);
 	}
 	setRules(rules) {
@@ -542,6 +555,8 @@ class Board extends React.Component {
 	newBoard(boardDefinition) {
 		let body = boardDefinition;
 		body.parent = this.boardID;
+		console.log("試創建新看板：");
+		console.log(JSON.stringify(body, null, 2));
 		fetch("/api/board/new", {
 			method: "POST",
 			credentials: "same-origin",
