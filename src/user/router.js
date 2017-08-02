@@ -32,11 +32,11 @@ router.post("/new", async function(req, res) {
 	try {
 		user = await userExist(query.id);
 	} catch(err) {
-		res.send(err);
+		res.status(400).send(err);
 	}
 
 	if(user) {
-		res.send("ID 已被使用");
+		res.status(403).send("ID 已被使用");
 	}
 	else {
 		try {
@@ -45,7 +45,7 @@ router.post("/new", async function(req, res) {
 			req.session.userId = query.id;
 			res.send("OK");
 		} catch(err) {
-			res.send("FAIL");
+			res.status(400).send("FAIL");
 			console.log(err);
 		}
 	}
@@ -58,7 +58,7 @@ router.post("/login", async function(req, res) {
 	try {
 		user = await findUser(id);
 	} catch(err) {
-		res.send("FAIL");
+		res.status(400).send("FAIL");
 		console.log(err);
 		return;
 	}
@@ -67,7 +67,7 @@ router.post("/login", async function(req, res) {
 		res.send("OK");
 	}
 	else {
-		res.send("FAIL");
+		res.status(400).send("FAIL");
 	}
 });
 
@@ -77,7 +77,7 @@ router.get("/logout", async function(req, res) {
 		res.send("OK");
 	}
 	else {
-		res.send("尚未登入");
+		res.status(401).send("尚未登入");
 	}
 });
 

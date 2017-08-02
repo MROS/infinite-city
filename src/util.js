@@ -112,12 +112,10 @@ function _prepareFindRules(rule_key, is_array) {
  * @return {[Restrict]}
  */
 async function findBackendRules(b_id, key) {
-	let { rule_key, select, rules } = _prepareFindRules(key, true);
-	select["depth"] = 1;
-	select["manager"] = 1;
+	let { rule_key, rules } = _prepareFindRules(key, true);
 	let cur_b = null;
 	do {
-		cur_b = await db.Board.findOne({ _id: b_id }, select).lean().exec();
+		cur_b = await db.Board.findOne({ _id: b_id }).lean().exec();
 		for(let key of rule_key) {
 			if(cur_b[key] && cur_b[key].length > 0) { // 找到規則！
 				for(let func of cur_b[key]) {
