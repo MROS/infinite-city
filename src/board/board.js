@@ -68,8 +68,8 @@ async function getList(board_id, max, user_id) {
 		return { err_msg };
 	}
 	let [ b_list, a_list, board, rules ] = await Promise.all([
-		db.Board.find({ parent: board_id }, BOARD_SELECT).sort({ date: -1 }).limit(max).lean().exec(),
-		db.Article.find({ board: board_id }, ARTICLE_SELECT).sort({ date: -1 }).limit(max).lean().exec(),
+		db.Board.find({ parent: board_id }, BOARD_SELECT).sort({ date: 1 }).limit(max).lean().exec(),
+		db.Article.find({ board: board_id }, ARTICLE_SELECT).sort({ date: 1 }).limit(max).lean().exec(),
 		db.Board.findOne({ _id: board_id }, BOARD_SELECT).lean().exec(),
 		findFrontendRules(board_id, ["renderTitle", "articleForm"])
 	]);

@@ -43,7 +43,7 @@ function defaultComment(article) {
 }
 function assertList(list, expected, key = "_id") {
 	list = list.map(e => e[key]);
-	expect(list.sort()).toEqual(expected.sort());
+	expect(list).toEqual(expected);
 }
 
 describe("測試 api", () => {
@@ -79,8 +79,8 @@ describe("測試 api", () => {
 		 *     a0    b3 b4 b5 a1    # b3 b4 b5 的板主都是 tester2
 		 *     |      |
 		 *     c0    a2             # a2 的推文只能是「密碼+確認」
-		 *            |
-		 *           c1
+		 *            | \
+		 *           c1 c2
 		 */
 		let bid_array = [];
 		let aid_array = [];
@@ -161,14 +161,22 @@ describe("測試 api", () => {
 					expect(res.body).toHaveProperty("_id");
 					cid_array.push(res.body._id);
 
-					let c1 = defaultComment(aid_array[2]);
-					c1.commentContent = [
+					let c = defaultComment(aid_array[2]);
+					c.commentContent = [
 						{ label: "password", body: "1234" },
 						{ label: "valid", body: "1234" },
 					];
-
 					res = await session.post("/api/comment/new")
-						.send(c1).expect(200);
+						.send(c).expect(200);
+					expect(res.body).toHaveProperty("_id");
+					cid_array.push(res.body._id);
+
+					c.commentContent = [
+						{ label: "password", body: "4567" },
+						{ label: "valid", body: "4567" },
+					];
+					res = await session.post("/api/comment/new")
+						.send(c).expect(200);
 					expect(res.body).toHaveProperty("_id");
 					cid_array.push(res.body._id);
 				});
@@ -203,7 +211,15 @@ describe("測試 api", () => {
 					assertList(b_list, []);
 				});
 				test("瀏覽文章和推文的功能", async () => {
-					// TODO:
+					let res = await session
+					.get(`/api/article/browse?name=b2,b3&id=${aid_array[2]}`).expect(200);
+					let article = res.body;
+					expect(article._id).toBe(aid_array[2]);
+					expect(article.title).toBe("a2");
+					assertList(article.comment, [cid_array[1], cid_array[2]]);
+
+					let c = article.comment[0];
+					expect(c.commentContent[0].evalType).toBe("string");
 				});
 			});
 		});

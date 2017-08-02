@@ -61,7 +61,7 @@ async function getArticle(board_id, article_id, max, user_id) {
 	// TODO: 如果本來就有，根本不用找，應該省略這步來增進效能
 	let [rules, comment] = await Promise.all([
 		findFrontendRules(board_id, ["renderComment", "renderArticleContent", "commentForm"]),
-		db.Comment.find({ article: article_id }).sort({ date: -1 }).limit(max).lean().exec()
+		db.Comment.find({ article: article_id }).sort({ date: 1 }).limit(max).lean().exec()
 	]);
 	if(!article.renderComment) {
 		article.renderComment = rules.renderComment;

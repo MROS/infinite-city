@@ -79,3 +79,10 @@
 			6. articleContent: [String]
 			7. commentForm: [Object]
 			8. comment: [Object]
+* api/comment
+	- POST api/comment/new
+		+ { article, commentContent }
+		+ commentContent: 陣列，每個元素的構成為 { body, label }
+			1. body: string 推文的內容
+			2. label: string 推文的標籤
+		+ commentContent 必須以和 commentForm 相宭的順序傳入
