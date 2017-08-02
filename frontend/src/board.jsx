@@ -1,5 +1,5 @@
 import React from "react";
-import { fromJS, Map } from "immutable";
+import { fromJS, Map, List } from "immutable";
 import { Link } from "react-router-dom";
 
 function ruleToState(rules) {
@@ -11,6 +11,9 @@ function ruleToState(rules) {
 		});
 		rules[ruleName].textarea.forEach((option) => {
 			 ret[ruleName][option.name] = "";
+		});
+		rules[ruleName].formRule.forEach((option) => {
+			 ret[ruleName][option.name] = [{ label: "", restrict: "" }];
 		});
 	});
 	return fromJS(ret);
@@ -43,35 +46,106 @@ class Extendable extends React.Component {
 	}
 }
 
-function Checkbox(props) {
-	return (
-		<div key={props.option.name} className="field">
-			<label className="checkbox">
-				<input
-					onChange={props.onChange}
-					checked={props.checked}
-					name={props.option.name}
-					type="checkbox" />
-				{props.option.display}
-			</label>
-		</div>
-	);
+class Checkbox extends React.Component {
+	constructor(props) {
+		super(props);
+		this.onChange = this.onChange.bind(this);
+	}
+	onChange(event) {
+		this.props.changeUpper(event.target.checked);
+	}
+	render() {
+		return (
+			<div className="field">
+				<label className="checkbox">
+					<input
+						onChange={this.onChange}
+						checked={this.props.checked}
+						name={this.props.option.name}
+						type="checkbox" />
+					{this.props.option.display}
+				</label>
+			</div>
+		);
+	}
 }
 
-function TextArea(props) {
-	return (
-		<div key={props.option.name} className="field">
-			<label className="label">{props.option.display}</label>
-			<div className="control">
-				<textarea
-					value={props.value}
-					onChange={props.onChange}
-					name={props.option.name}
-					className="textarea"
-					placeholder={props.option.display} />
+class TextArea extends React.Component {
+	constructor(props) {
+		super(props);
+		this.onChange = this.onChange.bind(this);
+	}
+	onChange(event) {
+		this.props.changeUpper(event.target.value);
+	}
+	render() {
+		return (
+			<div className="field">
+				<label className="label">{this.props.option.display}</label>
+				<div className="control">
+					<textarea
+						value={this.props.value}
+						onChange={this.onChange}
+						name={this.props.option.name}
+						className="textarea"
+						placeholder={this.props.option.display} />
+				</div>
 			</div>
-		</div>
-	);
+		);
+	}
+}
+
+class FormRule extends React.Component {
+	constructor(props) {
+		super(props);
+		this.addTag = this.addTag.bind(this);
+		this.deleteTag = this.deleteTag.bind(this);
+	}
+	addTag() {
+		const newValue = this.props.value.push(Map({ label: "", restrict: "" }));
+		this.props.changeUpper(newValue);
+	}
+	deleteTag(index) {
+		return () => {
+			console.log(index);
+			const newValue = this.props.value.delete(index);
+			console.log(newValue.toObject());
+			this.props.changeUpper(newValue);
+		};
+	}
+	render() {
+		return (
+			<div className="field">
+				<label className="label">{this.props.option.display}</label>
+				<div className="control">
+					{
+						this.props.value.map((v, index) => {
+							return (
+								<div key={index}>
+									<div className="field has-addons">
+										<a className="button is-danger"
+											onClick={this.deleteTag(index)}>
+											刪除
+										</a>
+										<input
+											className="input"
+											value={v.get("label")}
+											placeholder={"標籤名 " + (index + 1)} />
+									</div>
+									<textarea
+										value={v.get("restrict")}
+										onChange={this.props.onChange}
+										className="textarea"
+										placeholder="限制條件"/>
+								</div>
+							);
+						})
+					}
+					<a className="button" onClick={this.addTag}>更多標籤</a>
+				</div>
+			</div>
+		);
+	}
 }
 
 // props 傳入 ruleDefinition, ruleState, setRules
@@ -97,13 +171,8 @@ class RuleGroup extends React.Component {
 		};
 	}
 	handleRuleChange(rule, name) {
-		return (event) => {
-			const target = event.target;
-			const value = target.type === "checkbox" ? target.checked : target.value;
-			let c = Map({
-				[rule]: Map({ [name]: value })
-			});
-			this.props.setRules(this.props.ruleState.mergeDeep(c));
+		return (value) => {
+			this.props.setRules(this.props.ruleState.setIn([rule, name], value));
 		};
 	}
 	createExtendable(someRules) {
@@ -115,15 +184,33 @@ class RuleGroup extends React.Component {
 				isExtended={this.state.show.get(someRules)}>
 				{
 					[
+						...this.props.ruleDefinition[someRules].checkbox.map((option) => {
+							return (
+								<Checkbox
+									key={option.name}
+									option={option}
+									checked={this.props.ruleState.get(someRules).get(option.name)}
+									changeUpper={this.handleRuleChange(someRules, option.name)} />
+							);
+						}),
 						...this.props.ruleDefinition[someRules].textarea.map((option) => {
 							return (
 								<TextArea
 									key={option.name}
 									option={option}
 									value={this.props.ruleState.get(someRules).get(option.name)}
-									onChange={this.handleRuleChange(someRules, option.name)} />
+									changeUpper={this.handleRuleChange(someRules, option.name)} />
 							);
-						})
+						}),
+						...this.props.ruleDefinition[someRules].formRule.map((option) => {
+							return (
+								<FormRule
+									key={option.name}
+									option={option}
+									changeUpper={this.handleRuleChange(someRules, option.name)}
+									value={this.props.ruleState.get(someRules).get(option.name)} />
+							);
+						}),
 					]
 				}
 			</Extendable>
@@ -159,7 +246,8 @@ class CreateArticle extends React.Component {
 				checkbox: [],
 				textarea: [
 					{ display: "留言渲染函式", name: "renderComment" },
-				]
+				],
+				formRule: []
 			},
 			backendRules: {
 				display: "權限限制",
@@ -167,7 +255,8 @@ class CreateArticle extends React.Component {
 				textarea: [
 					{ display: "閱讀文章", name: "onEnter" },
 					{ display: "留言", name: "onComment" },
-				]
+				],
+				formRule: []
 			}
 		};
 		this.state = {
@@ -255,7 +344,8 @@ class CreateBoard extends React.Component {
 					{ display: "可定義文章表單", name: "canDefArticleForm" },
 					{ display: "可定義留言表單", name: "canDefCommentForm" },
 				],
-				textarea: [
+				textarea: [],
+				formRule: [
 					{ display: "文章表單格式", name: "articleForm" },
 					{ display: "留言表單格式", name: "commentForm" },
 				]
@@ -271,7 +361,8 @@ class CreateBoard extends React.Component {
 					{ display: "標題渲染函式", name: "renderTitle" },
 					{ display: "文章內容渲染函式", name: "renderArticleContent" },
 					{ display: "留言渲染函式", name: "renderComment" },
-				]
+				],
+				formRule: []
 			},
 			backendRules: {
 				display: "權限限制",
@@ -281,11 +372,13 @@ class CreateBoard extends React.Component {
 					{ display: "創建看板", name: "onNewBoard" },
 					{ display: "發文", name: "onNewArticle" },
 					{ display: "留言", name: "onComment" },
-				]
+				],
+				formRule: []
 			}
 		};
 		this.state = {
 			name: "",
+			rules: ruleToState(this.rules),
 			show: Map({
 				formRules: false,
 				renderRules: false,
@@ -294,6 +387,7 @@ class CreateBoard extends React.Component {
 		};
 		this.handleNameChange = this.handleNameChange.bind(this);
 		this.handleOnSubmit = this.handleOnSubmit.bind(this)	;
+		this.setRules = this.setRules.bind(this);
 	}
 	handleNameChange(event) {
 		this.setState({
@@ -310,6 +404,11 @@ class CreateBoard extends React.Component {
 		};
 		this.props.newBoard(board);
 	}
+	setRules(rules) {
+		this.setState({
+			rules: rules
+		});
+	}
 	render() {
 		return (
 			<div>
@@ -319,9 +418,10 @@ class CreateBoard extends React.Component {
 						<input onChange={this.handleNameChange} className="input" type="text" placeholder="看板名稱" />
 					</div>
 				</div>
-				{/* { this.extendableGroup("formRules") }
-				{ this.extendableGroup("renderRules") }
-				{ this.extendableGroup("backendRules") } */}
+				<RuleGroup
+					ruleDefinition={this.rules}
+					ruleState={this.state.rules}
+					setRules={this.setRules}/>
 				<div className="field">
 					<div className="control">
 						<button onClick={this.handleOnSubmit} className="button is-primary">送出</button>

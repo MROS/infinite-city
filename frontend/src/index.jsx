@@ -106,7 +106,7 @@ class App extends React.Component {
 							</nav>
 						</div>
 					</div>
-					<div className="container" style={{marginTop: "65px", width: "420px"}}>
+					<div className="container" style={{marginTop: "65px", width: "820px"}}>
 						<Switch>
 							<Route exact path="/app/login" render={(props) => (
 								<Login appState={this.state} changeLoginState={this.changeLoginState} {...props} />
