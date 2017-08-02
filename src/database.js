@@ -99,7 +99,7 @@ const comment_schema_t = {
 	"article": { type: ObjectId, required: true },
 	"date": { type: Date, required: true },
 	"author": String,
-	"msg": [{ evalType: String, body: String, label: String }]
+	"commentContent": [{ evalType: String, body: String, label: String }]
 };
 
 const user_schema_t = {

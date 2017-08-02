@@ -31,10 +31,15 @@ function processContent(content, form) {
 	let all = array2dict(content, c => c.body);
 	for(let i = 0; i < content.length; i++) {
 		let [c, f] = [content[i], form[i]];
+		if(c.label != f.label) {
+			throw `標籤不統一 ${c.label} =/= ${f.label}`;
+		}
 		c.evalType = f.evalType;
-		let func = eval("(" + f.restrict + ")");
-		if(func(c.body, all)) {
-			throw "未通過表格的限制";
+		if (f.restrict.trim().length > 0) {
+			let func = eval("(" + f.restrict + ")");
+			if (!func(c.body, all)) {
+				throw "未通過表格的限制";
+			}
 		}
 	}
 }
