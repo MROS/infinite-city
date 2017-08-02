@@ -7,21 +7,39 @@ function defaultBoard(name, parent) {
 		backendRules: {}
 	};
 }
-let b1 = defaultBoard.bind(null, "b1");
+let b1 = p => {
+	let b = defaultBoard("b1", p);
+	b.backendRules.onEnter = [
+		(function(cur, user_id) {
+			if(!user_id) {
+				throw "56家族請先登入";
+			}
+		}).toString(),
+		(function(cur_pos, user_id) {
+			if(!user_id.endsWith("5566")) {
+				throw "非56家族不得進入";
+			}
+		}).toString(),
+	];
+	return b;
+};
 let b2 = p => {
 	let b = defaultBoard("b2", p);
-	b.backendRules.onNewArticle = [(function (cur_pos, user_id, caller) {
-		if (cur_pos.board.depth == caller.depth) {
-			if (!caller.manager.includes(user_id)) {
-				throw "只有板主可在此發文";
+	b.backendRules.onNewArticle = [
+		(function(cur_pos, user_id, caller) {
+			if (cur_pos.board.depth == caller.depth) {
+				if (!caller.manager.includes(user_id)) {
+					throw "只有板主可在此發文";
+				}
 			}
-		}
-	}).toString()];
+		}).toString()
+	];
 	return b;
 };
 let b3 = defaultBoard.bind(null, "b3");
 let b4 = defaultBoard.bind(null, "b4");
 let b5 = defaultBoard.bind(null, "b5");
+let b6 = defaultBoard.bind(null, "b6");
 
 function defaultArticle(title, board) {
 	return {
@@ -96,7 +114,7 @@ let cx2 = a => {
 };
 
 module.exports = {
-	b1, b2, b3, b4, b5,
+	b1, b2, b3, b4, b5, b6,
 	a0, a1, a2,
 	c0, c1, c2, cx0, cx1, cx2
 };
