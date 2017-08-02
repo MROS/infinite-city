@@ -1,3 +1,4 @@
+const _ = require("lodash");
 const db = require("../database.js");
 const { findBackendRules, doRestricts, findFrontendRules, processContent } = require("../util.js");
 
@@ -7,7 +8,10 @@ async function createComment(author_id, article_id, commentContent) {
 		throw `${ article } 看板不存在`;
 	}
 
-	let form = article.commentForm || await findFrontendRules(article.board, "commentForm");
+	let form = article.commentForm;
+	if(!form || form.length == 0) {
+		form = await findFrontendRules(article.board, "commentForm");
+	}
 	processContent(commentContent, form);
 
 	let new_comment = {

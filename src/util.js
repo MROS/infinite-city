@@ -146,9 +146,12 @@ async function findFrontendRules(b_id, key) {
 	do {
 		cur_b = await db.Board.findOne({ _id: b_id }, select).lean().exec();
 		for(let key of rule_key) {
-			if(!rules[key] && cur_b[key]) { // 找到缺乏的規則！
-				rules[key] = cur_b[key];
-				done++;
+			if(!rules[key]) {  // 尚未找到這個規則
+				let r = cur_b[key];
+				if(r && (!_.isArray(r) || r.length > 0)) { // r 存在，且不是空陣列
+					rules[key] = r;
+					done++;
+				}
 			}
 		}
 		b_id = cur_b.parent;
