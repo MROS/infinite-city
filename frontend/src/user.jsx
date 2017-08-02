@@ -124,14 +124,16 @@ function Login(props) {
 					console.log(data);
 					switch (data) {
 						case "OK":
+							this.props.changeLoginState(true, this.state.id);
 							this.setState({
 								justSuccess: true
 							});
 							setTimeout(() => {
-								this.props.changeLoginState(true, this.state.id);
 								// XXX: 如果註冊頁就是瀏覽歷史中的第一頁，則這個跳轉行爲沒什麼意義
 								// 然而，並不存在有效的方法能得知目前是否爲歷史中第一頁，因此不能捕捉此狀況
-								this.props.history.goBack();
+								if (this.props.location == "/app/login") {
+									this.props.history.goBack();
+								}
 							}, 5000);
 							break;
 						case "FAIL":
@@ -184,14 +186,16 @@ function SignUp(props) {
 					console.log(data);
 					switch (data) {
 						case "OK":
+							this.props.changeLoginState(true, this.state.id);
 							this.setState({
 								justSuccess: true
 							});
 							setTimeout(() => {
-								this.props.changeLoginState(true, this.state.id);
 								// XXX: 如果註冊頁就是瀏覽歷史中的第一頁，則這個跳轉行爲沒什麼意義
 								// 然而，並不存在有效的方法能得知目前是否爲歷史中第一頁，因此不能捕捉此狀況
-								this.props.history.goBack();
+								if (this.props.location == "/app/signUp") {
+									this.props.history.goBack();
+								}
 							}, 5000);
 							break;
 						case "ID 已被使用":

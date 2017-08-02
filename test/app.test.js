@@ -213,6 +213,7 @@ describe("測試 api", () => {
 				test("瀏覽文章和推文的功能", async () => {
 					let res = await session
 					.get(`/api/article/browse?name=b2,b3&id=${aid_array[2]}`).expect(200);
+
 					let article = res.body;
 					expect(article._id).toBe(aid_array[2]);
 					expect(article.title).toBe("a2");
@@ -225,36 +226,41 @@ describe("測試 api", () => {
 		});
 
 		describe("測試會被擋的操作", () => {
-			test("用 onNewArticle 限制發文的功能", async () => {
-				await session.post("/api/article/new")
-					.send(defaultArticle("a1", bid_array[0])).expect("不可褻瀆無限城的根");
+			describe("測試建立的操作", () => {
+				test("用 onNewArticle 限制發文的功能", async () => {
+					await session.post("/api/article/new")
+						.send(defaultArticle("a1", bid_array[0])).expect("不可褻瀆無限城的根");
 
-				await session.post("/api/user/login").send(tester2).expect("OK");
+					await session.post("/api/user/login").send(tester2).expect("OK");
 
-				await session.post("/api/article/new")
-					.send(defaultArticle("aa", bid_array[2])).expect("只有板主可在此發文");
+					await session.post("/api/article/new")
+						.send(defaultArticle("aa", bid_array[2])).expect("只有板主可在此發文");
+				});
+				test("用 commentForm 限制推文的功能", async () => {
+					let c1 = defaultComment(aid_array[2]);
+					c1.commentContent = [
+						{ label: "password", body: "5678" },
+						{ label: "valid", body: "1234" },
+					];
+					await session.post("/api/comment/new")
+						.send(c1).expect("未通過表格的限制");
+
+					c1.commentContent = [
+						{ label: "password", body: "5678" },
+					];
+					await session.post("/api/comment/new")
+						.send(c1).expect("內文和表格長度不匹配");
+
+					c1.commentContent = [
+						{ label: "password", body: "5678" },
+						{ label: "fuck", body: "1234" },
+					];
+					await session.post("/api/comment/new")
+						.send(c1).expect("標籤不統一 fuck =/= valid");
+				});
 			});
-			test("用 commentForm 限制推文的功能", async () => {
-				let c1 = defaultComment(aid_array[2]);
-				c1.commentContent = [
-					{ label: "password", body: "5678" },
-					{ label: "valid", body: "1234" },
-				];
-				await session.post("/api/comment/new")
-					.send(c1).expect("未通過表格的限制");
+			describe("測試瀏覽的操作", () => {
 
-				c1.commentContent = [
-					{ label: "password", body: "5678" },
-				];
-				await session.post("/api/comment/new")
-					.send(c1).expect("內文和表格長度不匹配");
-
-				c1.commentContent = [
-					{ label: "password", body: "5678" },
-					{ label: "fuck", body: "1234" },
-				];
-				await session.post("/api/comment/new")
-					.send(c1).expect("標籤不統一 fuck =/= valid");
 			});
 		});
 	});

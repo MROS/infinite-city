@@ -610,16 +610,24 @@ class Board extends React.Component {
 					}
 				</div>
 				<div style={{ marginBottom: "30px" }}>
-					<a className={this.state.creatingAritcle ? "button is-success" : "button"}
-						style={{ marginBottom: "15px", marginRight: "12px" }}
-						onClick={() => {this.setState({creatingAritcle: !this.state.creatingAritcle});}}>
-						發文
-					</a>
-					<a className={this.state.creatingBoard ? "button is-success" : "button"}
-						style={{ marginBottom: "15px", marginRight: "12px" }}
-						onClick={() => {this.setState({creatingBoard: !this.state.creatingBoard});}}>
-						創建新板
-					</a>
+					{
+						(() => {
+							if(this.props.appState.login) {
+								return ([
+									<a className={this.state.creatingAritcle ? "button is-success" : "button"}
+										style={{ marginBottom: "15px", marginRight: "12px" }}
+										onClick={() => {this.setState({creatingAritcle: !this.state.creatingAritcle});}}>
+										發文
+									</a>,
+									<a className={this.state.creatingBoard ? "button is-success" : "button"}
+										style={{ marginBottom: "15px", marginRight: "12px" }}
+										onClick={() => {this.setState({creatingBoard: !this.state.creatingBoard});}}>
+										創建新板
+									</a>
+								]);
+							}
+						})()
+					}
 					<a className={this.state.showSource ? "button is-success" : "button"}
 						style={{ marginBottom: "15px" }}
 						onClick={() => {this.setState({showSource: !this.state.showSource});}}>
