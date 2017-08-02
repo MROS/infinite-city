@@ -1,7 +1,7 @@
 import React from "react";
 import { fromJS, Map } from "immutable";
 import { Link } from "react-router-dom";
-import example from "./example";
+import { FormArrayToObject, FormObjectToArray } from "./util";
 
 function isNonEmptyString(x) {
 	return (typeof x == "string" && x.length > 0);
@@ -35,7 +35,17 @@ class InputComment extends React.Component {
 			return ans;
 		};
 		const verifyFunction = eval(`(${findRestrict(label)})`);
-		return verifyFunction(this.state.comment.toJS());
+		const comment = this.state.comment.toJS();
+		return verifyFunction(comment[label], comment);
+	}
+	isAllValid() {
+		for (let item of this.props.commentForm) {
+			const verifyFunction = eval(`(${item.restrict})`);
+			const comment = this.state.comment.toJS();
+			const ok = verifyFunction(comment[item.label], comment);
+			if (!ok) { return false; }
+		};
+		return true;
 	}
 	onChangeComment(label) {
 		return (event) => {
@@ -45,8 +55,11 @@ class InputComment extends React.Component {
 		};
 	}
 	onSubmitComment() {
-		console.log(this.state.comment.toJS());
-		// this.props.submitComment(this.state.comment);
+		if (this.isAllValid()) {
+			console.log(this.state.comment.toJS());
+		} else {
+			console.log("未滿足條件，不發出請求");
+		}
 	}
 	render() {
 		return (
@@ -85,8 +98,8 @@ class Article extends React.Component {
 			content: "",
 			comments: [],
 			commentForm: [
-				{ label: "推噓", restrict: "function(all) { return ['推', '噓'].includes(all['推噓']); }" },
-				{ label: "內容", restrict: "function(all) { return all['內容'].length > 10; }" },
+				{ label: "推噓", restrict: "function(current, all) { return ['推', '噓'].includes(current); }" },
+				{ label: "內容", restrict: "function(current, all) { return current.length > 10; }" },
 			],
 		};
 		this.URLquery = {};
