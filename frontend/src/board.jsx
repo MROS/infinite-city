@@ -565,7 +565,9 @@ class Board extends React.Component {
 					}
 				});
 			} else {
-				console.log("創建看板：非正常失敗");
+				res.text().then((data) => {
+					console.log(`創建看板：非正常失敗, ${data}`);
+				});
 			}
 		}, (err) => {
 			console.log("AJAX失敗，創建看板失敗");

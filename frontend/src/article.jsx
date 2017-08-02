@@ -1,4 +1,5 @@
 import React from "react";
+import { fromJS, Map } from "immutable";
 import { Link } from "react-router-dom";
 import example from "./example";
 
@@ -9,31 +10,61 @@ function isNonEmptyString(x) {
 class InputComment extends React.Component {
 	constructor(props) {
 		super(props);
+
+		let initComment = {};
+		this.props.commentForm.forEach((item) => {
+			initComment[item.label] = "";
+		});
+
 		this.state = {
-			comment: ""
+			comment: fromJS(initComment)
 		};
 		this.onChangeComment = this.onChangeComment.bind(this);
 		this.onSubmitComment = this.onSubmitComment.bind(this);
+		this.isValid = this.isValid.bind(this);
 	}
-	onChangeComment(event) {
-		this.setState({
-			comment: event.target.value
-		});
+	isValid(label) {
+		const findRestrict = (label) => {
+			let ans = "";
+			for (let item of this.props.commentForm) {
+				if (item.label == label) {
+					ans = item.restrict;
+					break;
+				}
+			}
+			return ans;
+		};
+		const verifyFunction = eval(`(${findRestrict(label)})`);
+		return verifyFunction(this.state.comment.toJS());
+	}
+	onChangeComment(label) {
+		return (event) => {
+			this.setState({
+				comment: this.state.comment.set(label, event.target.value)
+			});
+		};
 	}
 	onSubmitComment() {
-		this.props.submitComment(this.state.comment);
+		console.log(this.state.comment.toJS());
+		// this.props.submitComment(this.state.comment);
 	}
 	render() {
 		return (
-			<div className="field has-addons" style={{ marginBottom: "25px" }}>
-				<div className="control is-expanded">
-					<input
-						onChange={this.onChangeComment}
-						value={this.state.comment}
-						className="input"
-						type="text"
-						placeholder="說點什麼吧" />
-				</div>
+			<div className="field" style={{ marginBottom: "25px" }}>
+				{
+					this.props.commentForm.map((item) => {
+						return (
+							<div key={item.label} className="control is-expanded">
+								<input
+									value={this.state.comment.get(item.label)}
+									onChange={this.onChangeComment(item.label)}
+									className={this.isValid(item.label) ? "input is-success" : "input is-danger"}
+									type="text"
+									placeholder={item.label} />
+							</div>
+						);
+					})
+				}
 				<div className="control">
 					<a className="button" onClick={this.onSubmitComment}>
 						留言
@@ -52,7 +83,11 @@ class Article extends React.Component {
 		super(props);
 		this.state = {
 			content: "",
-			comments: []
+			comments: [],
+			commentForm: [
+				{ label: "推噓", restrict: "function(all) { return ['推', '噓'].includes(all['推噓']); }" },
+				{ label: "內容", restrict: "function(all) { return all['內容'].length > 10; }" },
+			],
 		};
 		this.URLquery = {};
 		this.props.location.search.slice(1).split("&").forEach((q) => {
@@ -100,7 +135,8 @@ class Article extends React.Component {
 								title: data.title,
 								date: new Date(data.date),
 								content: data.articleContent.join(""),
-								commentForm: data.commentForm,
+								// TODO: 打開下行
+								// commentForm: data.commentForm,
 								comments: data.comment
 							});
 					}
