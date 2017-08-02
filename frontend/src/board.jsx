@@ -95,6 +95,7 @@ class TextArea extends React.Component {
 	}
 }
 
+// TODO: 設定限制條件，避免使用者送出無意義規則
 class FormRule extends React.Component {
 	constructor(props) {
 		super(props);
@@ -138,17 +139,18 @@ class FormRule extends React.Component {
 						this.props.value.map((v, index) => {
 							return (
 								<div key={index}>
-									<div className="field has-addons">
-										<a className="button is-danger"
+									<div style={{ width: "100%" }}>
+										{`欄位 ${index + 1}`}
+										<a style={{ color: "red", float: "right" }}
 											onClick={this.deleteItem(index)}>
 											刪除
 										</a>
-										<input
-											className="input"
-											onChange={this.changeLabel(index)}
-											value={v.get("label")}
-											placeholder={"標籤名 " + (index + 1)} />
 									</div>
+									<input
+										className="input"
+										onChange={this.changeLabel(index)}
+										value={v.get("label")}
+										placeholder={"標籤名 " + (index + 1)} />
 									<textarea
 										value={v.get("restrict")}
 										onChange={this.changeRestrict(index)}
