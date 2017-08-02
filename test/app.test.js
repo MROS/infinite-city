@@ -73,13 +73,13 @@ describe("測試 api", () => {
 			bid_array.push(res.body._id);
 
 			let b2 = defaultBoard("b2", _id);
-			b2.backendRules.onNewArticle = `function(cur_pos, user_id, caller) {
+			b2.backendRules.onNewArticle = [`function(cur_pos, user_id, caller) {
 				if(cur_pos.board.depth == caller.depth) {
 					if(!caller.manager.includes(user_id)) {
 						throw "只有板主可在此發文";
 					}
 				}
-			}`;
+			}`];
 
 			res = await session.post("/api/board/new").send(b2).expect(200);
 			expect(res.body).toHaveProperty("_id");

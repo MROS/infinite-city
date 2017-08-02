@@ -124,16 +124,18 @@ async function clearManagerDialog() {
 	}
 	waitEnter();
 }
-let P_NAME = "infinite-city";
+const P_NAME = "infinite-city";
 async function dropDBDialog() {
 	let ans = "";
 	if(env == "test") {
 		ans = P_NAME;
 	} else {
-		let ans = question("請輸入專案的名稱 > ", false);
+		ans = question("請輸入專案的名稱 > ", false);
 	}
-	if (ans != P_NAME) console.log("名稱錯誤！");
-	else {
+
+	if (P_NAME != ans) {
+		console.log("專案名稱錯誤！");
+	} else {
 		ans = ynPrompt("確定要清空整個資料庫？");
 		if(ans) {
 			try {

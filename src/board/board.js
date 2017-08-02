@@ -1,17 +1,5 @@
 const db = require("../database.js");
-const { findBackendRules, doRestricts, findFrontendRules } = require("../util.js");
-
-/**
- * @param {Board} board 
- * @param {Board} parent 
- * @param {Object} rules
- * @param {String} can_key 
- * @param {String} rule_key
- */
-function setRule(board, parent, rules, can_key, rule_key) {
-	if(parent[can_key]) {board[rule_key] = rules[rule_key];}
-	board[can_key] = rules[can_key] && parent[can_key];
-}
+const { findBackendRules, doRestricts, findFrontendRules, setRule } = require("../util.js");
 
 /**
  * @param {String} manager_id 
@@ -39,17 +27,17 @@ async function createBoard(manager_id, name, parent_id,
 	new_board.depth = parent.depth + 1;
 	new_board.date = new Date();
 	// Form Rules
-	setRule(new_board, parent, formRules, "canDefArticleForm", "articleForm");
-	setRule(new_board, parent, formRules, "canDefCommentForm", "commentForm");
+	setRule(new_board, formRules, "articleForm", parent, "canDefArticleForm",);
+	setRule(new_board, formRules, "commentForm", parent, "canDefCommentForm");
 	// Render Rules
-	setRule(new_board, parent, renderRules, "canDefTitle", "renderTitle");
-	setRule(new_board, parent, renderRules, "canDefArticleContent", "renderArticleContent");
-	setRule(new_board, parent, renderRules, "canDefTitle", "renderTitle");
+	setRule(new_board, renderRules, "renderTitle", parent, "canDefTitle");
+	setRule(new_board, renderRules, "renderArticleContent", parent, "canDefArticleContent");
+	setRule(new_board, renderRules, "renderTitle", parent, "canDefTitle");
 	// backend Rules
-	new_board.onEnter = backendRules.onEnter;
-	new_board.onNewBoard = backendRules.onNewBoard;
-	new_board.onNewArticle = backendRules.onNewArticle;
-	new_board.onComment = backendRules.onComment;
+	setRule(new_board, backendRules, "onEnter");
+	setRule(new_board, backendRules, "onNewBoard");
+	setRule(new_board, backendRules, "onNewArticle");
+	setRule(new_board, backendRules, "onComment");
 
 	let restricts = await findBackendRules(parent_id, "onNewBoard");
 	let err_msg = doRestricts({ board: new_board }, manager_id, restricts);

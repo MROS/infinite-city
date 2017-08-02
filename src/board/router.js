@@ -23,8 +23,12 @@ router.get("/browse", async function(req, res) {
 			res.json(list);
 		}
 	} catch (err) {
-		res.status(400).send("FAIL");
 		console.log(err);
+		if(_.isString(err)) { // 自定的錯誤
+			res.send(err);
+		} else {
+			res.status(400).send("FAIL");
+		}
 	}
 });
 
@@ -46,6 +50,7 @@ router.post("/new", async function(req, res) {
 			}
 		}
 	} catch(err) {
+		console.log(err);
 		if(_.isString(err)) { // 自定的錯誤
 			res.send(err);
 		} else {

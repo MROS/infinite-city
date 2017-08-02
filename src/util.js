@@ -1,7 +1,49 @@
 const _ = require("lodash");
 const db = require("./database.js");
 
-function prepareFindRules(rule_key) {
+/**
+ * 檢查一個規則是否為空字串
+ * @param {Object|String} rule 
+ */
+function _checkRule(rule) {
+	if(!rule) {
+		return false;
+	} else if(_.isString(rule) && rule.trim.length > 0) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+/**
+ * 可處理後端與前端規則
+ * @param {Board} obj 
+ * @param {Object} rules
+ * @param {String} rule_key
+ * @param {Board} parent 
+ * @param {String} can_key 若未傳入則代表無限制
+ */
+function setRule(obj, rules, rule_key, parent, can_key) {
+	if(!can_key || parent[can_key]) {
+		let rule = rules[rule_key];
+		if(_.isArray(rule)) {
+			obj[rule_key] = [];
+			for(let r of rule) {
+				if (_checkRule(r)) {
+					obj[rule_key].push(r);
+				}
+			}
+		}
+		else if(_checkRule(rule)) {
+			obj[rule_key] = rule;
+		}
+	}
+	if(can_key && rules[can_key]) {
+		obj[can_key] = rules[can_key] && parent[can_key];
+	}
+}
+
+function _prepareFindRules(rule_key) {
 	if(!rule_key || rule_key.length == 0) {
 		throw "未指定欲查找的規則！";
 	}
@@ -22,7 +64,7 @@ function prepareFindRules(rule_key) {
  * @return {[Restrict]}
  */
 async function findBackendRules(b_id, key) {
-	let { rule_key, select, rules } = prepareFindRules(key);
+	let { rule_key, select, rules } = _prepareFindRules(key);
 	select["depth"] = 1;
 	select["manager"] = 1;
 	let cur_b = null;
@@ -50,7 +92,7 @@ async function findBackendRules(b_id, key) {
  * @return {[String]}
  */
 async function findFrontendRules(b_id, key) {
-	let { rule_key, select, rules } = prepareFindRules(key);
+	let { rule_key, select, rules } = _prepareFindRules(key);
 	let cur_b = null;
 	let done = 0;
 	do {
@@ -119,5 +161,6 @@ module.exports = {
 	findFrontendRules,
 	doRestricts,
 	recursiveGetBoard,
-	getRootId
+	getRootId,
+	setRule
 };

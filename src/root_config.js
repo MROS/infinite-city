@@ -12,11 +12,20 @@ const ROOT = {
 	+ "return comment.msg.join('\n')"
 	+ "}",
 	// backend rules
-	onNewArticle: "function(cur_pos) {"
-	+ "if(cur_pos.board.depth == 0) {"
-	+ "throw '不可褻瀆無限城的根';"
-	+ "}"
-	+ "}",
+	onNewArticle: [
+		"function(cur_pos) {"
+		+ "if(cur_pos.board.depth == 0) {"
+		+ "throw '不可褻瀆無限城的根';"
+		+ "}"
+		+ "}"
+	],
+	// form rules
+	articleForm: [
+		{ label: "內文", restrict: "" }
+	],
+	commentForm: [
+
+	],
 
 	isRoot: true,
 	depth: 0,

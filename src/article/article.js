@@ -1,5 +1,5 @@
 const db = require("../database.js");
-const { findBackendRules, findFrontendRules, doRestricts } = require("../util.js");
+const { findBackendRules, findFrontendRules, doRestricts, setRule } = require("../util.js");
 
 /**
  * @param {String} author
@@ -21,15 +21,11 @@ async function createArticle(author_id, title, board_id, articleContent,
 	new_article.articleContent = articleContent;
 	new_article.date = new Date();
 	// Form Rules
-	if(board.canDefCommentForm) {
-		new_article.commentForm = formRules.commentForm;
-	}
+	setRule(new_article, formRules, "commentForm", board, "canDefCommentForm");
 	// Render Rules
-	if(board.canDefComment) {
-		new_article.renderComment = renderRules.renderComment;
-	}
+	setRule(new_article, renderRules, "renderComment", board, "canDefComment");
 	// Backend Rules
-	new_article.onComment = backendRules.onComment;
+	setRule(new_article, renderRules, "onComment");
 
 	let restricts = await findBackendRules(board_id, "onNewArticle");
 	let err_msg = doRestricts({ article: new_article, board: board }, author_id, restricts);

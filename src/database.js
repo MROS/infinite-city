@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const config = require("./config.js");
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const Mixed = mongoose.Schema.Types.Mixed;
 mongoose.Promise = global.Promise;
 
 let env = require("optimist").argv.env || process.env.env || "dev";
@@ -54,8 +55,8 @@ const board_schema_t = {
 	// 注意，如果完全要禁止子板自行定義限制也是做得到的，只要在 onNewBoard 裡面檢查子看板 onXXX 陣列的長度，假如有多的就禁止創板
 
 	// 以下為 Form Rules
-	"articleForm": [String],
-	"commentForm": [Object],
+	"articleForm": [Mixed],
+	"commentForm": [Mixed],
 	"canDefArticleForm": { type: Boolean, default: true },
 	"canDefCommentForm": { type: Boolean, default: true },
 
@@ -79,7 +80,7 @@ const article_schema_t = {
 	"onComment": [String], // 提交留言時在「後端」進行的檢查
 	"onEnter": [String], // 進入文章時在「後端」進行的檢查，可以實現告白文（之類的）
 	// Form Rules
-	"commentForm": [Object], // TODO: 如果傳入非陣列（例如字串），會變成只有一個元素的陣列，應該改掉！
+	"commentForm": [Mixed], // TODO: 如果傳入非陣列（例如字串），會變成只有一個元素的陣列，應該改掉！
 
 	// 底下開始是文章真正的資料
 	"articleContent": [String], // 其實是函數，希望有朝一日真的變成字串，用模板的方式渲染
