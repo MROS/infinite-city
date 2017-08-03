@@ -36,7 +36,7 @@ class IDPasswordForm extends React.Component {
 			return (
 				<div>
 					<p>恭喜！{this.state.id}</p>
-					<p>您已經成功{this.props.buttonName}，將在五秒內跳轉回上個瀏覽頁面</p>
+					<p>您已經成功{this.props.buttonName}，將在五秒內跳轉回<a onClick={this.props.history.goBack}>上個瀏覽頁面</a></p>
 				</div>
 			);
 		}
@@ -131,7 +131,7 @@ function Login(props) {
 							setTimeout(() => {
 								// XXX: 如果註冊頁就是瀏覽歷史中的第一頁，則這個跳轉行爲沒什麼意義
 								// 然而，並不存在有效的方法能得知目前是否爲歷史中第一頁，因此不能捕捉此狀況
-								if (this.props.location == "/app/login") {
+								if (window.location.pathname == "/app/login") {
 									this.props.history.goBack();
 								}
 							}, 5000);
@@ -193,7 +193,8 @@ function SignUp(props) {
 							setTimeout(() => {
 								// XXX: 如果註冊頁就是瀏覽歷史中的第一頁，則這個跳轉行爲沒什麼意義
 								// 然而，並不存在有效的方法能得知目前是否爲歷史中第一頁，因此不能捕捉此狀況
-								if (this.props.location == "/app/signUp") {
+								// 若進入它頁之後又點回 /app/signUp 仍會跳轉，因此行爲仍不完美
+								if (window.location.location == "/app/signUp") {
 									this.props.history.goBack();
 								}
 							}, 5000);
