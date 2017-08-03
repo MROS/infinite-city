@@ -27,10 +27,14 @@ class InputComment extends React.Component {
 	}
 	isAllValid() {
 		for (let item of this.props.commentForm) {
-			const verifyFunction = eval(`(${item.restrict})`);
-			const comment = this.state.comment.toJS();
-			const ok = verifyFunction(comment[item.label], comment);
-			if (!ok) { return false; }
+			if (item.restrict.trim().length == 0) {
+				continue;
+			} else {
+				const verifyFunction = eval(`(${item.restrict})`);
+				const comment = this.state.comment.toJS();
+				const ok = verifyFunction(comment[item.label], comment);
+				if (!ok) { return false; }
+			}
 		};
 		return true;
 	}
@@ -75,10 +79,8 @@ class Article extends React.Component {
 		this.state = {
 			content: "",
 			comments: [],
-			commentForm: [
-				{ label: "推噓", restrict: "function(current, all) { return ['推', '噓'].includes(current); }" },
-				{ label: "內容", restrict: "function(current, all) { return current.length > 10; }" },
-			],
+			commentForm: [],
+			articleContent: [],
 		};
 		this.URLquery = {};
 		this.props.location.search.slice(1).split("&").forEach((q) => {
@@ -107,7 +109,7 @@ class Article extends React.Component {
 	}
 	getArticleData() {
 		const path = this.countPath();
-		const url = (path.length == 0) ? `/api/article/browse?id=${this.URLquery.id}` : `/api/article/browse??id=${this.URLquery.id}&name=${path.join(",")}`;
+		const url = (path.length == 0) ? `/api/article/browse?id=${this.URLquery.id}` : `/api/article/browse?id=${this.URLquery.id}&name=${path.join(",")}`;
 		console.log(url);
 		fetch(url, {
 			credentials: "same-origin"
@@ -125,7 +127,7 @@ class Article extends React.Component {
 								author: data.author,
 								title: data.title,
 								date: new Date(data.date),
-								content: data.articleContent.join(""),
+								articleContent: data.articleContent,
 								commentForm: data.commentForm,
 								comments: data.comment
 							});
@@ -154,20 +156,17 @@ class Article extends React.Component {
 			body: JSON.stringify(body)
 		}).then((res) => {
 			if (res.ok) {
-				res.text().then((data) => {
-					switch (data) {
-						case "OK":
-							console.log("留言成功");
-							break;
-						case "尚未登入":
-							console.log("留言：尚未登入");
-							break;
-						default:
-							console.log(`留言：不明狀況 ${data}`);
+				res.json().then((data) => {
+					if (data._id) {
+						console.log(`留言成功，留言 ID 爲：${data._id}`);
+					} else {
+						console.log(`留言失敗：${data}`);
 					}
 				});
 			} else {
-				console.log("留言：非正常失敗");
+				res.text().then((data) => {
+					console.log(`留言失敗：${data}`);
+				});
 			}
 		}, (err) => {
 			console.log("AJAX失敗，留言失敗");
@@ -197,9 +196,17 @@ class Article extends React.Component {
 				</div>
 				<div style={{marginBottom: "25px"}}>
 					{
-						this.state.content.split("\n").map((p, index) => {
-							if (p == "") { return <br key={index} />; }
-							else { return <p key={index}>{p}</p>; }
+						this.state.articleContent.map((item, index) => {
+							return (
+								<div key={index}>
+									{
+										item.body.split("\n").map((p, index) => {
+											if (p == "") { return <br key={index} />; }
+											else { return <p key={index}>{p}</p>; }
+										})
+									}
+								</div>
+							);
 						})
 					}
 				</div>
@@ -212,7 +219,7 @@ class Article extends React.Component {
 								<div key={index}>
 									<span style={{ color: "blue" }}>{comment.author}</span>
 									<span>：</span>
-									<span>{comment.msg}</span>
+									<span>{comment.commentContent.map((item) => item.body).join(" ")}</span>
 									<hr />
 								</div>
 							);

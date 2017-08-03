@@ -19,9 +19,14 @@ class VariableInput extends React.Component {
 			}
 			return ans;
 		};
-		const verifyFunction = eval(`(${findRestrict(label)})`);
-		const data = this.props.data.toJS();
-		return verifyFunction(data[label], data);
+		const restrictStr = findRestrict(label);
+		if (restrictStr.trim().length == 0) {
+			return true;
+		} else {
+			const verifyFunction = eval(`(${restrictStr})`);
+			const data = this.props.data.toJS();
+			return verifyFunction(data[label], data);
+		}
 	}
 	onChangeData(label) {
 		return (event) => {
