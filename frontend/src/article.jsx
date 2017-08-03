@@ -1,7 +1,7 @@
 import React from "react";
 import { fromJS, Map } from "immutable";
 import { Link } from "react-router-dom";
-import { FormArrayToObject, FormObjectToArray } from "./util";
+import { LabelArrayToObject, LabelObjectToArray } from "./util";
 import VariableInput from "./variableInput.jsx";
 
 function isNonEmptyString(x) {
@@ -59,7 +59,7 @@ class InputComment extends React.Component {
 	onSubmitComment() {
 		if (this.isAllValid()) {
 			const obj = this.state.comment.toJS();
-			const commentContent = FormObjectToArray(obj, this.props.commentForm);
+			const commentContent = LabelObjectToArray(obj, this.props.commentForm);
 			this.props.submitComment(commentContent);
 		} else {
 			console.log("未滿足條件，不發出請求");
@@ -103,6 +103,8 @@ class Article extends React.Component {
 		this.countPath = this.countPath.bind(this);
 		this.getArticleData = this.getArticleData.bind(this);
 		this.submitComment = this.submitComment.bind(this);
+		this.renderComments = this.renderComments.bind(this);
+		this.renderArticle = this.renderArticle.bind(this);
 	}
 	countPath() {
 		const urlPath = this.props.location.pathname;
@@ -119,6 +121,87 @@ class Article extends React.Component {
 			const d = date.getDate();
 			return `${y}年${m}月${d}日 ${date.toLocaleTimeString()}`;
 		}
+	}
+	createContent(arr) {    // 過濾掉 evalType 不是字串的項目，並且將原陣列轉爲物件
+		const onlyString = arr.filter(item => item.evalType == "string");
+		return LabelArrayToObject(onlyString, item => item.body);
+	}
+	createComment(comment) {
+		return {
+			date: comment.date,
+			author: comment.author,
+			content: this.createContent(comment.commentContent)
+		};
+	}
+	createExposedDataForArticle() {
+		return {
+			title: this.state.title,
+			articleAuthor: this.state.author,
+			articleContent: this.createContent(this.state.articleContent),
+			comments: this.state.comments.map(comment => this.createComment(comment)),
+		};
+	}
+	createExposedDataForComment(comment, index) {
+		return {
+			title: this.state.title,
+			articleAuthor: this.state.author,
+			articleContent: this.createContent(this.state.articleContent),
+			comments: this.state.comments.map(comment => this.createComment(comment)),
+			currentComment: this.createComment(comment),
+			currentIndex: index,
+		};
+	}
+	evaluateItem(item, exposedData) {
+		switch (item.evalType) {
+			case "string":
+				return item.body;
+			case "function":
+				if (item.body.trim().length == 0) {
+					return "";
+				}
+				try {
+					const evalFunction = eval(`(${item.body})`);
+					const result = evalFunction(exposedData);
+					return result;
+				} catch (error) {
+					console.log(error);
+					return "函式失敗";
+				}
+		}
+	}
+	renderArticle() {
+		const exposedData = this.createExposedDataForArticle();
+		return this.state.articleContent.map((item, index) => {
+			return (
+				<div key={index}>
+					{
+						this.evaluateItem(item, exposedData).split("\n").map((p, index) => {
+							if (p == "") { return <br key={index} />; }
+							else { return <p key={index}>{p}</p>; }
+						})
+					}
+					<br />
+				</div>
+			);
+		});
+	}
+	renderComments() {
+		const renderComment = (comment, exposedData) => {
+			return comment.commentContent.map(item => this.evaluateItem(item, exposedData));
+		};
+		return this.state.comments.map((comment, index) => {
+			const exposedData = this.createExposedDataForComment(comment, index);
+			return (
+				<div key={index}>
+					<span style={{ color: "blue" }}>{comment.author}</span>
+					<span>：</span>
+					<span>
+						{ renderComment(comment, exposedData) }
+					</span>
+					<hr />
+				</div>
+			);
+		});
 	}
 	getArticleData() {
 		const path = this.countPath();
@@ -196,9 +279,7 @@ class Article extends React.Component {
 		return (
 			<div>
 				<Link to={boardURL}>
-					<div style={{marginBottom: "10px"}}>
-						回看板
-					</div>
+					<div style={{marginBottom: "10px"}}> 回看板 </div>
 				</Link>
 				<div style={{ marginBottom: "28px" }}>
 					<h3 className="title is-3">{match.params.articleName}</h3>
@@ -207,37 +288,11 @@ class Article extends React.Component {
 						<div>{this.formatDate(this.state.date)}</div>
 					</div>
 				</div>
-				<div style={{marginBottom: "25px"}}>
-					{
-						this.state.articleContent.map((item, index) => {
-							return (
-								<div key={index}>
-									{
-										item.body.split("\n").map((p, index) => {
-											if (p == "") { return <br key={index} />; }
-											else { return <p key={index}>{p}</p>; }
-										})
-									}
-								</div>
-							);
-						})
-					}
-				</div>
+				<div style={{marginBottom: "25px"}}> { this.renderArticle() } </div>
 				<div>
 					<h5 className="title is-5">留言區</h5>
 					<hr />
-					{
-						this.state.comments.map((comment, index) => {
-							return (
-								<div key={index}>
-									<span style={{ color: "blue" }}>{comment.author}</span>
-									<span>：</span>
-									<span>{comment.commentContent.map((item) => item.body).join(" ")}</span>
-									<hr />
-								</div>
-							);
-						})
-					}
+					{ this.renderComments() }
 				</div>
 				<InputComment
 					submitComment={this.submitComment}

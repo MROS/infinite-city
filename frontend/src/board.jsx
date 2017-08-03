@@ -2,7 +2,7 @@ import React from "react";
 import { fromJS, Map, List } from "immutable";
 import { Link } from "react-router-dom";
 import VariableInput from "./variableInput.jsx";
-import { FormArrayToObject, FormObjectToArray } from "./util";
+import { LabelArrayToObject, LabelObjectToArray } from "./util";
 
 function ruleToState(rules) {
 	let ret = {};
@@ -315,7 +315,7 @@ class CreateArticle extends React.Component {
 	}
 	handleOnSubmit() {
 		let { title, articleContent, rules } = this.state;
-		articleContent = FormObjectToArray(articleContent.toJS(), this.props.articleForm);
+		articleContent = LabelObjectToArray(articleContent.toJS(), this.props.articleForm);
 		let article = {
 			title,
 			articleContent,
