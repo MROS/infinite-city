@@ -12,18 +12,30 @@ class InputComment extends React.Component {
 	constructor(props) {
 		super(props);
 
-		let initComment = {};
-		this.props.commentForm.forEach((item) => {
-			initComment[item.label] = "";
-		});
+		this.createStatebyProps = this.createStatebyProps.bind(this);
 
 		this.state = {
-			comment: fromJS(initComment)
+			comment: this.createStatebyProps(props)
 		};
 
 		this.isAllValid = this.isAllValid.bind(this);
-		this.changeComment = this.changeComment.bind(this);
+		this.setComment = this.setComment.bind(this);
 		this.onSubmitComment = this.onSubmitComment.bind(this);
+	}
+	createStatebyProps(props) {
+		let initComment = {};
+		props.commentForm.forEach((item) => {
+			initComment[item.label] = "";
+		});
+		console.log(initComment);
+		return fromJS(initComment);
+	}
+	componentWillReceiveProps(nextProps) {
+		if (nextProps != this.props) {
+			this.setState({
+				comment: this.createStatebyProps(nextProps)
+			});
+		}
 	}
 	isAllValid() {
 		for (let item of this.props.commentForm) {
@@ -38,7 +50,8 @@ class InputComment extends React.Component {
 		};
 		return true;
 	}
-	changeComment(comment) {
+	setComment(comment) {
+		console.log(comment.toJS());
 		this.setState({
 			comment: comment
 		});
@@ -59,7 +72,7 @@ class InputComment extends React.Component {
 					oneline={true}
 					data={this.state.comment}
 					dataForm={this.props.commentForm}
-					changeUpper={this.changeComment}/>
+					changeUpper={this.setComment}/>
 				<div className="control">
 					<a className="button" onClick={this.onSubmitComment}>
 						留言

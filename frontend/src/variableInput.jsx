@@ -53,7 +53,6 @@ class VariableInput extends React.Component {
 											onChange={this.onChangeData(item.label)}
 											className={this.isValid(item.label) ? "textarea is-success" : "textarea is-danger"}
 											placeholder={item.label} />
-
 								}
 							</div>
 						);
