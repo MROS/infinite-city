@@ -2,6 +2,7 @@ import React from "react";
 import { fromJS, Map, List } from "immutable";
 import { Link } from "react-router-dom";
 import VariableInput from "./variableInput.jsx";
+import { FormArrayToObject, FormObjectToArray } from "./util";
 
 function ruleToState(rules) {
 	let ret = {};
@@ -303,7 +304,6 @@ class CreateArticle extends React.Component {
 			rules: ruleToState(this.rules),
 		};
 		this.handleTitleChange = this.handleTitleChange.bind(this);
-		this.handleContentChange = this.handleContentChange.bind(this);
 		this.handleOnSubmit = this.handleOnSubmit.bind(this);
 		this.setRules = this.setRules.bind(this);
 		this.setArticleContent = this.setArticleContent.bind(this);
@@ -313,14 +313,9 @@ class CreateArticle extends React.Component {
 			title: event.target.value
 		});
 	}
-	// TODO: 需符合 articleForm
-	handleContentChange(event) {
-		this.setState({
-			articleContent: [event.target.value]
-		});
-	}
 	handleOnSubmit() {
 		let { title, articleContent, rules } = this.state;
+		articleContent = FormObjectToArray(articleContent.toJS(), this.props.articleForm);
 		let article = {
 			title,
 			articleContent,
@@ -328,7 +323,6 @@ class CreateArticle extends React.Component {
 			renderRules: rules.get("renderRules").toObject(),
 			backendRules: rules.get("backendRules").toObject()
 		};
-		console.log(`創建文章 ${article}`);
 		this.props.newArticle(article);
 	}
 	setRules(rules) {
@@ -337,6 +331,7 @@ class CreateArticle extends React.Component {
 		});
 	}
 	setArticleContent(articleContent) {
+		console.log(articleContent.toJS());
 		this.setState({
 			articleContent: articleContent
 		});
@@ -534,6 +529,8 @@ class Board extends React.Component {
 	newArticle(articleDefinition) {
 		let body = articleDefinition;
 		body.board = this.boardID;
+		console.log("發文");
+		console.log(JSON.stringify(body, null, 2));
 		fetch("/api/article/new", {
 			method: "POST",
 			credentials: "same-origin",
@@ -543,21 +540,17 @@ class Board extends React.Component {
 			body: JSON.stringify(body)
 		}).then((res) => {
 			if (res.ok) {
-				res.text().then((data) => {
-					switch (data) {
-						case "FAIL":
-							console.log("發文失敗");
-							break;
-						case "OK":
-							console.log("發文成功");
-							break;
-						case "尚未登入":
-							console.log("尚未登入");
-							break;
+				res.json().then((data) => {
+					if (data._id) {
+						console.log(`發文成功，文章 ID 爲：${data._id}`);
+					} else {
+						console.log(`發文失敗：${data}`);
 					}
 				});
 			} else {
-				console.log("發文：非正常失敗");
+				res.text().then((data) => {
+					console.log(`發文失敗：${data}`);
+				});
 			}
 		}, (err) => {
 			console.log("AJAX失敗，發文失敗");

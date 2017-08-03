@@ -126,8 +126,7 @@ class Article extends React.Component {
 								title: data.title,
 								date: new Date(data.date),
 								content: data.articleContent.join(""),
-								// TODO: 打開下行
-								// commentForm: data.commentForm,
+								commentForm: data.commentForm,
 								comments: data.comment
 							});
 					}
