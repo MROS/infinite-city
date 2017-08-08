@@ -259,6 +259,7 @@ class Article extends React.Component {
 						this.refs.notificationSystem.addNotification({
 							message: "留言成功", level: "success", position: "tc"
 						});
+						this.getArticleData();
 					} else {
 						this.refs.notificationSystem.addNotification({
 							message: `留言失敗：${data}`, level: "Error", position: "tc"
