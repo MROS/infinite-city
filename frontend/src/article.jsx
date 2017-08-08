@@ -3,6 +3,8 @@ import { fromJS, Map } from "immutable";
 import { Link } from "react-router-dom";
 import { LabelArrayToObject, LabelObjectToArray } from "./util";
 import VariableInput from "./variableInput.jsx";
+import NotificationSystem from 'react-notification-system';
+
 
 function isNonEmptyString(x) {
 	return (typeof x == "string" && x.length > 0);
@@ -254,18 +256,26 @@ class Article extends React.Component {
 			if (res.ok) {
 				res.json().then((data) => {
 					if (data._id) {
-						console.log(`留言成功，留言 ID 爲：${data._id}`);
+						this.refs.notificationSystem.addNotification({
+							message: "留言成功", level: "success", position: "tc"
+						});
 					} else {
-						console.log(`留言失敗：${data}`);
+						this.refs.notificationSystem.addNotification({
+							message: `留言失敗：${data}`, level: "Error", position: "tc"
+						});
 					}
 				});
 			} else {
 				res.text().then((data) => {
-					console.log(`留言失敗：${data}`);
+					this.refs.notificationSystem.addNotification({
+						message: `留言失敗：${data}`, level: "error", position: "tc"
+					});
 				});
 			}
 		}, (err) => {
-			console.log("AJAX失敗，留言失敗");
+			this.refs.notificationSystem.addNotification({
+				message: "AJAX失敗，留言失敗", level: "error", position: "tc"
+			});
 		});
 	}
 	componentDidMount() {
@@ -297,6 +307,7 @@ class Article extends React.Component {
 				<InputComment
 					submitComment={this.submitComment}
 					commentForm={this.state.commentForm} />
+				<NotificationSystem ref="notificationSystem" />
 			</div>
 		);
 	}
