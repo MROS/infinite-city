@@ -6,6 +6,7 @@ let { recursiveGetBoard, getRootId } = require("../util.js");
 router.post("/new", async function (req, res) {
 	try {
 		let userId = req.session.userId;
+		console.log(req.body);
 		if (!userId) {
 			res.status(401).send("尚未登入");
 		} else {

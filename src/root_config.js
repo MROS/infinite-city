@@ -19,6 +19,9 @@ const ROOT = {
 		+ "}"
 		+ "}"
 	],
+	onNewBoard: [],
+	onEnter: [],
+	onComment: [],
 	// form rules
 	articleForm: [
 		{ label: "內容", restrict: "", evalType: "string" }

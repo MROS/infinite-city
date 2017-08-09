@@ -130,7 +130,7 @@ async function dropDBDialog() {
 	if(env == "test") {
 		ans = P_NAME;
 	} else {
-		ans = question("請輸入專案的名稱 > ", false);
+		ans = question(`請輸入專案的名稱(${P_NAME}) > `, false);
 	}
 
 	if (P_NAME != ans) {
