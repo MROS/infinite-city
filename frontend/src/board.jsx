@@ -10,13 +10,13 @@ function ruleToState(rules) {
 	Object.keys(rules).forEach((ruleName) => {
 		ret[ruleName] = {};
 		rules[ruleName].checkbox.forEach((option) => {
-			 ret[ruleName][option.name] = true;
+			ret[ruleName][option.name] = true;
 		});
 		rules[ruleName].textarea.forEach((option) => {
-			 ret[ruleName][option.name] = "";
+			ret[ruleName][option.name] = "";
 		});
 		rules[ruleName].formRule.forEach((option) => {
-			 ret[ruleName][option.name] = [{ label: "", restrict: "", evalType: "string" }];
+			ret[ruleName][option.name] = [{ label: "", restrict: "", evalType: "string" }];
 		});
 	});
 	return fromJS(ret);
@@ -166,7 +166,7 @@ class FormRule extends React.Component {
 										value={v.get("restrict")}
 										onChange={this.changeRestrict(index)}
 										className="textarea"
-										placeholder="限制條件"/>
+										placeholder="限制條件" />
 									<div className="select">
 										<select value={v.get("evalType")} onChange={this.changeEvaltype(index)}>
 											<option value="string">字串（單純文字）</option>
@@ -177,7 +177,7 @@ class FormRule extends React.Component {
 							);
 						})
 					}
-					<a className="button" style={{marginTop: "15px"}} onClick={this.addItem}>更多欄位</a>
+					<a className="button" style={{ marginTop: "15px" }} onClick={this.addItem}>更多欄位</a>
 				</div>
 			</div>
 		);
@@ -340,7 +340,7 @@ class CreateArticle extends React.Component {
 	render() {
 		return (
 			<div>
-				<div className="field" style={{marginBottom: "35px"}}>
+				<div className="field" style={{ marginBottom: "35px" }}>
 					<label className="label">標題</label>
 					<div className="control">
 						<input
@@ -350,17 +350,17 @@ class CreateArticle extends React.Component {
 							placeholder="標題" />
 					</div>
 				</div>
-				<div className="field" style={{marginBottom: "35px"}}>
+				<div className="field" style={{ marginBottom: "35px" }}>
 					<label className="label">文章內容</label>
 					<VariableInput
 						data={this.state.articleContent}
 						dataForm={this.props.articleForm}
-						changeUpper={this.setArticleContent}/>
+						changeUpper={this.setArticleContent} />
 				</div>
 				<RuleGroup
 					ruleDefinition={this.rules}
 					ruleState={this.state.rules}
-					setRules={this.setRules}/>
+					setRules={this.setRules} />
 				<div className="field">
 					<div className="control">
 						<button onClick={this.handleOnSubmit} className="button is-primary">送出</button>
@@ -418,7 +418,7 @@ class CreateBoard extends React.Component {
 			rules: ruleToState(this.rules),
 		};
 		this.handleNameChange = this.handleNameChange.bind(this);
-		this.handleOnSubmit = this.handleOnSubmit.bind(this)	;
+		this.handleOnSubmit = this.handleOnSubmit.bind(this);
 		this.setRules = this.setRules.bind(this);
 	}
 	handleNameChange(event) {
@@ -444,7 +444,7 @@ class CreateBoard extends React.Component {
 	render() {
 		return (
 			<div>
-				<div className="field" style={{marginBottom: "35px"}}>
+				<div className="field" style={{ marginBottom: "35px" }}>
 					<label className="label">看板名稱</label>
 					<div className="control">
 						<input onChange={this.handleNameChange} className="input" type="text" placeholder="看板名稱" />
@@ -453,7 +453,7 @@ class CreateBoard extends React.Component {
 				<RuleGroup
 					ruleDefinition={this.rules}
 					ruleState={this.state.rules}
-					setRules={this.setRules}/>
+					setRules={this.setRules} />
 				<div className="field">
 					<div className="control">
 						<button onClick={this.handleOnSubmit} className="button is-primary">送出</button>
@@ -465,7 +465,6 @@ class CreateBoard extends React.Component {
 }
 
 function BoardSource(props) {
-	console.log(props);
 	const onSeries = ["onEnter", "onNewBoard", "onNewArticle", "onComment"];
 	return (
 		<div>
@@ -477,7 +476,7 @@ function BoardSource(props) {
 								{f}
 								{
 									props[f].map((code, index) => {
-										return <SourceCode key={index} code={code} language="javascript" />
+										return <SourceCode key={index} code={code} language="javascript" />;
 									})
 								}
 							</div>
@@ -493,6 +492,8 @@ class Board extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			exist: true,
+			errorInfo: "",
 			showPanel: "",             // 要顯示發文 or 創板 or 看板原始碼
 			boards: [],
 			articles: [],
@@ -502,6 +503,7 @@ class Board extends React.Component {
 		this.newBoard = this.newBoard.bind(this);
 		this.newArticle = this.newArticle.bind(this);
 		this.changePanel = this.changePanel.bind(this);
+		this.boardLocation = this.boardLocation.bind(this);
 	}
 	countPath() {
 		const urlPath = this.props.location.pathname;
@@ -514,6 +516,8 @@ class Board extends React.Component {
 	componentDidUpdate(prevProps, prevState) {
 		if (prevProps.location.pathname != this.props.location.pathname) {
 			this.state = {
+				exist: true,
+				errorInfo: "",
 				showPanel: "",             // 要顯示發文 or 創板 or 看板原始碼
 				boards: [],
 				articles: [],
@@ -552,7 +556,13 @@ class Board extends React.Component {
 					}
 				});
 			} else {
-				console.log("取得看板資料：非正常失敗");
+				res.text().then((data) => {
+					console.log(`取得看板資料：非正常失敗 ${data}`);
+					this.setState({
+						exist: false,
+						errorInfo: `${res.status}: ${data}`,
+					});
+				});
 			}
 		}, (err) => {
 			console.log("AJAX失敗，取得看板資料失敗");
@@ -627,31 +637,35 @@ class Board extends React.Component {
 			console.log("AJAX失敗，創建看板失敗");
 		});
 	}
-	render() {
+	boardLocation() {
+		return (
+			<div style={{ fontSize: "24px", marginBottom: "30px" }}>
+				當前看板：
+				{
+					(() => {
+						let urlPath = "/app";
+						let result = [
+							<Link key={urlPath} to={urlPath}><span>根</span></Link>
+						];
+						for (let boardName of this.countPath()) {
+							urlPath += `/b/${boardName}`;
+							result.push(<span key={urlPath + "/"}> / </span>);
+							result.push(<Link key={urlPath} to={urlPath}><span>{boardName}</span></Link>);
+						}
+						return result;
+					})()
+				}
+			</div>
+		);
+	}
+	boardContent() {
 		const location = this.props.location;
 		return (
 			<div>
-				<div style={{fontSize: "24px", marginBottom: "30px"}}>
-					當前看板：
-					{
-						(() => {
-							let urlPath = "/app";
-							let result = [
-								<Link key={urlPath} to={urlPath}><span>根</span></Link>
-							];
-							for (let boardName of this.countPath()) {
-								urlPath += `/b/${boardName}`;
-								result.push(<span key={urlPath + "/"}> / </span>);
-								result.push(<Link key={urlPath} to={urlPath}><span>{boardName}</span></Link>);
-							}
-							return result;
-						})()
-					}
-				</div>
 				<div style={{ marginBottom: "30px" }}>
 					{
 						(() => {
-							if(this.props.appState.login) {
+							if (this.props.appState.login) {
 								return ([
 									<a className={this.state.showPanel == "createArticle" ? "button is-success" : "button"}
 										key="createArticle"
@@ -684,7 +698,7 @@ class Board extends React.Component {
 										<h4 className="title is-4">發文</h4>
 										<CreateArticle
 											newArticle={this.newArticle}
-											articleForm={this.state.articleForm}/>
+											articleForm={this.state.articleForm} />
 									</div>
 								);
 							case "createBoard":
@@ -705,10 +719,10 @@ class Board extends React.Component {
 						}
 					})()
 				}
-				<div style={{marginBottom: "30px"}}>
+				<div style={{ marginBottom: "30px" }}>
 					<h5 className="title is-5">
 						<span>看板 </span>
-						<a onClick={() => {this.setState({showBoard: !this.state.showBoard});}}>
+						<a onClick={() => { this.setState({ showBoard: !this.state.showBoard }); }}>
 							{this.state.showBoard ? "收起" : "展開"}
 						</a>
 					</h5>
@@ -728,10 +742,10 @@ class Board extends React.Component {
 						})()
 					}
 				</div>
-				<div style={{marginBottom: "30px"}}>
+				<div style={{ marginBottom: "30px" }}>
 					<h5 className="title is-5">
 						<span>文章 </span>
-						<a onClick={() => {this.setState({showArticle: !this.state.showArticle});}}>
+						<a onClick={() => { this.setState({ showArticle: !this.state.showArticle }); }}>
 							{this.state.showArticle ? "收起" : "展開"}
 						</a>
 					</h5>
@@ -751,6 +765,24 @@ class Board extends React.Component {
 						})()
 					}
 				</div>
+			</div>
+		);
+	}
+	render() {
+		return (
+			<div>
+				{this.boardLocation()}
+				{
+					(() => {
+						if (this.state.exist) {
+							return this.boardContent();
+						} else {
+							return (
+								<div>{this.state.errorInfo}</div>
+							);
+						}
+					})()
+				}
 			</div>
 		);
 	}
