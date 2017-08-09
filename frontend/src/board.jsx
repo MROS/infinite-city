@@ -3,6 +3,7 @@ import { fromJS, Map, List } from "immutable";
 import { Link } from "react-router-dom";
 import VariableInput from "./variableInput.jsx";
 import { LabelArrayToObject, LabelObjectToArray } from "./util";
+import SourceCode from "./sourceCode.jsx";
 
 function ruleToState(rules) {
 	let ret = {};
@@ -463,6 +464,25 @@ class CreateBoard extends React.Component {
 	}
 }
 
+function BoardSource(props) {
+	console.log(props);
+	const onSeries = ["onEnter", "onNewBoard", "onNewArticle", "onComment"];
+	return (
+		<div>
+			{
+				onSeries.map((f) => {
+					return (
+						<div>
+							{f}
+							<SourceCode key={f} code={props[f][0]} language="javascript" />
+						</div>
+					);
+				})
+			}
+		</div>
+	);
+}
+
 class Board extends React.Component {
 	constructor(props) {
 		super(props);
@@ -487,6 +507,13 @@ class Board extends React.Component {
 	}
 	componentDidUpdate(prevProps, prevState) {
 		if (prevProps.location.pathname != this.props.location.pathname) {
+			this.state = {
+				showPanel: "",             // 要顯示發文 or 創板 or 看板原始碼
+				boards: [],
+				articles: [],
+				showBoard: false,
+				showArticle: false,
+			};
 			this.getBoardData();
 		}
 	}
@@ -514,6 +541,7 @@ class Board extends React.Component {
 							this.setState({
 								boards, articles, showBoard, showArticle,
 								articleForm: data.board.articleForm,
+								board: data.board
 							});
 					}
 				});
@@ -620,11 +648,13 @@ class Board extends React.Component {
 							if(this.props.appState.login) {
 								return ([
 									<a className={this.state.showPanel == "createArticle" ? "button is-success" : "button"}
+										key="createArticle"
 										style={{ marginBottom: "15px", marginRight: "12px" }}
 										onClick={this.changePanel("createArticle")}>
 										發文
 									</a>,
 									<a className={this.state.showPanel == "createBoard" ? "button is-success" : "button"}
+										key="createBoard"
 										style={{ marginBottom: "15px", marginRight: "12px" }}
 										onClick={this.changePanel("createBoard")}>
 										創建新板
@@ -661,7 +691,7 @@ class Board extends React.Component {
 							case "watchSource":
 								return (
 									<div style={{ marginBottom: "30px" }}>
-										<p>源碼</p>
+										<BoardSource {...this.state.board} />
 									</div>
 								);
 							default:

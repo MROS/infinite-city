@@ -59,6 +59,10 @@ const BOARD_SELECT = {
 	name: 1,
 	manager: 1,
 	date: 1,
+	onEnter: 1,
+	onNewBoard: 1,
+	onNewArticle: 1,
+	onComment: 1
 };
 async function getList(board_id, max, user_id) {
 	let restricts = await findBackendRules(board_id, "onEnter");

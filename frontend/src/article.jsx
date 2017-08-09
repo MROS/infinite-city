@@ -3,7 +3,7 @@ import { fromJS, Map } from "immutable";
 import { Link } from "react-router-dom";
 import { LabelArrayToObject, LabelObjectToArray } from "./util";
 import VariableInput from "./variableInput.jsx";
-import NotificationSystem from 'react-notification-system';
+import NotificationSystem from "react-notification-system";
 
 
 function isNonEmptyString(x) {
