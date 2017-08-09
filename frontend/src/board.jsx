@@ -471,12 +471,18 @@ function BoardSource(props) {
 		<div>
 			{
 				onSeries.map((f) => {
-					return (
-						<div>
-							{f}
-							<SourceCode key={f} code={props[f][0]} language="javascript" />
-						</div>
-					);
+					if (props[f]) {
+						return (
+							<div key={f}>
+								{f}
+								{
+									props[f].map((code, index) => {
+										return <SourceCode key={index} code={code} language="javascript" />
+									})
+								}
+							</div>
+						);
+					}
 				})
 			}
 		</div>

@@ -1,8 +1,7 @@
-import Prism from "prismjs";
 import React from "react";
 
 function SourceCode(props) {
-	const html = Prism.highlight(props.code, Prism.languages[props.language]);
+	const html = props.code;
 	return (
 		<pre>
 			<code>
