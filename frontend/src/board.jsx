@@ -467,9 +467,7 @@ class Board extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			showSource: false,
-			creatingAritcle: false,
-			creatingBoard: false,
+			showPanel: "",             // 要顯示發文 or 創板 or 看板原始碼
 			boards: [],
 			articles: [],
 			showBoard: false,
@@ -477,6 +475,7 @@ class Board extends React.Component {
 		};
 		this.newBoard = this.newBoard.bind(this);
 		this.newArticle = this.newArticle.bind(this);
+		this.changePanel = this.changePanel.bind(this);
 	}
 	countPath() {
 		const urlPath = this.props.location.pathname;
@@ -525,7 +524,15 @@ class Board extends React.Component {
 			console.log("AJAX失敗，取得看板資料失敗");
 		});
 	}
-	// TODO: 和 newBoard 一樣修正對回傳值的處理
+	changePanel(panel) {
+		return () => {
+			if (this.state.showPanel == panel) {
+				this.setState({ showPanel: "" });
+			} else {
+				this.setState({ showPanel: panel });
+			}
+		};
+	}
 	newArticle(articleDefinition) {
 		let body = articleDefinition;
 		body.board = this.boardID;
@@ -612,60 +619,53 @@ class Board extends React.Component {
 						(() => {
 							if(this.props.appState.login) {
 								return ([
-									<a className={this.state.creatingAritcle ? "button is-success" : "button"}
+									<a className={this.state.showPanel == "createArticle" ? "button is-success" : "button"}
 										style={{ marginBottom: "15px", marginRight: "12px" }}
-										onClick={() => {this.setState({creatingAritcle: !this.state.creatingAritcle});}}>
+										onClick={this.changePanel("createArticle")}>
 										發文
 									</a>,
-									<a className={this.state.creatingBoard ? "button is-success" : "button"}
+									<a className={this.state.showPanel == "createBoard" ? "button is-success" : "button"}
 										style={{ marginBottom: "15px", marginRight: "12px" }}
-										onClick={() => {this.setState({creatingBoard: !this.state.creatingBoard});}}>
+										onClick={this.changePanel("createBoard")}>
 										創建新板
 									</a>
 								]);
 							}
 						})()
 					}
-					<a className={this.state.showSource ? "button is-success" : "button"}
+					<a className={this.state.showPanel == "watchSource" ? "button is-success" : "button"}
 						style={{ marginBottom: "15px" }}
-						onClick={() => {this.setState({showSource: !this.state.showSource});}}>
+						onClick={this.changePanel("watchSource")}>
 						觀看看板源碼
 					</a>
 				</div>
 				{
 					(() => {
-						if (this.state.creatingAritcle) {
-							return (
-								<div className="box" style={{ marginBottom: "30px" }}>
-									<h4 className="title is-4">發文</h4>
-									<CreateArticle
-										newArticle={this.newArticle}
-										articleForm={this.state.articleForm}/>
-								</div>
-							);
-						}
-					})()
-				}
-				{
-					(() => {
-						if (this.state.creatingBoard) {
-							return (
-								<div className="box" style={{ marginBottom: "30px" }}>
-									<h4 className="title is-4">創建新版</h4>
-									<CreateBoard newBoard={this.newBoard} />
-								</div>
-							);
-						}
-					})()
-				}
-				{
-					(() => {
-						if (this.state.showSource) {
-							return (
-								<div style={{ marginBottom: "30px" }}>
-									<p>源碼</p>
-								</div>
-							);
+						switch (this.state.showPanel) {
+							case "createArticle":
+								return (
+									<div className="box" style={{ marginBottom: "30px" }}>
+										<h4 className="title is-4">發文</h4>
+										<CreateArticle
+											newArticle={this.newArticle}
+											articleForm={this.state.articleForm}/>
+									</div>
+								);
+							case "createBoard":
+								return (
+									<div className="box" style={{ marginBottom: "30px" }}>
+										<h4 className="title is-4">創建新版</h4>
+										<CreateBoard newBoard={this.newBoard} />
+									</div>
+								);
+							case "watchSource":
+								return (
+									<div style={{ marginBottom: "30px" }}>
+										<p>源碼</p>
+									</div>
+								);
+							default:
+								return "";
 						}
 					})()
 				}
