@@ -81,15 +81,13 @@ async function getList(board_id, max, user_id) {
 	board.articleForm = frontend_rules.articleForm;
 	board.commentForm = frontend_rules.commentForm;
 
-	let forbidden = {};
+	let authority = {};
 	for(let key of Object.keys(backend_rules)) {
 		let msg = doRestricts({ board: board }, user_id, backend_rules[key]);
-		if(msg) {
-			forbidden[key] = msg;
-		}
+		authority[key] = { ok: msg ? false : true, msg: msg };
 	}
 
-	return { a_list, b_list, board, forbidden };
+	return { a_list, b_list, board, authority };
 }
 
 module.exports = {

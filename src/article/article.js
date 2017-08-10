@@ -76,12 +76,10 @@ async function getArticle(board_id, article_id, max, user_id) {
 	article.renderArticleContent = frontend_rules.renderArticleContent;
 	article.comment = comment;
 
-	let forbidden = {};
+	let authority = {};
 	err_msg = doRestricts({ board, article }, user_id, backend_rules["onComment"]);
-	if(err_msg) {
-		forbidden["onComment"] = err_msg;
-	}
-	article["forbidden"] = forbidden;
+	authority["onComment"] = { ok: err_msg ? false : true, msg: err_msg };
+	article["authority"] = authority;
 
 	return article;
 }
