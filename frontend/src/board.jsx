@@ -593,18 +593,20 @@ class Board extends React.Component {
 			if (res.ok) {
 				res.json().then((data) => {
 					if (data._id) {
-						console.log(`發文成功，文章 ID 爲：${data._id}`);
+						this.props.notify({ message: `發文成功，id爲 ${data}`, level: "success" });
+						const path = `${this.props.location.pathname}/a/${body.title}?id=${data._id}`;
+						this.props.history.push(path);
 					} else {
-						console.log(`發文失敗：${data}`);
+						this.props.notify({ message: `發文失敗：${data}`, level: "error" });
 					}
 				});
 			} else {
 				res.text().then((data) => {
-					console.log(`發文失敗：${data}`);
+					this.props.notify({ message: `發文失敗：${data}`, level: "error" });
 				});
 			}
 		}, (err) => {
-			console.log("AJAX失敗，發文失敗");
+			this.props.notify({ message: "AJAX失敗，發文失敗", level: "error" });
 		});
 	}
 	newBoard(boardDefinition) {

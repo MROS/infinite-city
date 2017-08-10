@@ -3,12 +3,6 @@ import { fromJS, Map } from "immutable";
 import { Link } from "react-router-dom";
 import { LabelArrayToObject, LabelObjectToArray } from "./util";
 import VariableInput from "./variableInput.jsx";
-import NotificationSystem from "react-notification-system";
-
-
-function isNonEmptyString(x) {
-	return (typeof x == "string" && x.length > 0);
-}
 
 class InputComment extends React.Component {
 	constructor(props) {
@@ -256,27 +250,19 @@ class Article extends React.Component {
 			if (res.ok) {
 				res.json().then((data) => {
 					if (data._id) {
-						this.refs.notificationSystem.addNotification({
-							message: "留言成功", level: "success", position: "tc"
-						});
+						this.props.notify({message: "留言成功", level: "success"});
 						this.getArticleData();
 					} else {
-						this.refs.notificationSystem.addNotification({
-							message: `留言失敗：${data}`, level: "Error", position: "tc"
-						});
+						this.props.notify({message: `留言失敗：${data}`, level: "error"});
 					}
 				});
 			} else {
 				res.text().then((data) => {
-					this.refs.notificationSystem.addNotification({
-						message: `留言失敗：${data}`, level: "error", position: "tc"
-					});
+					this.props.notify({message: `留言失敗：${data}`, level: "error"});
 				});
 			}
 		}, (err) => {
-			this.refs.notificationSystem.addNotification({
-				message: "AJAX失敗，留言失敗", level: "error", position: "tc"
-			});
+			this.props.notify({message: "AJAX失敗，留言失敗", level: "error"});
 		});
 	}
 	componentDidMount() {
@@ -308,7 +294,6 @@ class Article extends React.Component {
 				<InputComment
 					submitComment={this.submitComment}
 					commentForm={this.state.commentForm} />
-				<NotificationSystem ref="notificationSystem" />
 			</div>
 		);
 	}

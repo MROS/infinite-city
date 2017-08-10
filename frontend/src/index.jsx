@@ -9,6 +9,7 @@ import {
 import Article from "./article.jsx";
 import Board from "./board.jsx";
 import { Login, SignUp } from "./user.jsx";
+import NotificationSystem from "react-notification-system";
 
 class App extends React.Component {
 	constructor(props) {
@@ -19,6 +20,11 @@ class App extends React.Component {
 		};
 		this.changeLoginState = this.changeLoginState.bind(this);
 		this.logout = this.logout.bind(this);
+		this.notify = this.notify.bind(this);
+	}
+	notify(option) {
+		option.position = option.position || "tc";
+		this.refs.notificationSystem.addNotification(option);
 	}
 	logout() {
 		fetch("/api/user/logout", {
@@ -109,19 +115,20 @@ class App extends React.Component {
 					<div className="container" style={{marginTop: "65px", width: "820px"}}>
 						<Switch>
 							<Route exact path="/app/login" render={(props) => (
-								<Login appState={this.state} changeLoginState={this.changeLoginState} {...props} />
+								<Login appState={this.state} notify={this.notify} changeLoginState={this.changeLoginState} {...props} />
 							)} />
 							<Route exact path="/app/signUp" render={(props) => (
-								<SignUp appState={this.state} changeLoginState={this.changeLoginState} {...props} />
+								<SignUp appState={this.state} notify={this.notify} changeLoginState={this.changeLoginState} {...props} />
 							)} />
 							<Route exact path="/app(/b/[^/]+)*" render={(props) => (
-								<Board appState={this.state} {...props} />
+								<Board appState={this.state} notify={this.notify} {...props} />
 							)} />
 							<Route path="/app(/b/[^/]+)*/a/:articleName" render={(props) => (
-								<Article appState={this.state} {...props} />
+								<Article appState={this.state} notify={this.notify} {...props} />
 							)} />
 						</Switch>
 					</div>
+					<NotificationSystem ref="notificationSystem" />
 				</div>
 			</Router>
 		);
