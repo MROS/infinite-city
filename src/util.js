@@ -106,6 +106,7 @@ function _prepareFindRules(rule_key, is_array) {
 	return { rule_key, select, rules };
 }
 
+// TODO: 新的結構：findBackendRules(b_id, key, target) target 代表文章或板，直接記錄規則
 /**
  * 給定一個看板或文章的 id，找到其從根至最下層的所有後端限制條件
  * @typedef {{func: String, caller: Object}} Restrict

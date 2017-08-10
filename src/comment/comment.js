@@ -5,7 +5,7 @@ const { findBackendRules, doRestricts, findFrontendRules, processContent } = req
 async function createComment(author_id, article_id, commentContent) {
 	let article = await db.Article.findOne({ _id: article_id }).exec();
 	if (!article) {
-		throw `${ article } 看板不存在`;
+		throw `${ article_id } 文章不存在`;
 	}
 
 	let form = article.commentForm;
@@ -20,11 +20,15 @@ async function createComment(author_id, article_id, commentContent) {
 		commentContent: commentContent,
 		date: new Date()
 	};
-	let restricts = await findBackendRules(article.board, "onComment" );
+	let restricts = await findBackendRules(article.board, ["onComment", "onEnter"] );
 	for(let onComment of article.onComment) {
-		restricts.push({ caller: article, func: onComment });
+		restricts["onComment"].push({ caller: article, func: onComment });
 	}
-	let err_msg = doRestricts({ comment: new_comment, article: article }, author_id, restricts);
+	for(let onEnter of article.onEnter) {
+		restricts["onEnter"].push({ caller: article, func: onEnter });
+	}
+	let err_msg = doRestricts({ comment: new_comment, article: article },
+		author_id, restricts["onComment"] + restricts["onEnter"]);
 	if (err_msg) {
 		return { err_msg };
 	}
