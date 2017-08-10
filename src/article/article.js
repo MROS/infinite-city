@@ -42,35 +42,47 @@ async function createArticle(author_id, title, board_id, articleContent,
 }
 
 async function getArticle(board_id, article_id, max, user_id) {
-	let [restricts, article] = await Promise.all([
-		findBackendRules(board_id, "onEnter"),
-		db.Article.findOne({ _id: article_id, board: board_id }).lean().exec()
+	let [backend_rules, article, board] = await Promise.all([
+		findBackendRules(board_id, ["onEnter", "onComment"]),
+		db.Article.findOne({ _id: article_id, board: board_id }).lean().exec(),
+		db.Board.findOne({ _id: board_id }).lean().exec()
 	]);
 	if(!article) {
 		throw "無此文章！";
 	}
 	for(let onEnter of article.onEnter) {
-		restricts.push({ caller: article, func: onEnter });
+		backend_rules["onEnter"].push({ caller: article, func: onEnter });
 	}
-	// TODO: 不能只傳入 board id!!
-	let err_msg = doRestricts({ board_id, article }, user_id, restricts);
+	for(let onComment of article.onComment) {
+		backend_rules["onComment"].push({ caller: article, func: onComment });
+	}
+	let err_msg = doRestricts({ board, article }, user_id, backend_rules["onEnter"]);
 	if(err_msg) {
 		return { err_msg };
 	}
 
 	// TODO: 如果本來就有，根本不用找，應該省略這步來增進效能
-	let [rules, comment] = await Promise.all([
+	let [frontend_rules, comment] = await Promise.all([
 		findFrontendRules(board_id, ["renderComment", "renderArticleContent", "commentForm"]),
 		db.Comment.find({ article: article_id }).sort({ date: 1 }).limit(max).lean().exec()
 	]);
 	if(!article.renderComment) {
-		article.renderComment = rules.renderComment;
+		article.renderComment = frontend_rules.renderComment;
 	}
-	if(!article.commentForm) {
-		article.commentForm = rules.commentForm;
+	// TODO: 用長度=0來判斷是不是不太對？
+	if(!article.commentForm || article.commentForm.length == 0) {
+		article.commentForm = frontend_rules.commentForm;
 	}
-	article.renderArticleContent = rules.renderArticleContent;
+	article.renderArticleContent = frontend_rules.renderArticleContent;
 	article.comment = comment;
+
+	let forbidden = {};
+	err_msg = doRestricts({ board, article }, user_id, backend_rules["onComment"]);
+	if(err_msg) {
+		forbidden["onComment"] = err_msg;
+	}
+	article["forbidden"] = forbidden;
+
 	return article;
 }
 

@@ -15,7 +15,7 @@
 		+ 例如：api/board/browse?base=595cb098f549af236588f88d&max=50&name=運動類,中華職棒,爪爪板
 		+ 帶參數 max，限制返回陣列最多可以多長，預設爲10
 		+ 帶參數 base，爲亂碼 _id，預設爲根看板
-		+ 返回根看板下的所有東西，{ b_list, a_list, board }
+		+ 返回根看板下的所有東西，{ b_list, a_list, board, forbidden }
 		+ a_list 爲文章列表，b_list 爲看板列表，board 為查找的這個看板
 			- board 中的資料如下
 				1. name
@@ -23,6 +23,9 @@
 				3. date
 				4. renderTitle
 				5. articleForm
+			- forbidden 中的資料（可能）如下，如果有值，代表當前使用者無權進行該行動
+				1. onNewArticle: String
+				2. onNewBoard: String
 	- POST api/board/new
 		+ { name, parent, formRules, renderRules, backendRules }
 		+ name: 字串，看板的名字
@@ -79,6 +82,8 @@
 			6. articleContent: [String]
 			7. commentForm: [Object]
 			8. comment: [Object]
+			9. forbidden 其值（可能）如下，如果有值，代表當前使用者無權進行該行動
+				- onComment: String
 * api/comment
 	- POST api/comment/new
 		+ { article, commentContent }

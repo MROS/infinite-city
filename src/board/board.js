@@ -49,21 +49,16 @@ async function createBoard(manager_id, name, parent_id,
 	return { _id: new_id };
 }
 
-const ARTICLE_SELECT = {
+const ARTICLE_INFO_SELECT = {
 	title: 1,
 	date: 1,
 	author: 1,
 	articleContent: 1,
 };
-const BOARD_SELECT = {
+const BOARD_INFO_SELECT = {
 	name: 1,
 	manager: 1,
 	date: 1,
-	onEnter: 1,
-	onNewBoard: 1,
-	onNewArticle: 1,
-	onComment: 1,
-	depth: 1
 };
 async function getList(board_id, max, user_id) {
 	let restricts = await findBackendRules(board_id, "onEnter");
@@ -73,14 +68,18 @@ async function getList(board_id, max, user_id) {
 		return { err_msg };
 	}
 	let [ b_list, a_list, board, frontend_rules, backend_rules ] = await Promise.all([
-		db.Board.find({ parent: board_id }, BOARD_SELECT).sort({ date: 1 }).limit(max).lean().exec(),
-		db.Article.find({ board: board_id }, ARTICLE_SELECT).sort({ date: 1 }).limit(max).lean().exec(),
-		db.Board.findOne({ _id: board_id }, BOARD_SELECT).lean().exec(),
-		findFrontendRules(board_id, ["renderTitle", "articleForm"]),
+		db.Board.find({ parent: board_id }, BOARD_INFO_SELECT).sort({ date: 1 }).limit(max).lean().exec(),
+		db.Article.find({ board: board_id }, ARTICLE_INFO_SELECT).sort({ date: 1 }).limit(max).lean().exec(),
+		db.Board.findOne({ _id: board_id }).lean().exec(),
+		findFrontendRules(board_id, ["renderTitle", "renderArticleContent", "renderComment",
+			"articleForm", "commentForm"]),
 		findBackendRules(board_id, ["onNewArticle", "onNewBoard"])
 	]);
 	board.renderTitle = frontend_rules.renderTitle;
+	board.renderArticleContent = frontend_rules.renderArticleContent;
+	board.renderComment = frontend_rules.renderComment;
 	board.articleForm = frontend_rules.articleForm;
+	board.commentForm = frontend_rules.commentForm;
 
 	let forbidden = {};
 	for(let key of Object.keys(backend_rules)) {
