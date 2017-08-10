@@ -68,7 +68,7 @@ router.post("/login", async function(req, res) {
 		res.send("OK");
 	}
 	else {
-		res.status(500).send("FAIL");
+		res.status(401).send("FAIL");
 	}
 });
 
