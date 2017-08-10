@@ -46,7 +46,7 @@ router.post("/new", async function(req, res) {
 			req.session.userId = query.id;
 			res.send("OK");
 		} catch(err) {
-			res.status(400).send("FAIL");
+			res.status(500).send("FAIL");
 			console.log(err);
 		}
 	}
@@ -59,7 +59,7 @@ router.post("/login", async function(req, res) {
 	try {
 		user = await findUser(id);
 	} catch(err) {
-		res.status(400).send("FAIL");
+		res.status(500).send("FAIL");
 		console.log(err);
 		return;
 	}
@@ -68,7 +68,7 @@ router.post("/login", async function(req, res) {
 		res.send("OK");
 	}
 	else {
-		res.status(400).send("FAIL");
+		res.status(500).send("FAIL");
 	}
 });
 

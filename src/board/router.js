@@ -25,9 +25,9 @@ router.get("/browse", async function(req, res) {
 	} catch (err) {
 		console.log(err);
 		if(_.isString(err)) { // 自定的錯誤
-			res.status(403).send(err);
+			res.status(404).send(err);
 		} else {
-			res.status(400).send("FAIL");
+			res.status(500).send("FAIL");
 		}
 	}
 });
@@ -54,7 +54,7 @@ router.post("/new", async function(req, res) {
 		if(_.isString(err)) { // 自定的錯誤
 			res.status(400).send(err);
 		} else {
-			res.status(400).send("FAIL");
+			res.status(500).send("FAIL");
 		}
 	}
 });

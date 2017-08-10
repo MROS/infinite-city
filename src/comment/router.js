@@ -24,7 +24,7 @@ router.post("/new", async function(req, res) {
 		if(_.isString(err)) {
 			res.status(400).send(err);
 		} else {
-			res.status(400).send("FAIL");
+			res.status(500).send("FAIL");
 		}
 	}
 });
