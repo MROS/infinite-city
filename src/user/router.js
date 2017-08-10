@@ -41,6 +41,7 @@ router.post("/new", async function(req, res) {
 	else {
 		try {
 			user = await encryptUser(query.id, query.password);
+			user.date = new Date();
 			await db.User.create(user);
 			req.session.userId = query.id;
 			res.send("OK");

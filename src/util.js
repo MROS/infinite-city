@@ -162,9 +162,9 @@ async function findFrontendRules(b_id, key) {
 }
 
 /** TODO: 改成 async function ?
- * @param {article: Object, board: Object} arg 看板、文章或推文
+ * @param {article: Object, board: Object} cur_pos 看板、文章或推文
  * @param {String} user_id
- * @param {[String]} str_restricts 後端限制（字串形式）
+ * @param {[Restrict]} restricts 後端限制（字串形式）
  * @return {String}
  */
 function doRestricts(cur_pos, user_id, restricts) {
@@ -177,7 +177,7 @@ function doRestricts(cur_pos, user_id, restricts) {
 				if(_.isString(err)) {
 					return err;
 				} else {
-					return err.message;
+					return "自定義檢查有誤";
 				}
 			}
 		}

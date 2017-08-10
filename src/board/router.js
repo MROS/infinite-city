@@ -25,7 +25,7 @@ router.get("/browse", async function(req, res) {
 	} catch (err) {
 		console.log(err);
 		if(_.isString(err)) { // 自定的錯誤
-			res.status(400).send(err);
+			res.status(403).send(err);
 		} else {
 			res.status(400).send("FAIL");
 		}

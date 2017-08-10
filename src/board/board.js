@@ -62,7 +62,8 @@ const BOARD_SELECT = {
 	onEnter: 1,
 	onNewBoard: 1,
 	onNewArticle: 1,
-	onComment: 1
+	onComment: 1,
+	depth: 1
 };
 async function getList(board_id, max, user_id) {
 	let restricts = await findBackendRules(board_id, "onEnter");
@@ -71,15 +72,25 @@ async function getList(board_id, max, user_id) {
 	if(err_msg) {
 		return { err_msg };
 	}
-	let [ b_list, a_list, board, rules ] = await Promise.all([
+	let [ b_list, a_list, board, frontend_rules, backend_rules ] = await Promise.all([
 		db.Board.find({ parent: board_id }, BOARD_SELECT).sort({ date: 1 }).limit(max).lean().exec(),
 		db.Article.find({ board: board_id }, ARTICLE_SELECT).sort({ date: 1 }).limit(max).lean().exec(),
 		db.Board.findOne({ _id: board_id }, BOARD_SELECT).lean().exec(),
-		findFrontendRules(board_id, ["renderTitle", "articleForm"])
+		findFrontendRules(board_id, ["renderTitle", "articleForm"]),
+		findBackendRules(board_id, ["onNewArticle", "onNewBoard"])
 	]);
-	board.renderTitle = rules.renderTitle;
-	board.articleForm = rules.articleForm;
-	return { a_list, b_list, board };
+	board.renderTitle = frontend_rules.renderTitle;
+	board.articleForm = frontend_rules.articleForm;
+
+	let forbidden = {};
+	for(let key of Object.keys(backend_rules)) {
+		let msg = doRestricts({ board: board }, user_id, backend_rules[key]);
+		if(msg) {
+			forbidden[key] = msg;
+		}
+	}
+
+	return { a_list, b_list, board, forbidden };
 }
 
 module.exports = {

@@ -107,6 +107,7 @@ const user_schema_t = {
 	"id": { type: String, index: true },
 	"password": { type: String, required: true },
 	"salt": { type: String, required: true },
+	"date": { type: Date, required: true }
 };
 
 let board_schema = new Schema(board_schema_t);
