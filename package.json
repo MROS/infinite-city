@@ -12,7 +12,8 @@
   },
   "scripts": {
     "start": "node src/server.js",
-    "test": "env=test jest"
+	"test:i": "env=test jest isomorphic",
+	"test": "env=test jest"
   },
   "devDependencies": {
     "eslint": "^4.3.0",

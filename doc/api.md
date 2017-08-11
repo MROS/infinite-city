@@ -28,20 +28,20 @@
 				2. onNewBoard: { ok: boolean, msg: String }
 	- POST api/board/new
 		+ { name, parent, formRules, renderRules, backendRules }
-		+ name: 字串，看板的名字
+		+ name: 字串，看板的名字，不可爲空字串
 		+ parent: 字串，母看板的 id
 		+ formRules: 鍵值對
-			1. articleForm: [{ evalType, restrict, label }]
-			2. commentForm: [{ evalType, restrict, label }]
+			1. articleForm: [{ evalType, restrict, label }] evalType 爲 "string" 或 "function"、label 不得重複、restrict 需 eval 之後是函式(typeof 爲 'function')
+			2. commentForm: [{ evalType, restrict, label }] evalType 爲 "string" 或 "function"、label 不得重複、restrict 需 eval 之後是函式(typeof 爲 'function')
 		+ renderRules: 鍵值對
-			1. renderTitle 字串，預設爲 null
-			2. renderArticleContent 字串，預設爲 null
-			3. renderComment 字串，預設爲 null
+			1. renderTitle 字串，預設爲空字串，需 eval 之後是函式(typeof 爲 'function')
+			2. renderArticleContent 字串，預設爲空字串，需 eval 之後是函式(typeof 爲 'function')
+			3. renderComment 字串，預設爲空字串，需 eval 之後是函式(typeof 爲 'function')
 		+ backendRules
-			1. onEnter: [rule: String] 進入看板或文章時在後端做的檢查
-			2. onNewBoard: [rule: String] 創子板時在後端做的檢查
-			3. onNewArticle: [rule: String] 發文時在後端做的檢查
-			4. onComment: [rule: String] 推文時在後端做的檢查
+			1. onEnter: [rule: String] 進入看板或文章時在後端做的檢查，需 eval 之後是函式(typeof 爲 'function')
+			2. onNewBoard: [rule: String] 創子板時在後端做的檢查，需 eval 之後是函式(typeof 爲 'function')
+			3. onNewArticle: [rule: String] 發文時在後端做的檢查，需 eval 之後是函式(typeof 爲 'function')
+			4. onComment: [rule: String] 推文時在後端做的檢查，需 eval 之後是函式(typeof 爲 'function')
 				* 舉例而言，一則推文必須經過 onComment 陣列中每個 rule 檢查，才能進入資料庫
 		+ 返回格式有二
 			1. 純字串的錯誤訊息，代表被板主定義的 onNewBoard 婊了（字串也是板主客製的）
@@ -49,16 +49,16 @@
 * api/article
 	- POST api/article/new
 		+ { title, board, articleContent, formRules, renderRules, backendRules }
-		+ title: 字串，文章標題
+		+ title: 字串，文章標題，不可爲空字串
 		+ board: 字串，看板的 id
 		+ articleContent: [{ body, label }]
 		+ formRules: 鍵值對
-			1. commentForm
+			1. commentForm: [{ evalType, restrict, label }] evalType 爲 "string" 或 "function"、label 不得重複、restrict 需 eval 之後是函式(typeof 爲 'function')
 		+ renderRules: 鍵值對
-			1. renderComment 字串，根據母看板的權限，可能不被允許設定
+			1. renderComment 字串，根據母看板的權限，可能不被允許設定，需 eval 之後是函式(typeof 爲 'function')
 		+ backendRules: 鍵值對
-			1. onEnter [String]
-			2. onComment [String]
+			1. onEnter [String]，需 eval 之後是函式(typeof 爲 'function')
+			2. onComment [String]，需 eval 之後是函式(typeof 爲 'function')
 		+ 返回格式有二
 			1. 純字串的錯誤訊息，代表被板主定義的 onNewArticle 婊了（字串也是板主客製的）
 			2. { _id: String } 代表新建立文章的 id
