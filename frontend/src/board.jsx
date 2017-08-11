@@ -723,11 +723,12 @@ class Board extends React.Component {
 						}
 					})()
 				}
-				<div style={{ marginBottom: "30px" }}>
-					<h5 className="title is-5">
-						<span>看板 </span>
-						<a onClick={() => { this.setState({ showBoard: !this.state.showBoard }); }}>
-							{this.state.showBoard ? "收起" : "展開"}
+				<div style={{ marginBottom: "40px" }}>
+					<h5 className="title is-5" style={{ marginBottom: "12px" }}>
+						<a
+							style={{ color: "purple" }}
+							onClick={() => { this.setState({ showBoard: !this.state.showBoard }); }}>
+							{this.state.showBoard ? <span><i className="fa fa-caret-down"></i> 看板</span> : <span><i className="fa fa-caret-right"></i> 看板</span>}
 						</a>
 					</h5>
 					{
@@ -735,7 +736,7 @@ class Board extends React.Component {
 							if (this.state.showBoard) {
 								return this.state.boards.map((board) => {
 									return (
-										<div key={board.name}>
+										<div key={board.name} style={{ marginLeft: "16px" }}>
 											<Link to={location.pathname + "/b/" + board.name}>{board.name}</Link>
 										</div>
 									);
@@ -747,10 +748,11 @@ class Board extends React.Component {
 					}
 				</div>
 				<div style={{ marginBottom: "30px" }}>
-					<h5 className="title is-5">
-						<span>文章 </span>
-						<a onClick={() => { this.setState({ showArticle: !this.state.showArticle }); }}>
-							{this.state.showArticle ? "收起" : "展開"}
+					<h5 className="title is-5" style={{ marginBottom: "12px" }}>
+						<a
+							style={{ color: "purple" }}
+							onClick={() => { this.setState({ showArticle: !this.state.showArticle }); }}>
+							{this.state.showArticle ? <span><i className="fa fa-caret-down"></i> 文章</span> : <span><i className="fa fa-caret-right"></i> 文章</span>}
 						</a>
 					</h5>
 					{
@@ -758,7 +760,7 @@ class Board extends React.Component {
 							if (this.state.showArticle) {
 								return this.state.articles.map((article) => {
 									return (
-										<div key={article._id}>
+										<div key={article._id} style={{ marginLeft: "16px" }}>
 											<Link to={`${location.pathname}/a/${article.title}?id=${article._id}`}>{article.title}</Link>
 										</div>
 									);
