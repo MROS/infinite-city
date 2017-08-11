@@ -6,16 +6,16 @@ let { recursiveGetBoard, getRootId } = require("../util.js");
 router.get("/browse", async function(req, res) {
 	try {
 		let max = Number(req.query.max) || 10;
-		let name = [];
+		let names = [];
 		if (req.query.name) {
-			name = req.query.name.split(",");
+			names = req.query.name.split(",");
 		}
 		let root_id = req.query.base;
 		if (!root_id) {
 			root_id = await getRootId();
 		}
-		let board_id = await recursiveGetBoard(root_id, name);
-		let list = await getList(board_id, max, req.session.userId);
+		let board = await recursiveGetBoard(root_id, names);
+		let list = await getList(board, max, req.session.userId);
 		if(list.err_msg) {
 			res.status(403).send(list.err_msg);
 		}

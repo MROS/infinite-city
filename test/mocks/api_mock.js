@@ -2,7 +2,11 @@ function defaultBoard(name, parent) {
 	return {
 		name: name,
 		parent: parent,
-		formRules: {},
+		formRules: {
+			articleForm: [
+				{ label: "內容", restrict: "", evalType: "string" }
+			]
+		},
 		renderRules: {},
 		backendRules: {}
 	};
@@ -48,7 +52,11 @@ function defaultArticle(title, board) {
 		articleContent: [
 			{ label: "內容", body: "" }
 		],
-		formRules: {},
+		formRules: {
+			commentForm: [
+				{ label: "內容", restrict: "", evalType: "string" }
+			]
+		},
 		renderRules: {},
 		backendRules: {}
 	};

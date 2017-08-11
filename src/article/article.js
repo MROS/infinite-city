@@ -1,5 +1,5 @@
 const db = require("../database.js");
-const { findBackendRules, findFrontendRules, doRestricts, setRule, processContent } = require("../util.js");
+const { findBackendRules, doRestricts, setRule, processContent } = require("../util.js");
 
 /**
  * @param {String} author
@@ -15,9 +15,7 @@ async function createArticle(author_id, title, board_id, articleContent,
 		throw `${ board_id } 看板不存在`;
 	}
 
-	// TODO: 是否能和 findBackendRUles 一起做？
-	let form = await findFrontendRules(board_id, "articleForm");
-	processContent(articleContent, form);
+	processContent(articleContent, board.articleForm); // 檢查是否符合表格
 
 	let new_article = { board: board_id };
 	new_article.title = title;
@@ -25,13 +23,13 @@ async function createArticle(author_id, title, board_id, articleContent,
 	new_article.articleContent = articleContent;
 	new_article.date = new Date();
 	// Form Rules
-	setRule(new_article, formRules, "commentForm", board, "canDefCommentForm");
+	setRule(new_article, formRules, "commentForm");
 	// Render Rules
-	setRule(new_article, renderRules, "renderComment", board, "canDefComment");
+	setRule(new_article, renderRules, "renderComment");
 	// Backend Rules
-	setRule(new_article, renderRules, "onComment");
+	setRule(new_article, backendRules, "onComment");
 
-	let restricts = await findBackendRules(board_id, "onNewArticle");
+	let restricts = await findBackendRules(board, "onNewArticle");
 	let err_msg = doRestricts({ article: new_article, board: board }, author_id, restricts);
 
 	if(err_msg) {
@@ -41,46 +39,29 @@ async function createArticle(author_id, title, board_id, articleContent,
 	return { _id: new_id };
 }
 
-async function getArticle(board_id, article_id, max, user_id) {
-	let [backend_rules, article, board] = await Promise.all([
-		findBackendRules(board_id, ["onEnter", "onComment"]),
-		db.Article.findOne({ _id: article_id, board: board_id }).lean().exec(),
-		db.Board.findOne({ _id: board_id }).lean().exec()
-	]);
+async function getArticle(board, article_id, max, user_id) {
+	let article = await db.Article.findOne({ _id: article_id, board: board._id }).lean().exec();
 	if(!article) {
-		throw "無此文章！";
+		throw `無此文章 ${article_id}`;
 	}
-	for(let onEnter of article.onEnter) {
-		backend_rules["onEnter"].push({ caller: article, func: onEnter });
-	}
-	for(let onComment of article.onComment) {
-		backend_rules["onComment"].push({ caller: article, func: onComment });
-	}
+
+	let backend_rules = await findBackendRules(board, ["onEnter", "onComment"], article);
 	let err_msg = doRestricts({ board, article }, user_id, backend_rules["onEnter"]);
 	if(err_msg) {
 		return { err_msg };
 	}
 
-	// TODO: 如果本來就有，根本不用找，應該省略這步來增進效能
-	let [frontend_rules, comment] = await Promise.all([
-		findFrontendRules(board_id, ["renderComment", "renderArticleContent", "commentForm"]),
-		db.Comment.find({ article: article_id }).sort({ date: 1 }).limit(max).lean().exec()
-	]);
-	if(!article.renderComment) {
-		article.renderComment = frontend_rules.renderComment;
-	}
-	// TODO: 用長度=0來判斷是不是不太對？
-	if(!article.commentForm || article.commentForm.length == 0) {
-		article.commentForm = frontend_rules.commentForm;
-	}
-	article.renderArticleContent = frontend_rules.renderArticleContent;
-	article.comment = comment;
+	let commentPromise = db.Comment.find({ article: article_id })
+	.sort({ date: 1 }).limit(max).lean().exec();
+
+	article.renderArticleContent = board.renderArticleContent;
 
 	let authority = {};
 	err_msg = doRestricts({ board, article }, user_id, backend_rules["onComment"]);
 	authority["onComment"] = { ok: err_msg ? false : true, msg: err_msg };
 	article["authority"] = authority;
 
+	article.comment = await commentPromise;
 	return article;
 }
 

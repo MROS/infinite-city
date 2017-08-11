@@ -6,7 +6,6 @@ let { recursiveGetBoard, getRootId } = require("../util.js");
 router.post("/new", async function (req, res) {
 	try {
 		let userId = req.session.userId;
-		console.log(req.body);
 		if (!userId) {
 			res.status(401).send("尚未登入");
 		} else {
@@ -41,8 +40,8 @@ router.get("/browse", async function(req, res) {
 		if (!root_id) {
 			root_id = await getRootId();
 		}
-		let board_id = await recursiveGetBoard(root_id, name);
-		let article = await getArticle(board_id, article_id, max, req.session.userId);
+		let board = await recursiveGetBoard(root_id, name);
+		let article = await getArticle(board, article_id, max, req.session.userId);
 		if(article.err_msg) {
 			res.status(400).send(article.err_msg);
 		} else {
@@ -51,7 +50,7 @@ router.get("/browse", async function(req, res) {
 	} catch (err) {
 		console.log(err);
 		if(_.isString(err)) {
-			res.status(400).send(err);
+			res.status(404).send(err);
 		} else {
 			res.status(500).send("FAIL");
 		}

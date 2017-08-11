@@ -189,6 +189,7 @@ describe("測試 api", () => {
 
 		describe("測試會被擋的操作", () => {
 			describe("測試建立的操作", () => {
+				// TODO:
 				test("用 onNewBoard 限制創板的功能", async () => {
 
 				});
@@ -208,7 +209,9 @@ describe("測試 api", () => {
 				test("用 articleForm 限制發文的功能", async () => {
 
 				});
-				test("用 onEnter 限制發文的功能", async () => {});
+				test("用 onEnter 限制發文的功能", async () => {
+
+				});
 
 				test("用 onComment 限制推文的功能", async () => {
 
@@ -226,7 +229,6 @@ describe("測試 api", () => {
 				test("用 onEnter 限制推文的功能", async () => {});
 			});
 			describe("測試瀏覽的操作", () => {
-				// TODO:
 				test("用 onEnter 限制瀏覽看板的功能", async () => {
 					await session.get("/api/user/logout").expect("OK");
 					await session.get("/api/board/browse?name=b1").expect("56家族請先登入");

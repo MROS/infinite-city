@@ -1,5 +1,5 @@
 const db = require("../database.js");
-const { findBackendRules, doRestricts, findFrontendRules, setRule } = require("../util.js");
+const { doRestricts, findBackendRules, setRule } = require("../util.js");
 
 /**
  * @param {String} manager_id 
@@ -27,19 +27,19 @@ async function createBoard(manager_id, name, parent_id,
 	new_board.depth = parent.depth + 1;
 	new_board.date = new Date();
 	// Form Rules
-	setRule(new_board, formRules, "articleForm", parent, "canDefArticleForm");
-	setRule(new_board, formRules, "commentForm", parent, "canDefCommentForm");
+	setRule(new_board, formRules, "articleForm");
+	setRule(new_board, formRules, "commentForm");
 	// Render Rules
-	setRule(new_board, renderRules, "renderTitle", parent, "canDefTitle");
-	setRule(new_board, renderRules, "renderArticleContent", parent, "canDefArticleContent");
-	setRule(new_board, renderRules, "renderTitle", parent, "canDefTitle");
+	setRule(new_board, renderRules, "renderTitle");
+	setRule(new_board, renderRules, "renderArticleContent");
+	setRule(new_board, renderRules, "renderTitle");
 	// backend Rules
 	setRule(new_board, backendRules, "onEnter");
 	setRule(new_board, backendRules, "onNewBoard");
 	setRule(new_board, backendRules, "onNewArticle");
 	setRule(new_board, backendRules, "onComment");
 
-	let restricts = await findBackendRules(parent_id, "onNewBoard");
+	let restricts = await findBackendRules(parent, "onNewBoard");
 	let err_msg = doRestricts({ board: new_board }, manager_id, restricts);
 	if(err_msg) {
 		return { err_msg };
@@ -60,26 +60,18 @@ const BOARD_INFO_SELECT = {
 	manager: 1,
 	date: 1,
 };
-async function getList(board_id, max, user_id) {
-	let restricts = await findBackendRules(board_id, "onEnter");
-	let err_msg = doRestricts({ board: board_id }, user_id, restricts);
+async function getList(board, max, user_id) {
+	let restricts = await findBackendRules(board, "onEnter");
+	let err_msg = doRestricts({ board: board }, user_id, restricts);
 	// TODO: 不能只傳入 board_id，否則難以達到水桶之類的功能！！
 	if(err_msg) {
 		return { err_msg };
 	}
-	let [ b_list, a_list, board, frontend_rules, backend_rules ] = await Promise.all([
-		db.Board.find({ parent: board_id }, BOARD_INFO_SELECT).sort({ date: 1 }).limit(max).lean().exec(),
-		db.Article.find({ board: board_id }, ARTICLE_INFO_SELECT).sort({ date: 1 }).limit(max).lean().exec(),
-		db.Board.findOne({ _id: board_id }).lean().exec(),
-		findFrontendRules(board_id, ["renderTitle", "renderArticleContent", "renderComment",
-			"articleForm", "commentForm"]),
-		findBackendRules(board_id, ["onNewArticle", "onNewBoard"])
+	let [ b_list, a_list, backend_rules ] = await Promise.all([
+		db.Board.find({ parent: board._id }, BOARD_INFO_SELECT).sort({ date: 1 }).limit(max).lean().exec(),
+		db.Article.find({ board: board._id }, ARTICLE_INFO_SELECT).sort({ date: 1 }).limit(max).lean().exec(),
+		findBackendRules(board, ["onNewArticle", "onNewBoard"])
 	]);
-	board.renderTitle = frontend_rules.renderTitle;
-	board.renderArticleContent = frontend_rules.renderArticleContent;
-	board.renderComment = frontend_rules.renderComment;
-	board.articleForm = frontend_rules.articleForm;
-	board.commentForm = frontend_rules.commentForm;
 
 	let authority = {};
 	for(let key of Object.keys(backend_rules)) {

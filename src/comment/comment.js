@@ -1,6 +1,6 @@
 const _ = require("lodash");
 const db = require("../database.js");
-const { findBackendRules, doRestricts, findFrontendRules, processContent } = require("../util.js");
+const { doRestricts, findBackendRules, processContent } = require("../util.js");
 
 async function createComment(author_id, article_id, commentContent) {
 	let article = await db.Article.findOne({ _id: article_id }).exec();
@@ -8,11 +8,7 @@ async function createComment(author_id, article_id, commentContent) {
 		throw `${ article_id } 文章不存在`;
 	}
 
-	let form = article.commentForm;
-	if(!form || form.length == 0) {
-		form = await findFrontendRules(article.board, "commentForm");
-	}
-	processContent(commentContent, form);
+	processContent(commentContent, article.commentForm); // 檢查是否符合表格
 
 	let new_comment = {
 		article: article_id,

@@ -33,16 +33,10 @@
 		+ formRules: 鍵值對
 			1. articleForm: [{ evalType, restrict, label }]
 			2. commentForm: [{ evalType, restrict, label }]
-			3. canDefArticleForm
-			4. canDefCommentForm
 		+ renderRules: 鍵值對
 			1. renderTitle 字串，預設爲 null
 			2. renderArticleContent 字串，預設爲 null
 			3. renderComment 字串，預設爲 null
-			4. canDefTitle: boolean，預設爲真
-			5. canDefArticleContent: boolean，預設爲真
-			6. canDefComment: boolean，預設爲真
-				* 1~6 根據母看板的權限，可能不被允許設定
 		+ backendRules
 			1. onEnter: [rule: String] 進入看板或文章時在後端做的檢查
 			2. onNewBoard: [rule: String] 創子板時在後端做的檢查
