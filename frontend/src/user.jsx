@@ -5,31 +5,18 @@ class IDPasswordForm extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			info: {
-				message: "",
-				status: "none"
-			},
 			password: "",
 			id: "",
 			justSuccess: false,  // 剛註冊成功時會打開此旗標，渲染出註冊成功的消息，並在五秒後跳轉回首頁
 		};
 		this.handlePasswordChange = this.handlePasswordChange.bind(this);
 		this.handleIDChange = this.handleIDChange.bind(this);
-		this.deleteInfo = this.deleteInfo.bind(this);
 	}
 	handlePasswordChange(event) {
 		this.setState({password: event.target.value});
 	}
 	handleIDChange(event) {
 		this.setState({id: event.target.value});
-	}
-	deleteInfo() {
-		this.setState({
-			info: {
-				status: "none",
-				message: ""
-			}
-		});
 	}
 	render() {
 		if (this.state.justSuccess) {
@@ -77,21 +64,6 @@ class IDPasswordForm extends React.Component {
 							</button>
 						</p>
 					</div>
-					{
-						(() => {
-							switch (this.state.info.status) {
-								case "none":
-									return null;
-								case "error":
-									return (
-										<div className="notification is-danger">
-											<button className="delete" onClick={this.deleteInfo}></button>
-											{this.state.info.message}
-										</div>
-									);
-							}
-						})()
-					}
 				</div>
 			);
 		}
@@ -100,15 +72,8 @@ class IDPasswordForm extends React.Component {
 
 function Login(props) {
 	let onSubmit = function () {
-		console.log(`使用者名稱：${this.state.id}`);
-		console.log(`密碼：${this.state.password}`);
 		if (this.state.id.length == 0 || this.state.password.length == 0) {
-			this.setState({
-				info: {
-					status: "error",
-					message: "帳號密碼皆不得爲空",
-				}
-			});
+			this.props.notify({ message: "帳號密碼皆不得爲空", level: "error" });
 			return;
 		}
 		fetch("/api/user/login", {
@@ -120,35 +85,22 @@ function Login(props) {
 			body: JSON.stringify({id: this.state.id, password: this.state.password})
 		}).then((res) => {
 			if (res.ok) {
-				res.text().then((data) => {
-					console.log(data);
-					switch (data) {
-						case "OK":
-							this.props.changeLoginState(true, this.state.id);
-							this.setState({
-								justSuccess: true
-							});
-							setTimeout(() => {
-								// XXX: 如果註冊頁就是瀏覽歷史中的第一頁，則這個跳轉行爲沒什麼意義
-								// 然而，並不存在有效的方法能得知目前是否爲歷史中第一頁，因此不能捕捉此狀況
-								if (window.location.pathname == "/app/login") {
-									this.props.history.goBack();
-								}
-							}, 5000);
-							break;
-						case "FAIL":
-							this.setState({
-								info: {
-									status: "error",
-									message: "名稱不存在或密碼錯誤",
-								}
-							});
-							break;
-					}
+				this.props.changeLoginState(true, this.state.id);
+				this.setState({
+					justSuccess: true
 				});
+				setTimeout(() => {
+					// XXX: 如果註冊頁就是瀏覽歷史中的第一頁，則這個跳轉行爲沒什麼意義
+					// 然而，並不存在有效的方法能得知目前是否爲歷史中第一頁，因此不能捕捉此狀況
+					if (window.location.pathname == "/app/login") {
+						this.props.history.goBack();
+					}
+				}, 5000);
+			} else {
+				this.props.notify({ message: "帳號密碼錯誤", level: "error" });
 			}
 		}, (err) => {
-			console.log(err);
+			this.props.notify({ message: "AJAX失敗，登入失敗", level: "error" });
 		});
 
 	};
@@ -162,15 +114,8 @@ function Login(props) {
 
 function SignUp(props) {
 	let onSubmit = function () {
-		console.log(`使用者名稱：${this.state.id}`);
-		console.log(`密碼：${this.state.password}`);
 		if (this.state.id.length == 0 || this.state.password.length == 0) {
-			this.setState({
-				info: {
-					status: "error",
-					message: "帳號密碼皆不得爲空",
-				}
-			});
+			this.props.notify({ message: "帳號密碼皆不得爲空", level: "error" });
 			return;
 		}
 		fetch("/api/user/new", {
@@ -182,38 +127,29 @@ function SignUp(props) {
 			body: JSON.stringify({id: this.state.id, password: this.state.password})
 		}).then((res) => {
 			if (res.ok) {
-				res.text().then((data) => {
-					console.log(data);
-					switch (data) {
-						case "OK":
-							this.props.changeLoginState(true, this.state.id);
-							this.setState({
-								justSuccess: true
-							});
-							setTimeout(() => {
-								// XXX: 如果註冊頁就是瀏覽歷史中的第一頁，則這個跳轉行爲沒什麼意義
-								// 然而，並不存在有效的方法能得知目前是否爲歷史中第一頁，因此不能捕捉此狀況
-								// 若進入它頁之後又點回 /app/signUp 仍會跳轉，因此行爲仍不完美
-								if (window.location.location == "/app/signUp") {
-									this.props.history.goBack();
-								}
-							}, 5000);
-							break;
-						case "ID 已被使用":
-							this.setState({
-								info: {
-									status: "error",
-									message: `名稱 ${this.state.id} 已被使用過`,
-								}
-							});
-						case "FAIL":
-							console.log("註冊失敗：伺服器不明問題");
-							break;
-					}
+				this.props.changeLoginState(true, this.state.id);
+				this.setState({
+					justSuccess: true
 				});
+				setTimeout(() => {
+					// XXX: 如果註冊頁就是瀏覽歷史中的第一頁，則這個跳轉行爲沒什麼意義
+					// 然而，並不存在有效的方法能得知目前是否爲歷史中第一頁，因此不能捕捉此狀況
+					// 若進入它頁之後又點回 /app/signUp 仍會跳轉，因此行爲仍不完美
+					if (window.location.location == "/app/signUp") {
+						this.props.history.goBack();
+					}
+				}, 5000);
+			} else {
+				switch (res.status) {
+					case 403:
+						this.props.notify({message: `註冊失敗，名稱 ${this.state.id} 已被使用過`, level: "error"});
+						break;
+					default:
+						this.props.notify({message: `註冊失敗，狀態碼 ${res.status}`, level: "error"});
+				}
 			}
 		}, (err) => {
-			console.log(err);
+			this.props.notify({message: "AJAX失敗，註冊失敗", level: "error"});
 		});
 	};
 	return (

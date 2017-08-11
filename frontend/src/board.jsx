@@ -593,7 +593,7 @@ class Board extends React.Component {
 			if (res.ok) {
 				res.json().then((data) => {
 					if (data._id) {
-						this.props.notify({ message: `發文成功，id爲 ${data}`, level: "success" });
+						this.props.notify({ message: `發文成功，ID 爲 ${data}`, level: "success" });
 						const path = `${this.props.location.pathname}/a/${body.title}?id=${data._id}`;
 						this.props.history.push(path);
 					} else {
@@ -625,18 +625,20 @@ class Board extends React.Component {
 			if (res.ok) {
 				res.json().then((data) => {
 					if (data._id) {
-						console.log(`創建看板成功，看板 ID 爲：${data._id}`);
+						this.props.notify({ message: `創建看板成功，看板 ID 爲：${data._id}`, level: "success" });
+						const path = `${this.props.location.pathname}/b/${body.name}`;
+						this.props.history.push(path);
 					} else {
-						console.log(`創建看板失敗：${data}`);
+						this.props.notify({ message: `創建看板失敗：${data}`, level: "error" });
 					}
 				});
 			} else {
 				res.text().then((data) => {
-					console.log(`創建看板：非正常失敗, ${data}`);
+					this.props.notify({ message: `創建看板失敗：${data}`, level: "error" });
 				});
 			}
 		}, (err) => {
-			console.log("AJAX失敗，創建看板失敗");
+			this.props.notify({ message: "AJAX失敗，創建看板失敗", level: "error" });
 		});
 	}
 	boardLocation() {
