@@ -1,7 +1,6 @@
 let router = require("express").Router();
 const _ = require("lodash");
 let { createComment } = require("./comment.js");
-const db = require("../database.js");
 
 router.post("/new", async function(req, res) {
 	let userId = req.session.userId;

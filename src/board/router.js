@@ -1,7 +1,7 @@
 let router = require("express").Router();
 let _ = require("lodash");
 let { createBoard, getList } = require("./board.js");
-let { recursiveGetBoard, getRootId } = require("../util.js");
+let { recursiveGetBoard, getRootId } = require("../util/db_util.js");
 
 router.get("/browse", async function(req, res) {
 	try {

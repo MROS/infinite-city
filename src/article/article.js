@@ -1,6 +1,6 @@
 const db = require("../database.js");
-const { findBackendRules, doRestricts, setRule, processContent } = require("../util.js");
-
+const { doRestricts, setRule, processContent } = require("../util/util.js");
+const { findBackendRules } = require("../util/db_util.js");
 /**
  * @param {String} author
  * @param {String} title 

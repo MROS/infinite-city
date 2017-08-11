@@ -1,6 +1,7 @@
 const _ = require("lodash");
 const db = require("../database.js");
-const { doRestricts, findBackendRules, processContent } = require("../util.js");
+const { doRestricts, processContent } = require("../util/util.js");
+const { findBackendRules } = require("../util/db_util.js");
 
 async function createComment(author_id, article_id, commentContent) {
 	let article = await db.Article.findOne({ _id: article_id }).exec();
