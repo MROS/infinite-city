@@ -9,9 +9,6 @@ function ruleToState(rules) {
 	let ret = {};
 	Object.keys(rules).forEach((ruleName) => {
 		ret[ruleName] = {};
-		rules[ruleName].checkbox.forEach((option) => {
-			ret[ruleName][option.name] = true;
-		});
 		rules[ruleName].textarea.forEach((option) => {
 			ret[ruleName][option.name] = "";
 		});
@@ -44,30 +41,6 @@ class Extendable extends React.Component {
 						}
 					})()
 				}
-			</div>
-		);
-	}
-}
-
-class Checkbox extends React.Component {
-	constructor(props) {
-		super(props);
-		this.onChange = this.onChange.bind(this);
-	}
-	onChange(event) {
-		this.props.changeUpper(event.target.checked);
-	}
-	render() {
-		return (
-			<div className="field">
-				<label className="checkbox">
-					<input
-						onChange={this.onChange}
-						checked={this.props.checked}
-						name={this.props.option.name}
-						type="checkbox" />
-					{this.props.option.display}
-				</label>
 			</div>
 		);
 	}
@@ -220,15 +193,6 @@ class RuleGroup extends React.Component {
 				isExtended={this.state.show.get(someRules)}>
 				{
 					[
-						...this.props.ruleDefinition[someRules].checkbox.map((option) => {
-							return (
-								<Checkbox
-									key={option.name}
-									option={option}
-									checked={this.props.ruleState.get(someRules).get(option.name)}
-									changeUpper={this.handleRuleChange(someRules, option.name)} />
-							);
-						}),
 						...this.props.ruleDefinition[someRules].textarea.map((option) => {
 							return (
 								<TextArea
@@ -271,7 +235,6 @@ class CreateArticle extends React.Component {
 		this.rules = {
 			formRules: {
 				display: "表單規則",
-				checkbox: [],
 				textarea: [],
 				formRule: [
 					{ display: "留言表單格式", name: "commentForm" },
@@ -279,7 +242,6 @@ class CreateArticle extends React.Component {
 			},
 			renderRules: {
 				display: "渲染規則",
-				checkbox: [],
 				textarea: [
 					{ display: "留言渲染函式", name: "renderComment" },
 				],
@@ -287,7 +249,6 @@ class CreateArticle extends React.Component {
 			},
 			backendRules: {
 				display: "權限限制",
-				checkbox: [],
 				textarea: [
 					{ display: "閱讀文章", name: "onEnter" },
 					{ display: "留言", name: "onComment" },
@@ -377,10 +338,6 @@ class CreateBoard extends React.Component {
 		this.rules = {
 			formRules: {
 				display: "表單規則",
-				checkbox: [
-					{ display: "可定義文章表單", name: "canDefArticleForm" },
-					{ display: "可定義留言表單", name: "canDefCommentForm" },
-				],
 				textarea: [],
 				formRule: [
 					{ display: "文章表單格式", name: "articleForm" },
@@ -389,11 +346,6 @@ class CreateBoard extends React.Component {
 			},
 			renderRules: {
 				display: "渲染規則",
-				checkbox: [
-					{ display: "可定義標題", name: "canDefTitle" },
-					{ display: "可定義文章內容", name: "canDefArticleContent" },
-					{ display: "可定義留言", name: "canDefComment" },
-				],
 				textarea: [
 					{ display: "標題渲染函式", name: "renderTitle" },
 					{ display: "文章內容渲染函式", name: "renderArticleContent" },
@@ -403,7 +355,6 @@ class CreateBoard extends React.Component {
 			},
 			backendRules: {
 				display: "權限限制",
-				checkbox: [],
 				textarea: [
 					{ display: "進入看板（文章）", name: "onEnter" },
 					{ display: "創建看板", name: "onNewBoard" },
