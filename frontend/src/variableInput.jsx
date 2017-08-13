@@ -1,4 +1,5 @@
 import React from "react";
+import checkAPI from "../../isomorphic/checkAPI.js";
 
 // props 有 data, dataForm(得知輸入的格式)、changeUpper(改變上層資料)、oneline(若爲真則使用input，假則使用textarea)
 class VariableInput extends React.Component {
@@ -9,24 +10,8 @@ class VariableInput extends React.Component {
 		this.isValid = this.isValid.bind(this);
 	}
 	isValid(label) {
-		const findRestrict = (label) => {
-			let ans = "";
-			for (let item of this.props.dataForm) {
-				if (item.label == label) {
-					ans = item.restrict;
-					break;
-				}
-			}
-			return ans;
-		};
-		const restrictStr = findRestrict(label);
-		if (restrictStr.trim().length == 0) {
-			return true;
-		} else {
-			const verifyFunction = eval(`(${restrictStr})`);
-			const data = this.props.data.toJS();
-			return verifyFunction(data[label], data);
-		}
+		const data = this.props.data.toJS();
+		return checkAPI.checkMatchRestrict(label, data, this.props.dataForm);
 	}
 	onChangeData(label) {
 		return (event) => {

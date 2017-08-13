@@ -3,6 +3,7 @@ import { fromJS, Map } from "immutable";
 import { Link } from "react-router-dom";
 import { LabelArrayToObject, LabelObjectToArray } from "./util";
 import VariableInput from "./variableInput.jsx";
+import checkAPI from "../../isomorphic/checkAPI.js";
 
 class InputComment extends React.Component {
 	constructor(props) {
@@ -34,17 +35,9 @@ class InputComment extends React.Component {
 		}
 	}
 	isAllValid() {
-		for (let item of this.props.commentForm) {
-			if (item.restrict.trim().length == 0) {
-				continue;
-			} else {
-				const verifyFunction = eval(`(${item.restrict})`);
-				const comment = this.state.comment.toJS();
-				const ok = verifyFunction(comment[item.label], comment);
-				if (!ok) { return false; }
-			}
-		};
-		return true;
+		const content = this.state.comment.toJS();
+		const form = this.props.commentForm;
+		return checkAPI.checkAllMatchRestrict(content, form);
 	}
 	setComment(comment) {
 		console.log(comment.toJS());

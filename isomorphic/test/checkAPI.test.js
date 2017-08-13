@@ -45,7 +45,7 @@ test("checkLabel、checkArticleTitle、checkBoardName 不能都看不到字", ()
 	}
 });
 
-test("checkFormSeries 爲一個恰有 evalType、restrict、label 的物件", () => {
+test("checkOneForm 爲一個恰有 evalType、restrict、label 的物件", () => {
 	const f1 = {
 		evalType: "string"
 	};
@@ -65,8 +65,66 @@ test("checkFormSeries 爲一個恰有 evalType、restrict、label 的物件", ()
 		label: "XX",
 		a: 1,
 	};
-	expect(API.checkFormSeries(f1)).toBe(false);
-	expect(API.checkFormSeries(f2)).toBe(true);
-	expect(API.checkFormSeries(f3)).toBe(false);
-	expect(API.checkFormSeries(f4)).toBe(false);
+	expect(API.checkOneForm(f1)).toBe(false);
+	expect(API.checkOneForm(f2)).toBe(true);
+	expect(API.checkOneForm(f3)).toBe(false);
+	expect(API.checkOneForm(f4)).toBe(false);
+});
+
+test("checkFormSeries 爲一陣列，其元素均需通過 checkOneForm ，且 label 不可重複", () => {
+	const f1 = {
+		evalType: "string"
+	};
+	const f2 = {
+		evalType: "string",
+		restrict: "function(){}",
+		label: "2",
+	};
+	const f3 = {
+		evalType: "string",
+		restrict: "",
+		label: "3",
+	};
+	expect(API.checkFormSeries([f1])).toBe(false);
+	expect(API.checkFormSeries([f2, f2])).toBe(false);
+	expect(API.checkFormSeries([f2, f3])).toBe(true);
+	expect(API.checkFormSeries([f2])).toBe(true);
+});
+
+test("checkMatchRestrict", () => {
+	const content = {
+		short: "a", long: ""
+	};
+	const form = [
+		{ label: "long" , restrict: ""},
+		{ label: "short" , restrict: "function (cur, all) { return all.short.length < all.long.length; }"},
+	];
+	expect(API.checkMatchRestrict("long", content, form)).toBe(true);
+	expect(API.checkMatchRestrict("short", content, form)).toBe(false);
+});
+
+test("checkAllMatchRestrict", () => {
+	const content1 = {
+		a: "a"
+	};
+	const content2 = {
+		a: "aa"
+	};
+	const form1 = [
+		{ label: "a" , restrict: "function (cur, all) { return cur.length > 1; }"}
+	];
+	const content3 = {
+		short: "", long: "a"
+	};
+	const content4 = {
+		short: "a", long: ""
+	};
+	const form2 = [
+		{ label: "long" , restrict: ""},
+		{ label: "short" , restrict: "function (cur, all) { return all.short.length < all.long.length; }"},
+	];
+	expect(API.checkAllMatchRestrict(content1, form1)).toBe(false);
+	expect(API.checkAllMatchRestrict(content2, form1)).toBe(true);
+	expect(API.checkAllMatchRestrict(content3, form2)).toBe(true);
+	expect(API.checkAllMatchRestrict(content4, form2)).toBe(false);
 });
