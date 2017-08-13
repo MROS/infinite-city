@@ -16,6 +16,10 @@
     "webpack": "^3.3.0"
   },
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+	"build:prod": "env NODE_ENV=production webpack"
+  },
+  "devDependencies": {
+    "babili-webpack-plugin": "^0.1.2"
   }
 }
