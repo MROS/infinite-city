@@ -1,5 +1,5 @@
 let crypto = require("crypto");
-let env = require("optimist").argv.env || process.env.env || "dev";
+let env = require("../config.js").env;
 
 const db = require("../database.js");
 const { sendVerificationMail } = require("../util/mail_util.js");

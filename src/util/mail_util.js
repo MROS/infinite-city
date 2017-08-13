@@ -5,20 +5,20 @@ const mail_config = require("./mail_config.js");
 const mailgun = new Mailgun({ apiKey: mail_config.api_key, domain: mail_config.domain });
 
 function _generateVerificationMsg(user_id, guid) {
-	let url = (() => {
-		let env = require("optimist").argv.env || process.env.env || "dev";
-		switch (env) {
+	let base_url = (() => {
+		switch (config.env) {
 			case "dev":
 			case "test":
-				return `http://localhost:${config.PORT}/app/verification?guid=${guid}`
+				return `http://localhost:${config.PORT}`;
 			case "production":
-				return  `http://city-of-infinity.com/app/verification?guid=${guid}`;
+				return  "http://city-of-infinity.com";
 			default:
-				throw `未知的環境：${env}`;
+				throw `未知的環境：${config.env}`;
 		}
 	})();
+	let url = `${base_url}/api/user/verification?guid=${guid}`;
 	return `<h1>${user_id}，歡迎來到∞無限城∞！</h1>
-	<p>恭喜你，即將成為全台最二社群網站的一員。請點擊下列網址開通你的帳號，開始享受你的無限人生吧！</p>
+	<p>恭喜你，即將成為全台最二社群網站的一員。立刻點擊下列網址開通你的帳號，開始享受你的無限人生吧！</p>
 	<a href="${url}">${url}</a>
 	<p>我們在巴比倫城的頂點等著你</p>
 	<p>⚡雷帝 👁邪眼男敬上</p>`;

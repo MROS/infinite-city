@@ -1,4 +1,5 @@
 const PORT = 8080;
+const env = require("optimist").argv.env || process.env.env || "dev";
 const dev_server = {
 	url: "mongodb://127.0.0.1/INF-DEV",
 	options: {
@@ -17,5 +18,6 @@ const test_server = {
 module.exports = {
 	PORT,
 	test_server,
-	dev_server
+	dev_server,
+	env
 };

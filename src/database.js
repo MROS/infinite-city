@@ -4,16 +4,14 @@ const Schema = mongoose.Schema;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 mongoose.Promise = global.Promise;
 
-let env = require("optimist").argv.env || process.env.env || "dev";
-console.log(`環境：${env}`);
 let server = (() => {
-	switch (env) {
+	switch (config.env) {
 		case "dev":
 			return config.dev_server;
 		case "test":
 			return config.test_server;
 		default:
-			throw `未知的環境：${env}`;
+			throw `未知的環境：${config.env}`;
 	}
 })();
 

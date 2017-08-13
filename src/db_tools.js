@@ -1,8 +1,7 @@
 const readlineSync = require("readline-sync");
 const db = require("./database.js");
 const ROOT = require("./root_config.js");
-
-let env = require("optimist").argv.env || process.env.env || "dev";
+let env = require("./config.js").env;
 
 function clearConsole() {
 	process.stdout.write("\033c");
