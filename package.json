@@ -5,6 +5,7 @@
     "express": "^4.15.3",
     "express-session": "^1.15.4",
     "lodash": "^4.17.4",
+    "mailgun-js": "^0.12.1",
     "mongoose": "^4.11.3",
     "morgan": "^1.8.2",
     "optimist": "^0.6.1",
@@ -12,8 +13,8 @@
   },
   "scripts": {
     "start": "node src/server.js",
-	"test:i": "env=test jest isomorphic",
-	"test": "env=test jest"
+    "test:i": "env=test jest isomorphic",
+    "test": "env=test jest"
   },
   "devDependencies": {
     "eslint": "^4.3.0",

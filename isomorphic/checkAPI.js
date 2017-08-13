@@ -40,6 +40,20 @@ const checkOnSeries = IsFunctionStringOrOnlyEmpty;
 const checkArticleTitle = NotOnlyEmpty;
 const checkBoardName = NotOnlyEmpty;
 
+function _checkEmail(email) {
+	let a = email.split("@");
+	if(a.length != 2) { return false; }
+	return NotOnlyEmpty(a[0]) && NotOnlyEmpty(a[1]);
+}
+function checkCreateUser(user) {
+	if (Object.keys(user).length != 3) { return false; }
+	if (!Object.keys(user).includes("email")) { return false; }
+	if (!Object.keys(user).includes("id")) { return false; }
+	if (!Object.keys(user).includes("password")) { return false; }
+	if (user["id"].search(/[ |\n]/) != -1) { return false; }
+	return _checkEmail(user["email"]) && NotOnlyEmpty(user["id"]) && NotOnlyEmpty(user["password"]);
+}
+
 module.exports = {
 	checkEvalType,
 	onlyEmpty,
@@ -51,4 +65,5 @@ module.exports = {
 	checkOnSeries,
 	checkArticleTitle,
 	checkBoardName,
+	checkCreateUser
 };

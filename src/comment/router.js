@@ -3,14 +3,14 @@ const _ = require("lodash");
 let { createComment } = require("./comment.js");
 
 router.post("/new", async function(req, res) {
-	let userId = req.session.userId;
+	let user_id= req.session.user_id;
 	try {
-		if(!userId) {
+		if(!user_id) {
 			res.status(401).send("尚未登入");
 		}
 		else {
 			let query = req.body;
-			let new_c = await createComment(userId, query.article, query.commentContent);
+			let new_c = await createComment(user_id, query.article, query.commentContent);
 			if (new_c.err_msg) {
 				res.status(403).send(new_c.err_msg);
 			}

@@ -1,7 +1,7 @@
 # API 標準
 * api/user
 	- POST api/user/new
-		+ { id, password }，id 和 password 皆爲字串，例如 { id: "david0u0", password: "1234" }
+		+ { id, password, email }，id 和 password 皆爲字串，例如 { id: "david0u0", password: "1234" }
 		+ 返回 "ID 已被使用" 或 "OK" 或 "FAIL"
 	- POST api/user/login
 		+ { id, password }

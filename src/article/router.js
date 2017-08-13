@@ -5,12 +5,12 @@ let { recursiveGetBoard, getRootId } = require("../util/db_util.js");
 
 router.post("/new", async function (req, res) {
 	try {
-		let userId = req.session.userId;
-		if (!userId) {
+		let user_id = req.session.user_id;
+		if (!user_id) {
 			res.status(401).send("尚未登入");
 		} else {
 			let query = req.body;
-			let new_a = await createArticle(userId, query.title,
+			let new_a = await createArticle(user_id, query.title,
 				query.board, query.articleContent,
 				query.formRules, query.renderRules, query.backendRules);
 			if (new_a.err_msg) {
@@ -41,7 +41,7 @@ router.get("/browse", async function(req, res) {
 			root_id = await getRootId();
 		}
 		let board = await recursiveGetBoard(root_id, name);
-		let article = await getArticle(board, article_id, max, req.session.userId);
+		let article = await getArticle(board, article_id, max, req.session.user_id);
 		if(article.err_msg) {
 			res.status(400).send(article.err_msg);
 		} else {

@@ -98,10 +98,17 @@ const comment_schema_t = {
 
 const user_schema_t = {
 	// id 例如 infinitycity5566
-	"id": { type: String, index: true },
+	"id": { type: String, index: { unique: true } },
 	"password": { type: String, required: true },
 	"salt": { type: String, required: true },
-	"date": { type: Date, required: true }
+	"date": { type: Date, required: true },
+	"email": { type: String, required: true, index: { unique: true } },
+	"verified": { type: Boolean, default: false }
+};
+
+const user_verification_schema_t = {
+	"userId": { type: String, required: true },
+	"createdDate": { type: String, required: true }
 };
 
 let board_schema = new Schema(board_schema_t);
@@ -114,6 +121,8 @@ let user_schema = new Schema(user_schema_t);
 let User = mongoose.model("User", user_schema);
 let article_info_schema = new Schema(article_info_schema_t);
 let ArticleInfo = mongoose.model("ArticleInfo", article_info_schema);
+let user_verification_schema = new Schema(user_verification_schema_t);
+let UserVerification = mongoose.model("UserVerification", user_verification_schema);
 
 module.exports = {
 	Board,
@@ -121,4 +130,5 @@ module.exports = {
 	Comment,
 	ArticleInfo,
 	User,
+	UserVerification,
 };

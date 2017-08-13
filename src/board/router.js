@@ -15,7 +15,7 @@ router.get("/browse", async function(req, res) {
 			root_id = await getRootId();
 		}
 		let board = await recursiveGetBoard(root_id, names);
-		let list = await getList(board, max, req.session.userId);
+		let list = await getList(board, max, req.session.user_id);
 		if(list.err_msg) {
 			res.status(403).send(list.err_msg);
 		}
@@ -33,14 +33,14 @@ router.get("/browse", async function(req, res) {
 });
 
 router.post("/new", async function(req, res) {
-	let userId = req.session.userId;
+	let user_id= req.session.user_id;
 	try {
-		if (!userId) {
+		if (!user_id) {
 			res.status(401).send("尚未登入");
 		}
 		else {
 			let query = req.body;
-			let new_b = await createBoard(userId, query.name, query.parent,
+			let new_b = await createBoard(user_id, query.name, query.parent,
 				query.formRules, query.renderRules, query.backendRules);
 			if(new_b.err_msg) {
 				res.status(403).send(new_b.err_msg);
