@@ -387,6 +387,7 @@ class CreateBoard extends React.Component {
 		this.rules = {
 			formRules: {
 				display: "表單規則",
+				check: checkAPI.checkFormSeries,
 				textarea: [],
 				formRule: [
 					{ display: "文章表單格式", name: "articleForm" },
@@ -395,6 +396,7 @@ class CreateBoard extends React.Component {
 			},
 			renderRules: {
 				display: "渲染規則",
+				check: checkAPI.checkRenderSeries,
 				textarea: [
 					{ display: "標題渲染函式", name: "renderTitle" },
 					{ display: "文章內容渲染函式", name: "renderArticleContent" },
@@ -404,6 +406,7 @@ class CreateBoard extends React.Component {
 			},
 			backendRules: {
 				display: "權限限制",
+				check: checkAPI.checkOnSeries,
 				textarea: [
 					{ display: "進入看板（文章）", name: "onEnter" },
 					{ display: "創建看板", name: "onNewBoard" },
@@ -447,11 +450,16 @@ class CreateBoard extends React.Component {
 				<div className="field" style={{ marginBottom: "35px" }}>
 					<label className="label">看板名稱</label>
 					<div className="control">
-						<input onChange={this.handleNameChange} className="input" type="text" placeholder="看板名稱" />
+						<InputWithCheck
+							ok={checkAPI.checkBoardName(this.state.name)}
+							value={this.state.name}
+							type="text"
+							onChange={this.handleNameChange}
+							placeholder="標題" />
 					</div>
 				</div>
 				<RuleGroup
-					ruleDefinition={this.rules}
+					ruleDefinitions={this.rules}
 					ruleState={this.state.rules}
 					setRules={this.setRules} />
 				<div className="field">
@@ -615,6 +623,10 @@ class Board extends React.Component {
 	}
 	newBoard(boardDefinition) {
 		let body = boardDefinition;
+		if (!checkAPI.checkNewBoard(body)) {
+			this.props.notify({ message: "創建看板失敗，請檢查格式是否正確（消除所有警告）", level: "error" });
+			return;
+		}
 		body.parent = this.boardID;
 		console.log("試創建新看板：");
 		console.log(JSON.stringify(body, null, 2));

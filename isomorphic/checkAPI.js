@@ -90,10 +90,18 @@ function checkAllMatchRestrict(content, form) {
 // 後端尚需檢驗 board ID
 function checkNewArticle(article, articleForm) {
 	let { title, articleContent, formRules, renderRules, backendRules } = article;
-	console.log(formRules);
-	console.log(Object.values(formRules));
 	if (!checkArticleTitle(title)) { return false; }
 	if (!checkAllMatchRestrict(articleContent, articleForm)) { return false; }
+	if (!allOK(Object.values(formRules), checkFormSeries)) { return false; }
+	if (!allOK(Object.values(renderRules), checkRenderSeries)) { return false; }
+	if (!allOK(Object.values(backendRules), checkOnSeries)) { return false; }
+	return true;
+}
+
+// 後端尚需檢驗 board ID
+function checkNewBoard(board) {
+	let { name, formRules, renderRules, backendRules } = board;
+	if (!checkBoardName(name)) { return false; }
 	if (!allOK(Object.values(formRules), checkFormSeries)) { return false; }
 	if (!allOK(Object.values(renderRules), checkRenderSeries)) { return false; }
 	if (!allOK(Object.values(backendRules), checkOnSeries)) { return false; }
@@ -124,11 +132,12 @@ module.exports = {
 	checkFormSeries,
 	checkRenderSeries,
 	checkOnSeries,
+	checkBoardName,
 	checkArticleTitle,
 	checkMatchRestrict,
 	checkAllMatchRestrict,
+	checkNewBoard,
 	checkNewArticle,
-	checkBoardName,
 	checkCreateUser,
 	allOK,
 };
