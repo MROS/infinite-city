@@ -45,6 +45,13 @@ function checkFormSeries(fs) {
 const checkRenderSeries = IsFunctionStringOrOnlyEmpty;
 const checkOnSeries = IsFunctionStringOrOnlyEmpty;
 
+function allOK(arr, checkFunc) {
+	for (let e of arr) {
+		if (!checkFunc(e)) { return false; }
+	}
+	return true;
+}
+
 const checkArticleTitle = NotOnlyEmpty;
 const checkBoardName = NotOnlyEmpty;
 
@@ -80,6 +87,19 @@ function checkAllMatchRestrict(content, form) {
 	return true;
 }
 
+// 後端尚需檢驗 board ID
+function checkNewArticle(article, articleForm) {
+	let { title, articleContent, formRules, renderRules, backendRules } = article;
+	console.log(formRules);
+	console.log(Object.values(formRules));
+	if (!checkArticleTitle(title)) { return false; }
+	if (!checkAllMatchRestrict(articleContent, articleForm)) { return false; }
+	if (!allOK(Object.values(formRules), checkFormSeries)) { return false; }
+	if (!allOK(Object.values(renderRules), checkRenderSeries)) { return false; }
+	if (!allOK(Object.values(backendRules), checkOnSeries)) { return false; }
+	return true;
+}
+
 function _checkEmail(email) {
 	let a = email.split("@");
 	if(a.length != 2) { return false; }
@@ -107,6 +127,8 @@ module.exports = {
 	checkArticleTitle,
 	checkMatchRestrict,
 	checkAllMatchRestrict,
+	checkNewArticle,
 	checkBoardName,
-	checkCreateUser
+	checkCreateUser,
+	allOK,
 };

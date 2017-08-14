@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import VariableInput from "./variableInput.jsx";
 import { LabelArrayToObject, LabelObjectToArray } from "./util";
 import SourceCode from "./sourceCode.jsx";
+import checkAPI from "../../isomorphic/checkAPI.js";
 
 function ruleToState(rules) {
 	let ret = {};
@@ -26,7 +27,14 @@ class Extendable extends React.Component {
 	render() {
 		return (
 			<div style={{ marginBottom: "35px" }}>
-				<h5 className="title is-5">{this.props.name}</h5>
+				{
+					this.props.ok ?
+						< h5 className="title is-5">{this.props.name}</h5> :
+						< h5 className="title is-5">
+							<i className="fa fa-warning" style={{marginRight: "3px"}}></i>
+							{this.props.name}
+						</h5>
+				}
 				{
 					(() => {
 						if (this.props.isExtended) {
@@ -46,6 +54,29 @@ class Extendable extends React.Component {
 	}
 }
 
+// props 需有一個 check 函式、一個
+class InputWithCheck extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+	render() {
+		let props = fromJS(this.props).delete("ok").delete("type").toJS();
+		if (this.props.type == "text") {
+			return (
+				<input
+					className={this.props.ok ? "input is-success" : "input is-danger"}
+					{...props} />
+			);
+		} else if (this.props.type == "textarea") {
+			return (
+				<textarea
+					className={this.props.ok ? "textarea is-success" : "textarea is-danger"}
+					{...props} />
+			);
+		}
+	}
+}
+
 class TextArea extends React.Component {
 	constructor(props) {
 		super(props);
@@ -59,11 +90,12 @@ class TextArea extends React.Component {
 			<div className="field">
 				<label className="label">{this.props.option.display}</label>
 				<div className="control">
-					<textarea
+					<InputWithCheck
 						value={this.props.value}
 						onChange={this.onChange}
+						ok={this.props.check(this.props.value)}
 						name={this.props.option.name}
-						className="textarea"
+						type="textarea"
 						placeholder={this.props.option.display} />
 				</div>
 			</div>
@@ -80,6 +112,7 @@ class FormRule extends React.Component {
 		this.changeLabel = this.changeLabel.bind(this);
 		this.changeRestrict = this.changeRestrict.bind(this);
 		this.changeEvaltype = this.changeEvaltype.bind(this);
+		this.validLabel = this.validLabel.bind(this);
 	}
 	addItem() {
 		const newValue = this.props.value.push(Map({ label: "", restrict: "", evalType: "string" }));
@@ -114,12 +147,19 @@ class FormRule extends React.Component {
 			this.props.changeUpper(newValue);
 		};
 	}
+	uniqueLabel(label) {
+		return this.props.value.map(item => item.get("label")).filter(l => l == label).size == 1;
+	}
+	validLabel(label) {
+		return checkAPI.checkLabel(label) && this.uniqueLabel(label);
+	}
 	render() {
 		return (
 			<div className="field">
 				<label className="label">{this.props.option.display}</label>
-				<div className="control">
-					{
+				<div>
+					{	this.props.value.size == 0 ?
+						<div style={{ color: "orange", fontSize: "22px" }}> 警告！沒有任何欄位</div> :
 						this.props.value.map((v, index) => {
 							return (
 								<div key={index}>
@@ -130,15 +170,17 @@ class FormRule extends React.Component {
 											刪除
 										</a>
 									</div>
-									<input
-										className="input"
+									<InputWithCheck
 										onChange={this.changeLabel(index)}
 										value={v.get("label")}
+										ok={this.validLabel(v.get("label"))}
+										type="text"
 										placeholder={"標籤名 " + (index + 1)} />
-									<textarea
+									<InputWithCheck
 										value={v.get("restrict")}
 										onChange={this.changeRestrict(index)}
-										className="textarea"
+										ok={checkAPI.checkRestrict(v.get("restrict"))}
+										type="textarea"
 										placeholder="限制條件" />
 									<div className="select">
 										<select value={v.get("evalType")} onChange={this.changeEvaltype(index)}>
@@ -157,7 +199,7 @@ class FormRule extends React.Component {
 	}
 }
 
-// props 傳入 ruleDefinition, ruleState, setRules
+// props 傳入 ruleDefinitions, ruleState, setRules
 class RuleGroup extends React.Component {
 	constructor(props) {
 		super(props);
@@ -170,7 +212,6 @@ class RuleGroup extends React.Component {
 		};
 		this.toggleExtendable = this.toggleExtendable.bind(this);
 		this.handleRuleChange = this.handleRuleChange.bind(this);
-		this.createExtendable = this.createExtendable.bind(this);
 	}
 	toggleExtendable(someRules) {
 		return () => {
@@ -184,44 +225,48 @@ class RuleGroup extends React.Component {
 			this.props.setRules(this.props.ruleState.setIn([rule, name], value));
 		};
 	}
-	createExtendable(someRules) {
-		return (
-			<Extendable
-				key={someRules}
-				name={this.props.ruleDefinition[someRules].display}
-				toggle={this.toggleExtendable(someRules)}
-				isExtended={this.state.show.get(someRules)}>
-				{
-					[
-						...this.props.ruleDefinition[someRules].textarea.map((option) => {
-							return (
-								<TextArea
-									key={option.name}
-									option={option}
-									value={this.props.ruleState.get(someRules).get(option.name)}
-									changeUpper={this.handleRuleChange(someRules, option.name)} />
-							);
-						}),
-						...this.props.ruleDefinition[someRules].formRule.map((option) => {
-							return (
-								<FormRule
-									key={option.name}
-									option={option}
-									changeUpper={this.handleRuleChange(someRules, option.name)}
-									value={this.props.ruleState.get(someRules).get(option.name)} />
-							);
-						}),
-					]
-				}
-			</Extendable>
-		);
-	}
 	render() {
 		return (
 			<div>
 				{
-					Object.keys(this.props.ruleDefinition).map((someRules) => {
-						return this.createExtendable(someRules);
+					Object.keys(this.props.ruleDefinitions).map((someRule) => {
+						const ruleDef = this.props.ruleDefinitions[someRule];
+						const ruleState = this.props.ruleState.get(someRule);
+						const ruleStateTransform = Object.values(ruleState.toJS());
+						return (
+							<Extendable
+								ok={checkAPI.allOK(ruleStateTransform, ruleDef.check)}
+								key={someRule}
+								name={ruleDef.display}
+								toggle={this.toggleExtendable(someRule)}
+								isExtended={this.state.show.get(someRule)}>
+								{
+									[
+										...ruleDef.textarea.map((option) => {
+											return (
+												<TextArea
+													key={option.name}
+													check={ruleDef.check}
+													option={option}
+													changeUpper={this.handleRuleChange(someRule, option.name)}
+													value={ruleState.get(option.name)}
+												/>
+											);
+										}),
+										...ruleDef.formRule.map((option) => {
+											return (
+												<FormRule
+													key={option.name}
+													option={option}
+													changeUpper={this.handleRuleChange(someRule, option.name)}
+													value={ruleState.get(option.name)}
+												/>
+											);
+										}),
+									]
+								}
+							</Extendable>
+						);
 					})
 				}
 			</div>
@@ -234,6 +279,7 @@ class CreateArticle extends React.Component {
 		super(props);
 		this.rules = {
 			formRules: {
+				check: checkAPI.checkFormSeries,
 				display: "表單規則",
 				textarea: [],
 				formRule: [
@@ -241,6 +287,7 @@ class CreateArticle extends React.Component {
 				]
 			},
 			renderRules: {
+				check: checkAPI.checkRenderSeries,
 				display: "渲染規則",
 				textarea: [
 					{ display: "留言渲染函式", name: "renderComment" },
@@ -248,6 +295,7 @@ class CreateArticle extends React.Component {
 				formRule: []
 			},
 			backendRules: {
+				check: checkAPI.checkOnSeries,
 				display: "權限限制",
 				textarea: [
 					{ display: "閱讀文章", name: "onEnter" },
@@ -281,9 +329,9 @@ class CreateArticle extends React.Component {
 		let article = {
 			title,
 			articleContent,
-			formRules: rules.get("formRules").toObject(),
-			renderRules: rules.get("renderRules").toObject(),
-			backendRules: rules.get("backendRules").toObject()
+			formRules: rules.get("formRules").toJS(),
+			renderRules: rules.get("renderRules").toJS(),
+			backendRules: rules.get("backendRules").toJS()
 		};
 		this.props.newArticle(article);
 	}
@@ -304,10 +352,11 @@ class CreateArticle extends React.Component {
 				<div className="field" style={{ marginBottom: "35px" }}>
 					<label className="label">標題</label>
 					<div className="control">
-						<input
-							onChange={this.handleTitleChange}
-							className="input"
+						<InputWithCheck
+							ok={checkAPI.checkArticleTitle(this.state.title)}
+							value={this.state.title}
 							type="text"
+							onChange={this.handleTitleChange}
 							placeholder="標題" />
 					</div>
 				</div>
@@ -319,7 +368,7 @@ class CreateArticle extends React.Component {
 						changeUpper={this.setArticleContent} />
 				</div>
 				<RuleGroup
-					ruleDefinition={this.rules}
+					ruleDefinitions={this.rules}
 					ruleState={this.state.rules}
 					setRules={this.setRules} />
 				<div className="field">
@@ -530,6 +579,10 @@ class Board extends React.Component {
 	}
 	newArticle(articleDefinition) {
 		let body = articleDefinition;
+		if (!checkAPI.checkNewArticle(body, this.state.articleForm)) {
+			this.props.notify({ message: "發文失敗，請檢查格式是否正確（消除所有警告）", level: "error" });
+			return;
+		}
 		body.board = this.boardID;
 		console.log("發文");
 		console.log(JSON.stringify(body, null, 2));
@@ -544,7 +597,7 @@ class Board extends React.Component {
 			if (res.ok) {
 				res.json().then((data) => {
 					if (data._id) {
-						this.props.notify({ message: `發文成功，ID 爲 ${data}`, level: "success" });
+						this.props.notify({ message: `發文成功，ID 爲 ${data._id}`, level: "success" });
 						const path = `${this.props.location.pathname}/a/${body.title}?id=${data._id}`;
 						this.props.history.push(path);
 					} else {
