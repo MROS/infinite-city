@@ -76,7 +76,11 @@ async function getList(board, max, user_id) {
 	let authority = {};
 	for(let key of Object.keys(backend_rules)) {
 		let msg = doRestricts({ board: board }, user_id, backend_rules[key]);
-		authority[key] = { ok: msg ? false : true, msg: msg };
+		if(user_id) {
+			authority[key] = { ok: msg ? false : true, msg: msg };
+		} else {
+			authority[key] = { ok: false, msg: "尚未登入" };
+		}
 	}
 
 	return { a_list, b_list, board, authority };

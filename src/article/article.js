@@ -58,7 +58,11 @@ async function getArticle(board, article_id, max, user_id) {
 
 	let authority = {};
 	err_msg = doRestricts({ board, article }, user_id, backend_rules["onComment"]);
-	authority["onComment"] = { ok: err_msg ? false : true, msg: err_msg };
+	if(user_id) {
+		authority["onComment"] = { ok: err_msg ? false : true, msg: err_msg };
+	} else {
+		authority["onComment"] = { ok: false, msg: "尚未登入" };
+	}
 	article["authority"] = authority;
 
 	article.comment = await commentPromise;
