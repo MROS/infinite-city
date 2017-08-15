@@ -8,7 +8,8 @@ import {
 } from "react-router-dom";
 import Article from "./article.jsx";
 import Board from "./board.jsx";
-import { Login, SignUp } from "./user.jsx";
+import { Login, } from "./user.jsx";
+import SignUpForm from "./signupform.jsx";
 import NotificationSystem from "react-notification-system";
 
 class App extends React.Component {
@@ -118,7 +119,7 @@ class App extends React.Component {
 								<Login appState={this.state} notify={this.notify} changeLoginState={this.changeLoginState} {...props} />
 							)} />
 							<Route exact path="/app/signUp" render={(props) => (
-								<SignUp appState={this.state} notify={this.notify} changeLoginState={this.changeLoginState} {...props} />
+								<SignUpForm appState={this.state} notify={this.notify} changeLoginState={this.changeLoginState} {...props} />
 							)} />
 							<Route exact path="/app(/b/[^/]+)*" render={(props) => (
 								<Board appState={this.state} notify={this.notify} {...props} />

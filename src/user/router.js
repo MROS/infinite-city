@@ -1,12 +1,12 @@
 let router = require("express").Router();
 let { findUser, encrypt, encryptUser, startVerify, verify, emailUsed} = require("./user.js");
 const db = require("../database.js");
-const { checkCreateUser } = require("../../isomorphic/checkAPI.js");
+const { checkCreateUser, checkEmail, checkId } = require("../../isomorphic/checkAPI.js");
 
 router.post("/new", async function(req, res) {
 	let query = req.body;
 	if(!checkCreateUser(query)) {
-		res.status(400).send("FAIL");
+		res.status(400).send("註冊資料不合法");
 		return;
 	}
 	let user = null, email_used = false;
@@ -110,16 +110,23 @@ router.get("/verification", async function(req, res) {
 });
 
 router.get("/email-used", async function(req, res) {
-	let email = req.query.email.trim();
+	let email = req.query.email;
 	let used = false;
-	if(email.length > 0) {
+	if(!checkEmail(email)) {
+		res.send("invalid");
+	} else {
 		used = await emailUsed(email);
+		res.send(used ? "used" : "OK");
 	}
-	res.send(used ? "used" : "OK");
 });
 router.get("/id-used", async function(req, res) {
-	let user = await findUser(req.query.id);
-	res.send(user ? "used" : "OK");
+	let id = req.query.id;
+	if(!checkId(id)) {
+		res.send("invalid");
+	} else {
+		let user = await findUser(req.query.id);
+		res.send(user ? "used" : "OK");
+	}
 });
 
 module.exports = router;

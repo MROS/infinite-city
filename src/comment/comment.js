@@ -17,13 +17,7 @@ async function createComment(author_id, article_id, commentContent) {
 		commentContent: commentContent,
 		date: new Date()
 	};
-	let restricts = await findBackendRules(article.board, ["onComment", "onEnter"] );
-	for(let onComment of article.onComment) {
-		restricts["onComment"].push({ caller: article, func: onComment });
-	}
-	for(let onEnter of article.onEnter) {
-		restricts["onEnter"].push({ caller: article, func: onEnter });
-	}
+	let restricts = await findBackendRules(article.board, ["onComment", "onEnter"], article);
 	let err_msg = doRestricts({ comment: new_comment, article: article },
 		author_id, restricts["onComment"] + restricts["onEnter"]);
 	if (err_msg) {

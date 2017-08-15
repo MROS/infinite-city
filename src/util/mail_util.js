@@ -16,7 +16,7 @@ function _generateVerificationMsg(user_id, guid) {
 				throw `未知的環境：${config.env}`;
 		}
 	})();
-	let url = `${base_url}/api/user/verification?guid=${guid}`;
+	let url = `${base_url}/app/verification?guid=${guid}`;
 	return `<h1>${user_id}，歡迎來到∞無限城∞！</h1>
 	<p>恭喜你，即將成為全台最二社群網站的一員。立刻點擊下列網址開通你的帳號，開始享受你的無限人生吧！</p>
 	<a href="${url}">${url}</a>

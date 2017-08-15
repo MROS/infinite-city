@@ -1,3 +1,16 @@
+function strictlyIncludes(tar, keys) {
+	if(Object.keys(tar).length != keys.length) {
+		return false;
+	} else {
+		for(let key of keys) {
+			if(!Object.keys(tar).includes(key)) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 function checkEvalType(e) {
 	return ["string", "function"].includes(e);
 }
@@ -108,18 +121,20 @@ function checkNewBoard(board) {
 	return true;
 }
 
-function _checkEmail(email) {
+function checkEmail(email) {
+	if(!email) {
+		return false;
+	}
 	let a = email.split("@");
 	if(a.length != 2) { return false; }
 	return NotOnlyEmpty(a[0]) && NotOnlyEmpty(a[1]);
 }
+function checkId(id) {
+	return id && NotOnlyEmpty(id) && (id.search(/[ |\n]/) == -1);
+}
 function checkCreateUser(user) {
-	if (Object.keys(user).length != 3) { return false; }
-	if (!Object.keys(user).includes("email")) { return false; }
-	if (!Object.keys(user).includes("id")) { return false; }
-	if (!Object.keys(user).includes("password")) { return false; }
-	if (user["id"].search(/[ |\n]/) != -1) { return false; }
-	return _checkEmail(user["email"]) && NotOnlyEmpty(user["id"]) && NotOnlyEmpty(user["password"]);
+	return strictlyIncludes(user, ["email", "id", "password"]) && checkEmail(user["email"])
+		&& checkId(user["id"]) && NotOnlyEmpty(user["password"]);
 }
 
 module.exports = {
@@ -140,4 +155,6 @@ module.exports = {
 	checkNewArticle,
 	checkCreateUser,
 	allOK,
+	checkEmail,
+	checkId
 };

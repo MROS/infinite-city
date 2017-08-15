@@ -39,10 +39,12 @@ async function createBoard(manager_id, name, parent_id,
 	setRule(new_board, backendRules, "onNewArticle");
 	setRule(new_board, backendRules, "onComment");
 
-	let restricts = await findBackendRules(parent, "onNewBoard");
-	let err_msg = doRestricts({ board: new_board }, manager_id, restricts);
-	if(err_msg) {
-		return { err_msg };
+	let restricts = await findBackendRules(parent, ["onNewBoard", "onEnter"]);
+	for(let key of ["onNewBoard", "onEnter"]) {
+		let err_msg = doRestricts({ board: new_board }, manager_id, restricts[key]);
+		if (err_msg) {
+			return { err_msg };
+		}
 	}
 
 	let new_id = (await db.Board.create(new_board))._id;
