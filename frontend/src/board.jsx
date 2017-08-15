@@ -507,6 +507,10 @@ class Board extends React.Component {
 			articles: [],
 			showBoard: false,
 			showArticle: false,
+			authority: {
+				onNewArticle: false,
+				onNewBoard: false,
+			}
 		};
 		this.newBoard = this.newBoard.bind(this);
 		this.newArticle = this.newArticle.bind(this);
@@ -559,7 +563,8 @@ class Board extends React.Component {
 							this.setState({
 								boards, articles, showBoard, showArticle,
 								articleForm: data.board.articleForm,
-								board: data.board
+								board: data.board,
+								authority: data.authority,
 							});
 					}
 				});
@@ -578,10 +583,26 @@ class Board extends React.Component {
 	}
 	changePanel(panel) {
 		return () => {
-			if (this.state.showPanel == panel) {
-				this.setState({ showPanel: "" });
-			} else {
-				this.setState({ showPanel: panel });
+			let auth;
+			switch (panel) {
+				case "createArticle":
+					auth = this.state.authority.onNewArticle;
+					if (!auth.ok) {
+						this.props.notify({ message: `發文權限不足：${auth.msg}`, level: "error" });
+						return;
+					}
+				case "createBoard":
+					auth = this.state.authority.onNewBoard;
+					if (!auth.ok) {
+						this.props.notify({ message: `創建看板權限不足：${auth.msg}`, level: "error" });
+						return;
+					}
+				default:
+					if (this.state.showPanel == panel) {
+						this.setState({ showPanel: "" });
+					} else {
+						this.setState({ showPanel: panel });
+					}
 			}
 		};
 	}
@@ -683,26 +704,20 @@ class Board extends React.Component {
 		return (
 			<div>
 				<div style={{ marginBottom: "30px" }}>
-					{
-						(() => {
-							if (this.props.appState.login) {
-								return ([
-									<a className={this.state.showPanel == "createArticle" ? "button is-success" : "button"}
-										key="createArticle"
-										style={{ marginBottom: "15px", marginRight: "12px" }}
-										onClick={this.changePanel("createArticle")}>
-										發文
-									</a>,
-									<a className={this.state.showPanel == "createBoard" ? "button is-success" : "button"}
-										key="createBoard"
-										style={{ marginBottom: "15px", marginRight: "12px" }}
-										onClick={this.changePanel("createBoard")}>
-										創建新板
-									</a>
-								]);
-							}
-						})()
-					}
+					<a className={this.state.showPanel == "createArticle" ? "button is-success" : "button"}
+						key="createArticle"
+						disabled={!this.state.authority.onNewArticle.ok}
+						style={{ marginBottom: "15px", marginRight: "12px" }}
+						onClick={this.changePanel("createArticle")}>
+						發文
+					</a>
+					<a className={this.state.showPanel == "createBoard" ? "button is-success" : "button"}
+						key="createBoard"
+						disabled={!this.state.authority.onNewBoard.ok}
+						style={{ marginBottom: "15px", marginRight: "12px" }}
+						onClick={this.changePanel("createBoard")}>
+						創建新板
+					</a>
 					<a className={this.state.showPanel == "watchSource" ? "button is-success" : "button"}
 						style={{ marginBottom: "15px" }}
 						onClick={this.changePanel("watchSource")}>
