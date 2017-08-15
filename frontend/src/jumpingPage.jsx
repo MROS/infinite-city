@@ -7,9 +7,10 @@ export default class JumpingPage extends React.Component {
 		};
 	}
 	componentDidMount() {
+		let time = this.props.time ? this.props.time : 5000;
 		let timer = setTimeout(() => {
 			this.props.history.goBack();
-		}, 5000);
+		}, time);
 		this.setState({ timer });
 	}
 	componentWillUnmount() {

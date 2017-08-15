@@ -10,6 +10,7 @@ import Article from "./article.jsx";
 import Board from "./board.jsx";
 import { Login, } from "./user.jsx";
 import SignUpForm from "./signupform.jsx";
+import Verification from "./verification.jsx";
 import NotificationSystem from "react-notification-system";
 
 class App extends React.Component {
@@ -126,6 +127,9 @@ class App extends React.Component {
 							)} />
 							<Route path="/app(/b/[^/]+)*/a/:articleName" render={(props) => (
 								<Article appState={this.state} notify={this.notify} {...props} />
+							)} />
+							<Route path="/app/verification" render={(props) => (
+								<Verification appState={this.state} notify={this.notify} {...props} />
 							)} />
 						</Switch>
 					</div>
