@@ -1,5 +1,5 @@
 import React from "react";
-import { fromJS, Map } from "immutable";
+import { fromJS, Map, List } from "immutable";
 import { Link } from "react-router-dom";
 import { LabelArrayToObject, LabelObjectToArray } from "./util";
 import VariableInput from "./variableInput.jsx";
@@ -22,7 +22,7 @@ class InputComment extends React.Component {
 	createStatebyProps(props) {
 		let initComment = {};
 		props.commentForm.forEach((item) => {
-			initComment[item.label] = "";
+			initComment[item.get("label")] = "";
 		});
 		console.log(initComment);
 		return fromJS(initComment);
@@ -36,7 +36,7 @@ class InputComment extends React.Component {
 	}
 	isAllValid() {
 		const content = this.state.comment.toJS();
-		const form = this.props.commentForm;
+		const form = this.props.commentForm.toJS();
 		return checkAPI.checkAllMatchRestrict(content, form);
 	}
 	setComment(comment) {
@@ -48,7 +48,7 @@ class InputComment extends React.Component {
 	onSubmitComment() {
 		if (this.isAllValid()) {
 			const obj = this.state.comment.toJS();
-			const commentContent = LabelObjectToArray(obj, this.props.commentForm);
+			const commentContent = LabelObjectToArray(obj, this.props.commentForm.toJS());
 			this.props.submitComment(commentContent);
 		} else {
 			console.log("未滿足條件，不發出請求");
@@ -81,7 +81,7 @@ class Article extends React.Component {
 		this.state = {
 			content: "",
 			comments: [],
-			commentForm: [],
+			commentForm: new List(),
 			articleContent: [],
 		};
 		this.URLquery = {};
@@ -213,7 +213,7 @@ class Article extends React.Component {
 								title: data.title,
 								date: new Date(data.date),
 								articleContent: data.articleContent,
-								commentForm: data.commentForm,
+								commentForm: fromJS(data.commentForm),
 								comments: data.comment
 							});
 					}

@@ -306,7 +306,7 @@ class CreateArticle extends React.Component {
 		};
 		let initArticle = {};
 		this.props.articleForm.forEach((item) => {
-			initArticle[item.label] = "";
+			initArticle[item.get("label")] = "";
 		});
 		this.state = {
 			title: "",
@@ -325,7 +325,7 @@ class CreateArticle extends React.Component {
 	}
 	handleOnSubmit() {
 		let { title, articleContent, rules } = this.state;
-		articleContent = LabelObjectToArray(articleContent.toJS(), this.props.articleForm);
+		articleContent = LabelObjectToArray(articleContent.toJS(), this.props.articleForm.toJS());
 		let article = {
 			title,
 			articleContent,
@@ -562,7 +562,7 @@ class Board extends React.Component {
 							const showArticle = !showBoard;
 							this.setState({
 								boards, articles, showBoard, showArticle,
-								articleForm: data.board.articleForm,
+								articleForm: fromJS(data.board.articleForm),
 								board: data.board,
 								authority: data.authority,
 							});
@@ -608,7 +608,7 @@ class Board extends React.Component {
 	}
 	newArticle(articleDefinition) {
 		let body = articleDefinition;
-		if (!checkAPI.checkNewArticle(body, this.state.articleForm)) {
+		if (!checkAPI.checkNewArticle(body, this.state.articleForm.toJS())) {
 			this.props.notify({ message: "發文失敗，請檢查格式是否正確（消除所有警告）", level: "error" });
 			return;
 		}
