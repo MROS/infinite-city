@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+
 export default class Verification extends React.Component {
 	constructor(props) {
 		super(props);
@@ -10,7 +12,6 @@ export default class Verification extends React.Component {
 		this.state = {
 			waiting: true,
 			ok: false,
-			err_msg: null
 		};
 	}
 	componentDidMount() {
@@ -23,10 +24,15 @@ export default class Verification extends React.Component {
 					this.setState({ ok: true, waiting: false });
 				} else {
 					this.setState({ ok: false });
+					if(res.status == 401) {
+						this.props.history.push("/app/login?time=0");
+					} else if(res.status == 403) {
+						this.setState({ ok: false, waiting: false });
+					} else {
+						console.log("未知的錯誤");
+					}
 				}
 				return res.text();
-			}).then(txt => {
-				this.setState({ err_msg: txt, waiting: false });
 			});
 		}
 	}
@@ -44,7 +50,7 @@ export default class Verification extends React.Component {
 			return (
 				<div>
 					<h1 className="title is-3">發生了一點錯誤QmmQ</h1>
-					<p>{this.state.err_msg}</p>
+					<p>您的認證資料有誤或已過期，請點擊<Link to="/app">這裡</Link>重發認證信。</p>
 				</div>
 			);
 		}

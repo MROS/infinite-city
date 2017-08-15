@@ -187,6 +187,7 @@ class SignUpForm extends React.Component {
 			}
 		}).catch(err => {
 			this.props.notify({ message: "AJAX失敗，註冊失敗", level: "error" });
+			console.log(err);
 		});
 	}
 	handleChange(key, tar) {
@@ -197,7 +198,7 @@ class SignUpForm extends React.Component {
 	render() {
 		if(this.state.justSuccess) {
 			return (
-				<JumpingPage history={this.props.history}>
+				<JumpingPage history={this.props.history} location={this.props.location}>
 					<p>恭喜！{this.state.id}</p>
 					<p>您已經成功註冊，將在五秒內跳轉回<a onClick={this.props.history.goBack}>上個瀏覽頁面</a></p>
 				</JumpingPage>

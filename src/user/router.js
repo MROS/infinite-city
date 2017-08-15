@@ -36,7 +36,6 @@ router.post("/new", async function(req, res) {
 			user.email = query.email;
 			await db.User.create(user);
 			req.session.user_id = query.id;
-			req.session.verified = false;
 			res.send("OK");
 		} catch(err) {
 			res.status(500).send("FAIL");
@@ -58,7 +57,6 @@ router.post("/login", async function(req, res) {
 	}
 	if (user && encrypt(password, user.salt) == user.password) {
 		req.session.user_id = id;
-		req.session.verified = user.verified;
 		res.send("OK");
 	}
 	else {
@@ -90,15 +88,10 @@ router.get("/verification", async function(req, res) {
 		if(!user_id) {
 			res.status(401).send("尚未登入");
 		} else {
-			if (req.session.verified) {
-				res.status(403).send("重複認證");
-				return;
-			}
 			let ok = await verify(user_id, guid);
 			if (ok) {
 				res.send("OK");
 				await db.User.update({ id: user_id }, { verified: true }).exec();
-				req.session.verified = true;
 			} else {
 				res.status(403).send("FAIL");
 			}

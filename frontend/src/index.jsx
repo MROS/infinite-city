@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import Article from "./article.jsx";
 import Board from "./board.jsx";
-import { Login, } from "./user.jsx";
+import { Login } from "./user.jsx";
 import SignUpForm from "./signupform.jsx";
 import Verification from "./verification.jsx";
 import NotificationSystem from "react-notification-system";

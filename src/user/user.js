@@ -44,7 +44,7 @@ async function verify(user_id, guid) {
 	}
 	let deadline = new Date(new Date() - 5*60*1000); // 五分鐘內認證才算數
 	try {
-		let verify_info = await db.UserVerification.findOne({
+		let verify_info = await db.UserVerification.findOneAndRemove({
 			_id: guid,
 			userId: user_id,
 			createdDate: { $gt: deadline }
