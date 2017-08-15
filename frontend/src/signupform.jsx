@@ -1,5 +1,6 @@
 import React from "react";
 import { checkId, checkEmail } from "../../isomorphic/checkAPI.js";
+import JumpingPage from "./jumpingPage.jsx";
 
 const WARNING_STYLE = {
 	fontSize: "10px",
@@ -55,7 +56,7 @@ class CheckUsedInput extends React.Component {
 						onChange={this.onChangeData}
 						className={ok ? "input is-sucess" : "input is-danger"}></input>
 					<span className="icon is-small is-left">
-						{this.props.icon}
+						{this.props.children}
 					</span>
 				</p>
 				{
@@ -150,6 +151,7 @@ class SignUpForm extends React.Component {
 			password: null,
 			email: null,
 			submitFail: false,
+			justSuccess: false,
 		};
 	}
 	submitForm() {
@@ -172,7 +174,8 @@ class SignUpForm extends React.Component {
 			body: JSON.stringify(request)
 		}).then(res => {
 			if (res.ok) {
-				this.props.notify({ message: "註冊成功", level: "success" });
+				this.props.changeLoginState(true, this.state.id);
+				this.setState({ justSuccess: true });
 			} else {
 				switch (res.status) {
 					case 403:
@@ -190,32 +193,46 @@ class SignUpForm extends React.Component {
 		this.setState(state_change);
 	}
 	render() {
-		return <div>
-			<CheckUsedInput
-				label="使用者名稱"
-				url="/api/user/id-used?id="
-				handleChange={this.handleChange.bind(this, "id")}
-				submitFail={this.state.submitFail}
-				check={checkId}
-				icon={<i className="fa fa-user-o"></i>}/>
-			<CheckSamePassword
-				submitFail={this.state.submitFail}
-				handleChange={this.handleChange.bind(this, "password")}/>
-			<CheckUsedInput
-				label="email"
-				url="/api/user/email-used?email="
-				handleChange={this.handleChange.bind(this, "email")}
-				submitFail={this.state.submitFail}
-				check={checkEmail}
-				icon={<i className="fa fa-envelope"></i>}/>
-			<div className="field">
-				<p className="control">
-					<button className="button" onClick={this.submitForm.bind(this)}>
-						註冊
-					</button>
-				</p>
-			</div>
-		</div>;
+		if (this.props.appState.login == true) {
+			return (
+				<p>您好，{this.props.appState.id}，請先登出再註冊</p>
+			);
+		}
+		else if(this.state.justSuccess) {
+			return (
+				<JumpingPage history={this.props.history}>
+					<p>恭喜！{this.state.id}</p>
+					<p>您已經成功註冊，將在五秒內跳轉回<a onClick={this.props.history.goBack}>上個瀏覽頁面</a></p>
+				</JumpingPage>
+			);
+		} else {
+			return (
+				<div>
+					<CheckUsedInput
+						label="使用者名稱"
+						url="/api/user/id-used?id="
+						handleChange={this.handleChange.bind(this, "id")}
+						submitFail={this.state.submitFail}
+						check={checkId}> <i className="fa fa-user-o"></i> </CheckUsedInput>
+					<CheckSamePassword
+						submitFail={this.state.submitFail}
+						handleChange={this.handleChange.bind(this, "password")} />
+					<CheckUsedInput
+						label="email"
+						url="/api/user/email-used?email="
+						handleChange={this.handleChange.bind(this, "email")}
+						submitFail={this.state.submitFail}
+						check={checkEmail}> <i className="fa fa-envelope"></i> </CheckUsedInput>
+					<div className="field">
+						<p className="control">
+							<button className="button" onClick={this.submitForm.bind(this)}>
+								註冊
+							</button>
+						</p>
+					</div>
+				</div>
+			);
+		}
 	}
 }
 
