@@ -6,16 +6,17 @@ import { LabelArrayToObject, LabelObjectToArray } from "./util";
 import SourceCode from "./sourceCode.jsx";
 import checkAPI from "../../isomorphic/checkAPI.js";
 
-function ruleToState(rules) {
+function ruleToState(rules, upperForm) {
 	let ret = {};
-	Object.keys(rules).forEach((ruleName) => {
+	["renderRules", "backendRules"].forEach((ruleName) => {
 		ret[ruleName] = {};
 		rules[ruleName].textarea.forEach((option) => {
 			ret[ruleName][option.name] = "";
 		});
-		rules[ruleName].formRule.forEach((option) => {
-			ret[ruleName][option.name] = [{ label: "", restrict: "", evalType: "string" }];
-		});
+	});
+	ret["formRules"] = {};
+	Object.keys(upperForm).forEach((formName) => {
+		ret["formRules"][formName] = upperForm[formName].map(({label, restrict, evalType}) => ({label, restrict, evalType}));
 	});
 	return fromJS(ret);
 }
@@ -233,6 +234,7 @@ class RuleGroup extends React.Component {
 						const ruleDef = this.props.ruleDefinitions[someRule];
 						const ruleState = this.props.ruleState.get(someRule);
 						const ruleStateTransform = Object.values(ruleState.toJS());
+						console.log(`${someRule}: ${JSON.stringify(ruleStateTransform)}`);
 						return (
 							<Extendable
 								ok={checkAPI.allOK(ruleStateTransform, ruleDef.check)}
@@ -308,10 +310,13 @@ class CreateArticle extends React.Component {
 		this.props.articleForm.forEach((item) => {
 			initArticle[item.get("label")] = "";
 		});
+		const upperForm = {
+			commentForm: this.props.commentForm,
+		};
 		this.state = {
 			title: "",
 			articleContent: fromJS(initArticle),
-			rules: ruleToState(this.rules),
+			rules: ruleToState(this.rules, upperForm),
 		};
 		this.handleTitleChange = this.handleTitleChange.bind(this);
 		this.handleOnSubmit = this.handleOnSubmit.bind(this);
@@ -416,9 +421,13 @@ class CreateBoard extends React.Component {
 				formRule: []
 			}
 		};
+		const upperForm = {
+			articleForm: this.props.articleForm,
+			commentForm: this.props.commentForm,
+		};
 		this.state = {
 			name: "",
-			rules: ruleToState(this.rules),
+			rules: ruleToState(this.rules, upperForm),
 		};
 		this.handleNameChange = this.handleNameChange.bind(this);
 		this.handleOnSubmit = this.handleOnSubmit.bind(this);
@@ -608,7 +617,7 @@ class Board extends React.Component {
 	}
 	newArticle(articleDefinition) {
 		let body = articleDefinition;
-		if (!checkAPI.checkNewArticle(body, this.state.articleForm.toJS())) {
+		if (!checkAPI.checkNewArticle(body, this.state.board.articleForm)) {
 			this.props.notify({ message: "發文失敗，請檢查格式是否正確（消除所有警告）", level: "error" });
 			return;
 		}
@@ -733,14 +742,20 @@ class Board extends React.Component {
 										<h4 className="title is-4">發文</h4>
 										<CreateArticle
 											newArticle={this.newArticle}
-											articleForm={this.state.articleForm} />
+											articleForm={this.state.articleForm}
+											commentForm={this.state.board.commentForm}
+										/>
 									</div>
 								);
 							case "createBoard":
 								return (
 									<div className="box" style={{ marginBottom: "30px" }}>
 										<h4 className="title is-4">創建新版</h4>
-										<CreateBoard newBoard={this.newBoard} />
+										<CreateBoard
+											newBoard={this.newBoard}
+											articleForm={this.state.board.articleForm}
+											commentForm={this.state.board.commentForm}
+										/>
 									</div>
 								);
 							case "watchSource":

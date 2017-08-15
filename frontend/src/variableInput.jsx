@@ -33,8 +33,6 @@ class VariableInput extends React.Component {
 		return checkAPI.checkMatchRestrict(label, data, this.props.dataForm.toJS());
 	}
 	toggleSource(label) {
-		console.log(`toggle ${label}`);
-		console.log(this.state.show.update(label, x => !x).toJS());
 		return () => {
 			this.setState({
 				show: this.state.show.update(label, x => !x)
