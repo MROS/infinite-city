@@ -86,7 +86,9 @@ class VariableInput extends React.Component {
 								<div>
 									{
 										this.state.show.get(label) ?
-											<div>限制條件 <SourceCode code={item.get("restrict")} /></div> :
+											<div style={{marginBottom: "15px"}}>
+												限制條件 <SourceCode code={item.get("restrict")} />
+											</div> :
 											""
 									}
 								</div>

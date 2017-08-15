@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { LabelArrayToObject, LabelObjectToArray } from "./util";
 import VariableInput from "./variableInput.jsx";
 import checkAPI from "../../isomorphic/checkAPI.js";
+import SourceCode from "./sourceCode.jsx";
 
 class InputComment extends React.Component {
 	constructor(props) {
@@ -79,6 +80,7 @@ class Article extends React.Component {
 		// - comments，裡面都是 comment，爲一個陣列，內部可爲字串或函數
 		super(props);
 		this.state = {
+			showCommentSource: new List(),
 			content: "",
 			comments: [],
 			commentForm: new List(),
@@ -94,6 +96,7 @@ class Article extends React.Component {
 		this.submitComment = this.submitComment.bind(this);
 		this.renderComments = this.renderComments.bind(this);
 		this.renderArticle = this.renderArticle.bind(this);
+		this.toggleCommentSource = this.toggleCommentSource.bind(this);
 	}
 	countPath() {
 		const urlPath = this.props.location.pathname;
@@ -174,20 +177,53 @@ class Article extends React.Component {
 			);
 		});
 	}
+	toggleCommentSource(index) {
+		return () => {
+			if (!this.state.showCommentSource.has(index)) {
+				this.setState({
+					showCommentSource: this.state.showCommentSource.set(index, true)
+				});
+			} else {
+				this.setState({
+					showCommentSource: this.state.showCommentSource.update(index, x => !x)
+				});
+			}
+		};
+	}
 	renderComments() {
 		const renderComment = (comment, exposedData) => {
 			return comment.commentContent.map(item => this.evaluateItem(item, exposedData));
 		};
 		return this.state.comments.map((comment, index) => {
 			const exposedData = this.createExposedDataForComment(comment, index);
+			const showCommentSource = this.state.showCommentSource.get(index);
 			return (
 				<div key={index}>
-					<span style={{ color: "blue" }}>{comment.author}</span>
-					<span>：</span>
-					<span>
-						{ renderComment(comment, exposedData) }
-					</span>
-					<hr />
+					<div style={{marginBottom: "5px"}}>
+						<a className={showCommentSource ? "button is-success" : "button"}
+							style={{ fontSize: "10px" }}
+							onClick={this.toggleCommentSource(index)}
+							data-balloon-pos="up"
+							data-balloon={`${showCommentSource ? "隱藏" : "顯示"}留言源碼`}
+						>
+							<span className="icon is-small">
+								<i className="fa fa-code"></i>
+							</span>
+						</a>
+					</div>
+					<div>
+						<span style={{ color: "blue" }}>{comment.author}</span>
+						<span>：</span>
+						<span>
+							{renderComment(comment, exposedData)}
+						</span>
+					</div>
+					{
+						showCommentSource ?
+							<SourceCode code={comment.commentContent.map(item => `${item.label}: ${item.body}`).join("\n")}/> :
+							""
+					}
+					<hr style={{marginBottom: "5px", marginTop: "15px"}} />
 				</div>
 			);
 		});
@@ -279,9 +315,9 @@ class Article extends React.Component {
 					</div>
 				</div>
 				<div style={{marginBottom: "25px"}}> { this.renderArticle() } </div>
-				<div>
+				<div style={{marginBottom: "35px"}}>
 					<h5 className="title is-5">留言區</h5>
-					<hr />
+					<hr style={{marginBottom: "5px"}}/>
 					{ this.renderComments() }
 				</div>
 				<InputComment

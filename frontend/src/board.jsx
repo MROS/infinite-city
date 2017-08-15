@@ -234,7 +234,6 @@ class RuleGroup extends React.Component {
 						const ruleDef = this.props.ruleDefinitions[someRule];
 						const ruleState = this.props.ruleState.get(someRule);
 						const ruleStateTransform = Object.values(ruleState.toJS());
-						console.log(`${someRule}: ${JSON.stringify(ruleStateTransform)}`);
 						return (
 							<Extendable
 								ok={checkAPI.allOK(ruleStateTransform, ruleDef.check)}
