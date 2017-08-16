@@ -307,14 +307,16 @@ class Article extends React.Component {
 				<Link to={boardURL}>
 					<div style={{marginBottom: "10px"}}> 回看板 </div>
 				</Link>
-				<div style={{ marginBottom: "28px" }}>
+				<div style={{ marginBottom: "28px", fontSize: "13px", color: "grey" }}>
 					<h3 className="title is-3">{match.params.articleName}</h3>
 					<div>
 						<div>作者：{this.state.author}</div>
 						<div>{this.formatDate(this.state.date)}</div>
 					</div>
 				</div>
-				<div style={{marginBottom: "25px"}}> { this.renderArticle() } </div>
+				<div style={{marginBottom: "25px"}}>
+					{this.renderArticle()}
+				</div>
 				<div style={{marginBottom: "35px"}}>
 					<h5 className="title is-5">留言區</h5>
 					<hr style={{marginBottom: "5px"}}/>
