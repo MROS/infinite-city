@@ -1,16 +1,21 @@
 "use strict";
 
 const express = require("express");
-const morgan = require("morgan");
 const path = require("path");
-let bodyParser = require("body-parser");
-let session = require("express-session");
 
 let app = express();
 
+const morgan = require("morgan");
 app.use(morgan("dev"));
+
+const bodyParser = require("body-parser");
 app.use(bodyParser.json());
+
+const session = require("express-session");
+const RedisStore = require("connect-redis")(session);
+
 app.use(session({
+	store: new RedisStore({ host: "127.0.0.1", port: 6379 }),
 	secret: "recommand 128 bytes random string",
 	cookie: { maxAge: 15 * 24 * 60 * 60 * 1000 }, // 十五天
 	resave: true,
