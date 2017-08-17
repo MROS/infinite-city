@@ -2,7 +2,7 @@ import React from "react";
 import { fromJS, Map, List } from "immutable";
 import { Link } from "react-router-dom";
 import VariableInput from "./variableInput.jsx";
-import { LabelArrayToObject, LabelObjectToArray } from "./util";
+import { LabelArrayToObject, LabelObjectToArray, pick } from "./util";
 import SourceCode from "./sourceCode.jsx";
 import checkAPI from "../../isomorphic/checkAPI.js";
 
@@ -16,7 +16,7 @@ function ruleToState(rules, upperForm) {
 	});
 	ret["formRules"] = {};
 	Object.keys(upperForm).forEach((formName) => {
-		ret["formRules"][formName] = upperForm[formName].map(({label, restrict, evalType}) => ({label, restrict, evalType}));
+		ret["formRules"][formName] = upperForm[formName].map(x => pick(["label", "restrict", "evalType"], x));
 	});
 	return fromJS(ret);
 }

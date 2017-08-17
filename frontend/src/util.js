@@ -11,3 +11,11 @@ export function LabelObjectToArray(obj, form) {
 		return { body: obj[item.label], label: item.label };
 	});
 }
+
+export function pick(keyArray, obj) {
+	let ret = {};
+	for (let key of keyArray) {
+		ret[key] = obj[key];
+	}
+	return ret;
+}

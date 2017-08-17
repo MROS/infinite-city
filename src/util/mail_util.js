@@ -11,7 +11,7 @@ function _generateVerificationMsg(user_id, guid) {
 			case "test":
 				return `http://localhost:${config.PORT}`;
 			case "production":
-				return  "http://city-of-infinity.com";
+				return "http://city-of-infinity.com";
 			default:
 				throw `未知的環境：${config.env}`;
 		}

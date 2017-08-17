@@ -81,6 +81,7 @@ class Article extends React.Component {
 		super(props);
 		this.state = {
 			showCommentSource: new List(),
+			showArticleSource: false,
 			content: "",
 			comments: [],
 			commentForm: new List(),
@@ -97,6 +98,7 @@ class Article extends React.Component {
 		this.renderComments = this.renderComments.bind(this);
 		this.renderArticle = this.renderArticle.bind(this);
 		this.toggleCommentSource = this.toggleCommentSource.bind(this);
+		this.toggleArticleSource = this.toggleArticleSource.bind(this);
 	}
 	countPath() {
 		const urlPath = this.props.location.pathname;
@@ -162,20 +164,32 @@ class Article extends React.Component {
 		}
 	}
 	renderArticle() {
-		const exposedData = this.createExposedDataForArticle();
-		return this.state.articleContent.map((item, index) => {
-			return (
-				<div key={index}>
-					{
-						this.evaluateItem(item, exposedData).split("\n").map((p, index) => {
-							if (p == "") { return <br key={index} />; }
-							else { return <p key={index}>{p}</p>; }
-						})
-					}
-					<br />
-				</div>
-			);
-		});
+		if (this.state.showArticleSource == true) {
+			return this.state.articleContent.map((item) => {
+				return (
+					<div key={item.label}>
+						<div>標籤：{item.label}</div>
+						<div>型別：{item.evalType}</div>
+						<SourceCode code={item.body} />
+					</div>
+				);
+			});
+		} else if (this.state.showArticleSource == false) {
+			const exposedData = this.createExposedDataForArticle();
+			return this.state.articleContent.map((item, index) => {
+				return (
+					<div key={index}>
+						{
+							this.evaluateItem(item, exposedData).split("\n").map((p, index) => {
+								if (p == "") { return <br key={index} />; }
+								else { return <p key={index}>{p}</p>; }
+							})
+						}
+						<br />
+					</div>
+				);
+			});
+		}
 	}
 	toggleCommentSource(index) {
 		return () => {
@@ -297,6 +311,11 @@ class Article extends React.Component {
 	componentDidMount() {
 		this.getArticleData();
 	}
+	toggleArticleSource() {
+		this.setState({
+			showArticleSource: !this.state.showArticleSource
+		});
+	}
 	render() {
 		const match = this.props.match;
 		const location = this.props.location;
@@ -304,10 +323,29 @@ class Article extends React.Component {
 		const boardURL = sp.slice(0, sp.length - 2).join("/");
 		return (
 			<div>
-				<Link to={boardURL}>
-					<div style={{marginBottom: "10px"}}> 回看板 </div>
-				</Link>
-				<div style={{ marginBottom: "28px", fontSize: "13px", color: "grey" }}>
+				<div>
+					<div style={{ float: "left" }}>
+						<Link to={boardURL}>
+							<div style={{ marginBottom: "10px" }}> 回看板 </div>
+						</Link>
+					</div>
+					<div style={{ float: "right" }}>
+						<a className="button" href="#commentArea">
+							<span className="icon is-small">
+								<i className="fa fa-comment-o"></i>
+							</span>
+						</a>
+						<a
+							className={this.state.showArticleSource ? "button is-success" : "button"}
+							onClick={this.toggleArticleSource}
+						>
+							<span className="icon is-small">
+								<i className="fa fa-code"></i>
+							</span>
+						</a>
+					</div>
+				</div>
+				<div style={{ clear: "left", marginBottom: "32px", fontSize: "13px", color: "grey" }}>
 					<h3 className="title is-3">{match.params.articleName}</h3>
 					<div>
 						<div>作者：{this.state.author}</div>
@@ -317,7 +355,7 @@ class Article extends React.Component {
 				<div style={{marginBottom: "25px"}}>
 					{this.renderArticle()}
 				</div>
-				<div style={{marginBottom: "35px"}}>
+				<div id="commentArea" style={{marginBottom: "35px"}}>
 					<h5 className="title is-5">留言區</h5>
 					<hr style={{marginBottom: "5px"}}/>
 					{ this.renderComments() }
