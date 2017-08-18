@@ -52,5 +52,6 @@ yarn start
 也提供另個 npm script 一次安裝、編譯、並以 production 環境啓動
 
 ``` sh
-yarn deploy
+yarn deploy:first          # 用於第一次部屬
+yarn deploy                # pm2 裡若有記錄可用此指令更新伺服器（restart）
 ```

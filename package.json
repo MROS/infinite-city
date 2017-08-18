@@ -10,9 +10,11 @@
     "mongoose": "^4.11.3",
     "morgan": "^1.8.2",
     "optimist": "^0.6.1",
+    "pm2": "^2.6.1",
     "readline-sync": "^1.4.7"
   },
   "scripts": {
+    "deploy:first": "cd frontend; yarn; yarn build:prod; cd ..; yarn; env=production pm2 start src/entry.js",
     "deploy": "cd frontend; yarn; yarn build:prod; cd ..; yarn; env=production pm2 restart src/entry.js",
     "start": "node src/entry.js",
     "dbtool": "node src/db_tools.js",
