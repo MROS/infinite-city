@@ -6,12 +6,11 @@ import {
 	Route,
 	Link
 } from "react-router-dom";
+import NotificationSystem from "react-notification-system";
 import Article from "./article.jsx";
 import Board from "./board.jsx";
 import { Login } from "./user.jsx";
-import SignUpForm from "./signupform.jsx";
-import Verification from "./verification.jsx";
-import NotificationSystem from "react-notification-system";
+import { SignUpForm, StartVerifyForm } from "./signup.jsx";
 
 class App extends React.Component {
 	constructor(props) {
@@ -104,7 +103,7 @@ class App extends React.Component {
 												} else {
 													return [
 														<Link key="login" to="/app/login" className="navbar-item">登入</Link>,
-														<Link key="signUp" to="/app/signUp" className="navbar-item">註冊</Link>
+														<Link key="signUp" to="/app/start-verify" className="navbar-item">註冊</Link>
 													];
 												}
 											})()
@@ -119,7 +118,10 @@ class App extends React.Component {
 							<Route exact path="/app/login" render={(props) => (
 								<Login appState={this.state} notify={this.notify} changeLoginState={this.changeLoginState} {...props} />
 							)} />
-							<Route exact path="/app/signUp" render={(props) => (
+							<Route exact path="/app/start-verify" render={(props) => (
+								<StartVerifyForm appState={this.state} notify={this.notify} {...props} />
+							)} />
+							<Route exact path="/app/sign-up" render={(props) => (
 								<SignUpForm appState={this.state} notify={this.notify} changeLoginState={this.changeLoginState} {...props} />
 							)} />
 							<Route exact path="/app(/b/[^/]+)*" render={(props) => (
@@ -127,9 +129,6 @@ class App extends React.Component {
 							)} />
 							<Route path="/app(/b/[^/]+)*/a/:articleName" render={(props) => (
 								<Article appState={this.state} notify={this.notify} {...props} />
-							)} />
-							<Route path="/app/verification" render={(props) => (
-								<Verification appState={this.state} notify={this.notify} {...props} />
 							)} />
 						</Switch>
 					</div>

@@ -133,7 +133,7 @@ function checkId(id) {
 	return id && NotOnlyEmpty(id) && (id.search(/[ |\n]/) == -1);
 }
 function checkCreateUser(user) {
-	return strictlyIncludes(user, ["email", "id", "password"]) && checkEmail(user["email"])
+	return strictlyIncludes(user, ["guid", "id", "password"])
 		&& checkId(user["id"]) && NotOnlyEmpty(user["password"]);
 }
 

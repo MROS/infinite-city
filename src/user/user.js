@@ -26,36 +26,46 @@ function encryptUser(id, password) {
 	});
 }
 
-async function startVerify(user_id, email) {
-	await db.UserVerification.remove({ userId: user_id }).exec();
+async function startVerify(email) {
+	await db.UserVerification.remove({ email }).exec();
 	let verify_info = await db.UserVerification.create({
-		userId: user_id,
+		email: email,
 		createdDate: new Date()
 	});
 	if(env != "test") { // 測試環境不用這麼麻煩喇
-		await sendVerificationMail(user_id, verify_info._id, email);
+		await sendVerificationMail(verify_info._id, email);
 	}
 	return verify_info._id;
 }
 
-async function verify(user_id, guid) {
+/**
+ * @param {String} guid 
+ * @return {String} 申請認證時用的 email，若為 null 代表 guid 錯誤或過時
+ */
+async function getVerifyEmail(guid) {
 	if(env == "test") {
 		return true;
 	}
-	let deadline = new Date(new Date() - 5*60*1000); // 五分鐘內認證才算數
+	let deadline = new Date(new Date() - 60*60*1000); // 一小時內認證才算數
 	try {
-		let verify_info = await db.UserVerification.findOneAndRemove({
+		let verify_info = await db.UserVerification.findOne({
 			_id: guid,
-			userId: user_id,
 			createdDate: { $gt: deadline }
 		}).lean().exec();
 		if (verify_info) {
-			return true;
+			return verify_info.email;
 		} else {
-			return false;
+			return null;
 		}
 	} catch(err) {
-		return false;
+		return null;
+	}
+}
+
+async function deleteGUID(guid) {
+	let info = await db.UserVerification.findOneAndRemove({ _id: guid });
+	if(!info) {
+		throw `不存在的 guid: ${guid}`;
 	}
 }
 
@@ -65,5 +75,5 @@ async function emailUsed(email) {
 }
 
 module.exports = {
-	findUser, encrypt, encryptUser, startVerify, verify, emailUsed
+	findUser, encrypt, encryptUser, startVerify, getVerifyEmail, emailUsed, deleteGUID
 };

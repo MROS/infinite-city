@@ -6,20 +6,18 @@ export default class JumpingPage extends React.Component {
 		this.state = {
 			timer: null
 		};
-		this.URLquery = {};
-		this.props.location.search.slice(1).split("&").forEach((q) => {
-			let [key, value] = q.split("=");
-			this.URLquery[key] = value;
-		});
 	}
 	componentDidMount() {
-		let time = this.URLquery.time;
-		console.log(time);
-		if(!time) {
+		let time = this.time;
+		if(!time && time != 0) {
 			time = 5000;
 		}
 		let timer = setTimeout(() => {
-			this.props.history.goBack();
+			if(this.props.path) {
+				this.props.history.push(this.props.path);
+			} else {
+				this.props.history.goBack();
+			}
 		}, time);
 		this.setState({ timer });
 	}

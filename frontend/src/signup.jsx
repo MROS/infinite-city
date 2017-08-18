@@ -1,7 +1,7 @@
 import React from "react";
 import { checkId, checkEmail } from "../../isomorphic/checkAPI.js";
 import JumpingPage from "./jumpingPage.jsx";
-
+import { Link } from "react-router-dom";
 const WARNING_STYLE = {
 	fontSize: "10px",
 	color: "red"
@@ -143,6 +143,70 @@ class CheckSamePassword extends React.Component {
 	}
 }
 
+class StartVerifyForm extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			email: null,
+			submitFail: false,
+			justSuccess: false,
+		};
+	}
+	changeEmail(email) {
+		this.setState({ email });
+	}
+	submitForm() {
+		if(!this.state.email) {
+			this.setState({ submitFail: true });
+			this.props.notify({ message: "註冊失敗，請檢查表格內容是否正確", level: "error" });
+			return;
+		} else {
+			fetch("/api/user/start-verify", {
+				method: "POST",
+				credentials: "same-origin",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ email: this.state.email })
+			}).then(res => {
+				if (res.ok) {
+					this.setState({ justSuccess: true });
+				} else {
+					this.props.notify({ message: `註冊失敗，狀態碼 ${res.status}`, level: "error" });
+				}
+			});
+		}
+	}
+	render() {
+		if(this.state.justSuccess) {
+			return (
+				<JumpingPage history={this.props.history}>
+					<h5 className="title is-5">已經成功發信到 {this.state.email}，請在一小時內註冊完成</h5>
+					<p>將在五秒內跳轉回<a onClick={this.props.history.goBack}>上個瀏覽頁面</a></p>
+				</JumpingPage>
+			);
+		} else {
+			return (
+				<div>
+					<CheckUsedInput
+						label="email"
+						url="/api/user/email-used?email="
+						handleChange={this.changeEmail.bind(this)}
+						submitFail={this.state.submitFail}
+						check={checkEmail}> <i className="fa fa-envelope"></i> </CheckUsedInput>
+					<div className="field">
+						<p className="control">
+							<button className="button" onClick={this.submitForm.bind(this)}>
+								發送註冊網址
+							</button>
+						</p>
+					</div>
+				</div>
+			);
+		}
+	}
+}
+
 class SignUpForm extends React.Component {
 	constructor(props) {
 		super(props);
@@ -152,11 +216,31 @@ class SignUpForm extends React.Component {
 			email: null,
 			submitFail: false,
 			justSuccess: false,
+			guidFail: false,
+			waiting: true
 		};
+		this.URLquery = {};
+		this.props.location.search.slice(1).split("&").forEach((q) => {
+			let [key, value] = q.split("=");
+			this.URLquery[key] = value;
+		});
+	}
+	componentDidMount() {
+		fetch(`/api/user/get-email-by-guid?guid=${this.URLquery.guid}`, {
+			credentials: "same-origin"
+		}).then(res => {
+			if(res.ok) {
+				res.text().then(txt => {
+					this.setState({ waiting: false, guidFail: false, email: txt });
+				});
+			} else {
+				this.setState({ waiting: false, guidFail: true });
+			}
+		});
 	}
 	submitForm() {
-		let request = {};
-		for(let key of ["id", "password", "email"]) {
+		let request = { guid: this.URLquery.guid };
+		for(let key of ["id", "password"]) {
 			if(this.state[key]) {
 				request[key] = this.state[key];
 			} else {
@@ -196,11 +280,16 @@ class SignUpForm extends React.Component {
 		this.setState(state_change);
 	}
 	render() {
-		if(this.state.justSuccess) {
+		if(this.state.waiting) {
+			return <p>請稍候...</p>;
+		} else if(this.state.guidFail) {
+			return <p>認證碼錯誤或過期，請點擊<Link to="/app/start-verify">這裡</Link>重發認證信</p>;
+		}
+		else if(this.state.justSuccess) {
 			return (
-				<JumpingPage history={this.props.history} location={this.props.location}>
+				<JumpingPage path="/app" history={this.props.history}>
 					<p>恭喜！{this.state.id}</p>
-					<p>您已經成功註冊，將在五秒內跳轉回<a onClick={this.props.history.goBack}>上個瀏覽頁面</a></p>
+					<p>您已經成功註冊，將在五秒內跳轉回<Link to="/app">首頁</Link></p>
 				</JumpingPage>
 			);
 		} else if (this.props.appState.login == true) {
@@ -210,6 +299,7 @@ class SignUpForm extends React.Component {
 		} else {
 			return (
 				<div>
+					<h5 className="title is-5">{this.state.email}</h5>
 					<CheckUsedInput
 						label="使用者名稱"
 						url="/api/user/id-used?id="
@@ -219,12 +309,6 @@ class SignUpForm extends React.Component {
 					<CheckSamePassword
 						submitFail={this.state.submitFail}
 						handleChange={this.handleChange.bind(this, "password")} />
-					<CheckUsedInput
-						label="email"
-						url="/api/user/email-used?email="
-						handleChange={this.handleChange.bind(this, "email")}
-						submitFail={this.state.submitFail}
-						check={checkEmail}> <i className="fa fa-envelope"></i> </CheckUsedInput>
 					<div className="field">
 						<p className="control">
 							<button className="button" onClick={this.submitForm.bind(this)}>
@@ -238,4 +322,7 @@ class SignUpForm extends React.Component {
 	}
 }
 
-export default SignUpForm;
+export {
+	SignUpForm,
+	StartVerifyForm
+};

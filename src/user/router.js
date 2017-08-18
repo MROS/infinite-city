@@ -1,5 +1,6 @@
 let router = require("express").Router();
-let { findUser, encrypt, encryptUser, startVerify, verify, emailUsed} = require("./user.js");
+let { findUser, encrypt, encryptUser, startVerify,
+	getVerifyEmail, deleteGUID, emailUsed } = require("./user.js");
 const db = require("../database.js");
 const { checkCreateUser, checkEmail, checkId } = require("../../isomorphic/checkAPI.js");
 
@@ -9,12 +10,11 @@ router.post("/new", async function(req, res) {
 		res.status(400).send("註冊資料不合法");
 		return;
 	}
-	let user = null, email_used = false;
-	let guid = "";
+	let user = null, email = null;
 	try {
-		[user, email_used] = await Promise.all([
+		[user, email] = await Promise.all([
 			findUser(query.id),
-			emailUsed(query.email)
+			getVerifyEmail(query.guid)
 		]);
 	} catch(err) {
 		res.status(500).send("FAIL");
@@ -23,18 +23,15 @@ router.post("/new", async function(req, res) {
 
 	if(user) {
 		res.status(403).send("ID 已被使用");
-	} else if(email_used) {
-		res.status(403).send("e-mail 已被使用");
-	}
-	else {
+	} else {
 		try {
-			[user, guid] = await Promise.all([
-				encryptUser(query.id, query.password),
-				startVerify(query.id, query.email)
-			]);
+			user = await encryptUser(query.id, query.password);
 			user.date = new Date();
-			user.email = query.email;
-			await db.User.create(user);
+			user.email = email;
+			await Promise.all([
+				db.User.create(user),
+				deleteGUID(query.guid)
+			]);
 			req.session.user_id = query.id;
 			res.send("OK");
 		} catch(err) {
@@ -82,26 +79,6 @@ router.get("/who", async function(req, res) {
 	}
 });
 
-router.get("/verification", async function(req, res) {
-	try {
-		let [user_id, guid] = [req.session.user_id, req.query.guid];
-		if(!user_id) {
-			res.status(401).send("尚未登入");
-		} else {
-			let ok = await verify(user_id, guid);
-			if (ok) {
-				res.send("OK");
-				await db.User.update({ id: user_id }, { verified: true }).exec();
-			} else {
-				res.status(403).send("FAIL");
-			}
-		}
-	} catch (err) {
-		console.log(err);
-		res.status(500).send("FAIL");
-	}
-});
-
 router.get("/email-used", async function(req, res) {
 	let email = req.query.email;
 	let used = false;
@@ -119,6 +96,36 @@ router.get("/id-used", async function(req, res) {
 	} else {
 		let user = await findUser(req.query.id);
 		res.send(user ? "used" : "OK");
+	}
+});
+router.get("/get-email-by-guid", async function(req, res) {
+	let guid = req.query.guid;
+	let email = await getVerifyEmail(guid);
+	if(email) {
+		res.send(email);
+	} else {
+		res.status(403).send("錯誤或過時的 guid");
+	}
+});
+
+router.post("/start-verify", async function(req, res) {
+	try {
+		let email = req.body.email;
+		console.log(email);
+		if (!email || !checkEmail(email)) {
+			res.status(400).send("不合法的 email");
+		} else {
+			let used = await emailUsed(email);
+			if (used) {
+				res.status(403).send("email 已被使用");
+			} else {
+				await startVerify(email);
+				res.send("OK");
+			}
+		}
+	} catch(err) {
+		console.log(err);
+		req.status(500).send("FAIL");
 	}
 });
 

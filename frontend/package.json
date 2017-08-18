@@ -17,6 +17,7 @@
 	},
 	"scripts": {
 		"build": "webpack",
+    "watch": "webpack --watch",
 		"build:prod": "NODE_ENV=production webpack"
 	},
 	"devDependencies": {

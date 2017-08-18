@@ -103,11 +103,10 @@ const user_schema_t = {
 	"salt": { type: String, required: true },
 	"date": { type: Date, required: true },
 	"email": { type: String, required: true, index: { unique: true } },
-	"verified": { type: Boolean, default: false }
 };
 
 const user_verification_schema_t = {
-	"userId": { type: String, required: true },
+	"email": { type: String, required: true },
 	"createdDate": { type: String, required: true }
 };
 

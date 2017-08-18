@@ -22,7 +22,7 @@ class IDPasswordForm extends React.Component {
 	render() {
 		if (this.state.justSuccess) {
 			return (
-				<JumpingPage history={this.props.history} location={this.props.location}>
+				<JumpingPage history={this.props.history}>
 					<p>恭喜！{this.state.id}</p>
 					<p>您已經成功{this.props.buttonName}，將在五秒內跳轉回<a onClick={this.props.history.goBack}>上個瀏覽頁面</a></p>
 				</JumpingPage>
