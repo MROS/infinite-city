@@ -1,14 +1,21 @@
 # API 標準
 * api/user
+	- POST api/user/start-verify
+		+ { email }，為字串
+		+ 回傳 "email 已被使用" 或 "不合法的 email" 或 "OK"
+		+ 若回傳 OK 代表系統寄了註冊網址給該信箱
 	- POST api/user/new
-		+ { id, password, email }，id 和 password 皆爲字串，例如 { id: "david0u0", password: "1234" }
-		+ 返回 "ID 已被使用" 或 "OK" 或 "FAIL"
+		+ { id, password, guid }，id 和 password 皆爲字串，例如 { id: "david0u0", password: "1234" }
+			- guid 為認證碼，字串，須在生成的一小時內使用
+		+ 返回 "ID 已被使用" 或 "認證碼錯誤或過期" 或 "OK" 或 "FAIL"
 	- POST api/user/login
 		+ { id, password }
 	- GET api/user/logout
 		+ 無其他參數，返回 "OK" 或 "尚未登入"
 	- GET api/user/who
 		+ 返回 { login: bool, id: `${id名稱}` }
+	- GET api/user/email-used?email=... api/user/id-used?id=...
+		+ 為了即時前端回饋而有的 api，回傳 used/invalid/OK
 * api/board
 	- GET api/board/browse?base=?&max=?&name=?,?,?,...
 		+ 從某個基準看板（base）開始，往下根據名字（可爲中文）查找看板
@@ -37,9 +44,9 @@
 			3. onNewArticle: [rule: String] 發文時在後端做的檢查，需 eval 之後是函式(typeof 爲 'function')
 			4. onComment: [rule: String] 推文時在後端做的檢查，需 eval 之後是函式(typeof 爲 'function')
 				* 舉例而言，一則推文必須經過 onComment 陣列中每個 rule 檢查，才能進入資料庫
-		+ 返回格式有二
-			1. 純字串的錯誤訊息，代表被板主定義的 onNewBoard 婊了（字串也是板主客製的）
-			2. { _id: String } 代表新建立看板的 id
+		+ 返回的可能主要有兩種
+			1. 狀態200，{ _id: String } 代表新建立看板的 id
+			2. 狀態403與純字串的錯誤訊息，代表被板主定義的 onNewBoard 婊了（字串也是板主客製的）
 * api/article
 	- POST api/article/new
 		+ { title, board, articleContent, formRules, renderRules, backendRules }
@@ -53,9 +60,9 @@
 		+ backendRules: 鍵值對
 			1. onEnter [String]，需 eval 之後是函式(typeof 爲 'function')
 			2. onComment [String]，需 eval 之後是函式(typeof 爲 'function')
-		+ 返回格式有二
-			1. 純字串的錯誤訊息，代表被板主定義的 onNewArticle 婊了（字串也是板主客製的）
-			2. { _id: String } 代表新建立文章的 id
+		+ 返回的可能主要有兩種
+			1. 狀態200，返回 { _id: String } 代表新文章的 id
+			2. 狀態403與純字串的錯誤訊息，代表被板主定義的 onNewArticle 婊了（字串也是板主客製的）
 	- GET api/article/browse?base=?&name=?,?,?,...&id=?&max=?
 		+ 從某個基準看板（base）開始，往下根據名字（可爲中文）查找看板
 		+ 例如：api/board/browse?base=595cb098f549af236588f88d&max=50&name=運動類,中華職棒,爪爪板&id=5498as845e4156er6115w88d
@@ -78,4 +85,7 @@
 		+ commentContent: 陣列，每個元素的構成為 { body, label }
 			1. body: string 推文的內容
 			2. label: string 推文的標籤
-		+ commentContent 必須以和 commentForm 相宭的順序傳入
+		+ commentContent 必須以和 commentForm 相同的順序傳入
+		+ 返回的可能主要有兩種
+			1. 狀態200，{ _id: String } 代表新推文的 id
+			2. 狀態403與純字串的錯誤訊息，代表被板主定義的 onComment 婊了（字串也是板主客製的）

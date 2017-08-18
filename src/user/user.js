@@ -44,7 +44,7 @@ async function startVerify(email) {
  */
 async function getVerifyEmail(guid) {
 	if(env == "test") {
-		return true;
+		return `email${guid}@test.com`;
 	}
 	let deadline = new Date(new Date() - 60*60*1000); // 一小時內認證才算數
 	try {
@@ -63,9 +63,16 @@ async function getVerifyEmail(guid) {
 }
 
 async function deleteGUID(guid) {
-	let info = await db.UserVerification.findOneAndRemove({ _id: guid });
-	if(!info) {
-		throw `不存在的 guid: ${guid}`;
+	if(env == "test") {
+		return;
+	}
+	try {
+		let info = await db.UserVerification.findOneAndRemove({ _id: guid });
+		if (!info) {
+			throw `不存在的 guid: ${guid}`;
+		}
+	} catch (err) {
+		throw `不合法的 guid: ${guid}`;
 	}
 }
 

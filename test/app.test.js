@@ -5,9 +5,9 @@ const mock = require("./mocks/api_mock.js");
 
 //TODO: 即使把 tester1, tester2, tester3 的 id 或 email　改成重復，後端仍不會報錯，顯然有線程安全的問題！
 const ROOT = require("../src/root_config.js");
-const tester1 = { id: "測試者一號5566", password: "testtest", email: "test1@test" };
-const tester2 = { id: "測試者二號5566", password: "testtest", email: "test2@test" };
-const tester3 = { id: "測試者三號911", password: "testtest", email: "test3@test" };
+const tester1 = { id: "測試者一號5566", password: "testtest" , guid: "1" };
+const tester2 = { id: "測試者二號5566", password: "testtest", guid: "2" };
+const tester3 = { id: "測試者三號911", password: "testtest", guid: "3" };
 let env = require("optimist").argv.env || process.env.env || "dev";
 
 async function clearDB() {
@@ -44,11 +44,9 @@ describe("測試 api", () => {
 			await session.get("/api/user/who").expect({ id: tester1.id, login: true });
 			await session.get("/api/user/logout").expect("OK");
 		});
-		test("重名或重復 email 的使用者不給注冊", async () => {
-			await session.post("/api/user/new").send({ id: tester1.id, password: "2134", email: "test9@test" })
+		test("重名的使用者不給注冊", async () => {
+			await session.post("/api/user/new").send({ id: tester1.id, password: "2134", guid: "4" })
 			.expect("ID 已被使用");
-			await session.post("/api/user/new").send({ id: "測試者四號", password: "2134", email: "test1@test" })
-			.expect("e-mail 已被使用");
 		});
 	});
 	describe("測試 board, article & comment api", () => {

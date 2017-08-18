@@ -21,7 +21,9 @@ router.post("/new", async function(req, res) {
 		return;
 	}
 
-	if(user) {
+	if(!email) {
+		res.status(401).send("認證碼過期或錯誤");
+	} else if(user) {
 		res.status(403).send("ID 已被使用");
 	} else {
 		try {

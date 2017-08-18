@@ -67,8 +67,7 @@ async function getArticle(board, article_id, max, user_id) {
 
 	article.comment = await commentPromise;
 
-	deleteIDs(article.comment);
-	deleteIDs(article.commentForm)
+	deleteIDs(article.commentForm);
 	return article;
 }
 
