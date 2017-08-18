@@ -289,6 +289,13 @@ class SignUpForm extends React.Component {
 	render() {
 		if(this.state.waiting) {
 			return <p>請稍候...</p>;
+		} else if(this.state.justSuccess) {
+			return (
+				<JumpingPage path="/app" history={this.props.history}>
+					<p>恭喜！{this.state.id}</p>
+					<p>您已經成功註冊，將在五秒內跳轉回<Link to="/app">首頁</Link></p>
+				</JumpingPage>
+			);
 		} else if (this.props.appState.login == true) {
 			return (
 				<div>
@@ -298,14 +305,6 @@ class SignUpForm extends React.Component {
 			);
 		} else if(this.state.guidFail) {
 			return <p>認證碼錯誤或過期，請點擊<Link to="/app/start-verify">這裡</Link>重發認證信</p>;
-		}
-		else if(this.state.justSuccess) {
-			return (
-				<JumpingPage path="/app" history={this.props.history}>
-					<p>恭喜！{this.state.id}</p>
-					<p>您已經成功註冊，將在五秒內跳轉回<Link to="/app">首頁</Link></p>
-				</JumpingPage>
-			);
 		} else {
 			return (
 				<div>
