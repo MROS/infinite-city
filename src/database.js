@@ -8,6 +8,8 @@ let server = (() => {
 	switch (config.env) {
 		case "dev":
 			return config.dev_server;
+		case "production":
+			return config.production_server;
 		case "test":
 			return config.test_server;
 		default:

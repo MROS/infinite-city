@@ -2,6 +2,7 @@
 
 const express = require("express");
 const path = require("path");
+const config = require("./config.js");
 
 let app = express();
 
@@ -15,9 +16,9 @@ const session = require("express-session");
 const RedisStore = require("connect-redis")(session);
 
 app.use(session({
-	store: new RedisStore({ host: "127.0.0.1", port: 6379 }),
-	secret: "recommand 128 bytes random string",
-	cookie: { maxAge: 15 * 24 * 60 * 60 * 1000 }, // 十五天
+	store: new RedisStore(config.REDIS_STORE_OPTION),
+	secret: config.SESSION_SECRECT_KEY,
+	cookie: { maxAge: config.COOKIE_MAX_AGE }, // 十五天
 	resave: true,
 	saveUninitialized: true
 }));

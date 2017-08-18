@@ -13,7 +13,9 @@
     "readline-sync": "^1.4.7"
   },
   "scripts": {
-    "start": "node src/server.js",
+    "deploy": "cd frontend; yarn; yarn build:prod; cd ..; yarn; env=production pm2 restart src/entry.js",
+    "start": "node src/entry.js",
+    "dbtool": "node src/db_tools.js",
     "test:i": "env=test jest isomorphic",
     "test": "env=test jest"
   },
