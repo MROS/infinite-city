@@ -180,10 +180,17 @@ class StartVerifyForm extends React.Component {
 	render() {
 		if(this.state.justSuccess) {
 			return (
-				<JumpingPage history={this.props.history}>
+				<div>
 					<h5 className="title is-5">已經成功發信到 {this.state.email}，請在一小時內註冊完成</h5>
-					<p>將在五秒內跳轉回<a onClick={this.props.history.goBack}>上個瀏覽頁面</a></p>
-				</JumpingPage>
+					<p>請前往信箱收信以完成註冊流程</p>
+				</div>
+			);
+		} else if (this.props.appState.login == true) {
+			return (
+				<div>
+					<p>您好，{this.props.appState.id}</p>
+					<p>您現在已登入其它帳號，如果要繼續註冊新帳號，請先登出</p>
+				</div>
 			);
 		} else {
 			return (
@@ -282,6 +289,13 @@ class SignUpForm extends React.Component {
 	render() {
 		if(this.state.waiting) {
 			return <p>請稍候...</p>;
+		} else if (this.props.appState.login == true) {
+			return (
+				<div>
+					<p>您好，{this.props.appState.id}</p>
+					<p>您現在已登入其它帳號，如果要繼續註冊新帳號，請先登出</p>
+				</div>
+			);
 		} else if(this.state.guidFail) {
 			return <p>認證碼錯誤或過期，請點擊<Link to="/app/start-verify">這裡</Link>重發認證信</p>;
 		}
@@ -291,10 +305,6 @@ class SignUpForm extends React.Component {
 					<p>恭喜！{this.state.id}</p>
 					<p>您已經成功註冊，將在五秒內跳轉回<Link to="/app">首頁</Link></p>
 				</JumpingPage>
-			);
-		} else if (this.props.appState.login == true) {
-			return (
-				<p>您好，{this.props.appState.id}，請先登出再註冊</p>
 			);
 		} else {
 			return (
