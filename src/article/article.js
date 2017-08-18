@@ -1,5 +1,5 @@
 const db = require("../database.js");
-const { doRestricts, setRule, processContent } = require("../util/util.js");
+const { doRestricts, setRule, processContent, deleteIDs } = require("../util/util.js");
 const { findBackendRules } = require("../util/db_util.js");
 /**
  * @param {String} author
@@ -66,6 +66,9 @@ async function getArticle(board, article_id, max, user_id) {
 	article["authority"] = authority;
 
 	article.comment = await commentPromise;
+
+	deleteIDs(article.comment);
+	deleteIDs(article.commentForm)
 	return article;
 }
 

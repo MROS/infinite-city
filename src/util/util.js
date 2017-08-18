@@ -21,6 +21,18 @@ function _checkRule(rule) {
 	}
 }
 
+/**
+ * @param {[{_id: String}]} obj_array 
+ */
+function deleteIDs(obj_array) {
+	for(let obj of obj_array) {
+		if(!Object.keys(obj).includes("_id")) {
+			throw "_id Not included!";
+		}
+		delete obj["_id"];
+	}
+}
+
 function array2dict(array, process=null) {
 	let ret = {};
 	for(let e of array) {
@@ -112,5 +124,6 @@ module.exports = {
 	doRestricts,
 	setRule,
 	processContent,
-	array2dict
+	array2dict,
+	deleteIDs
 };

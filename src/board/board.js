@@ -1,5 +1,5 @@
 const db = require("../database.js");
-const { doRestricts, setRule } = require("../util/util.js");
+const { doRestricts, setRule, deleteIDs } = require("../util/util.js");
 const { findBackendRules } = require("../util/db_util.js");
 /**
  * @param {String} manager_id 
@@ -84,7 +84,8 @@ async function getList(board, max, user_id) {
 			authority[key] = { ok: false, msg: "尚未登入" };
 		}
 	}
-
+	deleteIDs(board.articleForm);
+	deleteIDs(board.commentForm);
 	return { a_list, b_list, board, authority };
 }
 
