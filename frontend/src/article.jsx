@@ -1,7 +1,7 @@
 import React from "react";
 import { fromJS, Map, List } from "immutable";
 import { Link } from "react-router-dom";
-import { LabelArrayToObject, LabelObjectToArray } from "./util";
+import util from "./util";
 import VariableInput from "./variableInput.jsx";
 import checkAPI from "../../isomorphic/checkAPI.js";
 import { SourceCode, ShowFormSeries, ShowOnSeries } from "./sourceCode.jsx";
@@ -49,7 +49,7 @@ class InputComment extends React.Component {
 	onSubmitComment() {
 		if (this.isAllValid()) {
 			const obj = this.state.comment.toJS();
-			const commentContent = LabelObjectToArray(obj, this.props.commentForm.toJS());
+			const commentContent = util.LabelObjectToArray(obj, this.props.commentForm.toJS());
 			this.props.submitComment(commentContent);
 		} else {
 			console.log("未滿足條件，不發出請求");
@@ -90,6 +90,64 @@ function ContentSource(props) {
 			}
 		</div>
 	);
+}
+
+function evaluateItem(item, exposedData) {
+	switch (item.evalType) {
+		case "string":
+			return item.body;
+		case "function":
+			if (item.body.trim().length == 0) {
+				return "";
+			}
+			try {
+				const evalFunction = eval(`(${item.body})`);
+				const result = evalFunction(exposedData);
+				return result;
+			} catch (error) {
+				console.log(error);
+				return `[∞函式失敗：${item.label}∞]`;
+			}
+	}
+}
+
+function newLineToBr(str) {
+	return str.split("\n").map((p, index) => {
+		if (p == "") { return <br key={index} />; }
+		else { return <span key={index}>{p}<br /></span>; }
+	});
+}
+
+function RenderContent(props) {
+	const { renderFunction, exposedData, content  } = props;
+	let evaluatedContent = {};
+	content.forEach(item => {
+		evaluatedContent[item.label] = evaluateItem(item, exposedData);
+	});
+	const order = content.map(item => item.label);
+
+	let renderResult;
+	try {
+		renderResult = renderFunction(evaluatedContent, order);
+		console.log("renderContent: " + renderResult);
+		renderResult = newLineToBr(renderResult);
+		return <span>{renderResult}</span>;
+	} catch (error) {
+		console.log(error);
+		return <span style={{color: "red"}}>[∞渲染函式失敗∞]</span>;
+	}
+}
+
+function defaultRenderArticleFunction(evaluatedContent, order) {
+	return order.map((label) => {
+		return evaluatedContent[label];
+	}).join("\n");
+}
+
+function defaultRenderCommentFunction(evaluatedContent, order) {
+	return order.map((label) => {
+		return evaluatedContent[label];
+	}).join("\n");
 }
 
 class Article extends React.Component {
@@ -137,7 +195,7 @@ class Article extends React.Component {
 	}
 	createContent(arr) {    // 過濾掉 evalType 不是字串的項目，並且將原陣列轉爲物件
 		const onlyString = arr.filter(item => item.evalType == "string");
-		return LabelArrayToObject(onlyString, item => item.body);
+		return util.LabelArrayToObject(onlyString, item => item.body);
 	}
 	createComment(comment) {
 		return {
@@ -164,42 +222,15 @@ class Article extends React.Component {
 			currentIndex: index,
 		};
 	}
-	evaluateItem(item, exposedData) {
-		switch (item.evalType) {
-			case "string":
-				return item.body;
-			case "function":
-				if (item.body.trim().length == 0) {
-					return "";
-				}
-				try {
-					const evalFunction = eval(`(${item.body})`);
-					const result = evalFunction(exposedData);
-					return result;
-				} catch (error) {
-					console.log(error);
-					return "函式失敗";
-				}
-		}
-	}
 	renderArticle() {
 		if (this.state.showArticleSource == true) {
 			return <ContentSource content={this.state.articleContent} />;
 		} else if (this.state.showArticleSource == false) {
 			const exposedData = this.createExposedDataForArticle();
-			return this.state.articleContent.map((item, index) => {
-				return (
-					<div key={index}>
-						{
-							this.evaluateItem(item, exposedData).split("\n").map((p, index) => {
-								if (p == "") { return <br key={index} />; }
-								else { return <p key={index}>{p}</p>; }
-							})
-						}
-						<br />
-					</div>
-				);
-			});
+			return <RenderContent
+				renderFunction={defaultRenderArticleFunction}
+				content={this.state.articleContent}
+				exposedData={exposedData} />;
 		}
 	}
 	toggleCommentSource(index) {
@@ -216,9 +247,6 @@ class Article extends React.Component {
 		};
 	}
 	renderComments() {
-		const renderComment = (comment, exposedData) => {
-			return comment.commentContent.map(item => this.evaluateItem(item, exposedData));
-		};
 		return this.state.comments.map((comment, index) => {
 			const exposedData = this.createExposedDataForComment(comment, index);
 			const showCommentSource = this.state.showCommentSource.get(index);
@@ -240,7 +268,11 @@ class Article extends React.Component {
 						<span style={{ color: "blue" }}>{comment.author}</span>
 						<span>：</span>
 						<span>
-							{renderComment(comment, exposedData)}
+							<RenderContent
+								renderFunction={this.state.renderComment}
+								exposedData={exposedData}
+								content={comment.commentContent}
+							/>
 						</span>
 					</div>
 					{
@@ -271,13 +303,16 @@ class Article extends React.Component {
 						default:
 							console.log("取得文章資料成功");
 							console.log(data);
+							let renderComment = checkAPI.IsFunctionString(data.renderComment) ?
+								eval(`(${data.renderComment})`) : defaultRenderCommentFunction;
 							this.setState({
 								author: data.author,
 								title: data.title,
 								date: new Date(data.date),
 								articleContent: data.articleContent,
 								commentForm: fromJS(data.commentForm),
-								comments: data.comment
+								comments: data.comment,
+								renderComment: renderComment,
 							});
 					}
 				});

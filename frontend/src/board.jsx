@@ -2,7 +2,7 @@ import React from "react";
 import { fromJS, Map, List } from "immutable";
 import { Link } from "react-router-dom";
 import VariableInput from "./variableInput.jsx";
-import { LabelArrayToObject, LabelObjectToArray, pick } from "./util";
+import util from "./util";
 import { SourceCode, ShowOnSeries, ShowFormSeries } from "./sourceCode.jsx";
 import checkAPI from "../../isomorphic/checkAPI.js";
 
@@ -16,7 +16,7 @@ function ruleToState(rules, upperForm) {
 	});
 	ret["formRules"] = {};
 	Object.keys(upperForm).forEach((formName) => {
-		ret["formRules"][formName] = upperForm[formName].map(x => pick(["label", "restrict", "evalType"], x));
+		ret["formRules"][formName] = upperForm[formName].map(x => util.pick(["label", "restrict", "evalType"], x));
 	});
 	return fromJS(ret);
 }
@@ -329,7 +329,7 @@ class CreateArticle extends React.Component {
 	}
 	handleOnSubmit() {
 		let { title, articleContent, rules } = this.state;
-		articleContent = LabelObjectToArray(articleContent.toJS(), this.props.articleForm.toJS());
+		articleContent = util.LabelObjectToArray(articleContent.toJS(), this.props.articleForm.toJS());
 		let article = {
 			title,
 			articleContent,
