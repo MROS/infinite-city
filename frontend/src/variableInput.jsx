@@ -1,6 +1,6 @@
 import React from "react";
 import checkAPI from "../../isomorphic/checkAPI.js";
-import SourceCode from "./sourceCode.jsx";
+import { SourceCode } from "./sourceCode.jsx";
 import { fromJS } from "immutable";
 
 // props 有 data, dataForm(得知輸入的格式)、changeUpper(改變上層資料)、oneline(若爲真則使用input，假則使用textarea)
@@ -52,7 +52,7 @@ class VariableInput extends React.Component {
 						let label = item.get("label");
 						return (
 							<div key={label}>
-								<div className="field has-addons">
+								<div className="field has-addons" style={{marginBottom: "8px"}}>
 									<p className="control is-expanded">
 										{
 											this.props.oneline == true ?
@@ -86,8 +86,17 @@ class VariableInput extends React.Component {
 								<div>
 									{
 										this.state.show.get(label) ?
-											<div style={{marginBottom: "15px"}}>
-												限制條件 <SourceCode code={item.get("restrict")} />
+											<div className="box" style={{marginBottom: "15px"}}>
+												<div style={{marginBottom: "5px" }}>
+													<div>標籤：{label}</div>
+													<div>
+														型別：
+														<span className="tag is-info">{item.get("evalType")}</span>
+													</div>
+												</div>
+												<div>
+													限制條件：<SourceCode code={item.get("restrict")} />
+												</div>
 											</div> :
 											""
 									}

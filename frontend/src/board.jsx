@@ -3,7 +3,7 @@ import { fromJS, Map, List } from "immutable";
 import { Link } from "react-router-dom";
 import VariableInput from "./variableInput.jsx";
 import { LabelArrayToObject, LabelObjectToArray, pick } from "./util";
-import SourceCode from "./sourceCode.jsx";
+import { SourceCode, ShowOnSeries, ShowFormSeries } from "./sourceCode.jsx";
 import checkAPI from "../../isomorphic/checkAPI.js";
 
 function ruleToState(rules, upperForm) {
@@ -482,24 +482,40 @@ class CreateBoard extends React.Component {
 
 function BoardSource(props) {
 	const onSeries = ["onEnter", "onNewBoard", "onNewArticle", "onComment"];
+	const formSeries = ["articleForm", "commentForm"];
 	return (
 		<div>
-			{
-				onSeries.map((f) => {
-					if (props[f]) {
+			<div>
+				<h4 className="title is-4">表單規則</h4>
+				{
+					formSeries.map((name) => {
+						const formItems = props[name];
 						return (
-							<div key={f}>
-								{f}
+							<div>
 								{
-									props[f].map((code, index) => {
-										return <SourceCode key={index} code={code} language="javascript" />;
-									})
+									formItems ?
+										<ShowFormSeries
+											key={name}
+											name={name}
+											items={formItems}
+										/> :
+										""
 								}
 							</div>
 						);
-					}
-				})
-			}
+					})
+				}
+			</div>
+			<div>
+				<h3 className="title is-4">權限限制</h3>
+				{
+					onSeries.map((name) => {
+						if (props[name]) {
+							return <ShowOnSeries key={name} name={name} funcs={props[name]} />;
+						}
+					})
+				}
+			</div>
 		</div>
 	);
 }
@@ -759,7 +775,7 @@ class Board extends React.Component {
 								);
 							case "watchSource":
 								return (
-									<div style={{ marginBottom: "30px" }}>
+									<div className="box" style={{ marginBottom: "30px" }}>
 										<BoardSource {...this.state.board} />
 									</div>
 								);

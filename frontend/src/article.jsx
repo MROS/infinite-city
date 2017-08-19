@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { LabelArrayToObject, LabelObjectToArray } from "./util";
 import VariableInput from "./variableInput.jsx";
 import checkAPI from "../../isomorphic/checkAPI.js";
-import SourceCode from "./sourceCode.jsx";
+import { SourceCode, ShowFormSeries, ShowOnSeries } from "./sourceCode.jsx";
 
 class InputComment extends React.Component {
 	constructor(props) {
@@ -71,6 +71,25 @@ class InputComment extends React.Component {
 			</div>
 		);
 	}
+}
+
+function ContentSource(props) {
+	const content = props.content;
+	return (
+		<div>
+			{
+				content.map((item) => {
+					return (
+						<div key={item.label}>
+							<div>標籤：{item.label}</div>
+							<div>型別：<span className="tag is-info">{item.evalType}</span></div>
+							<SourceCode code={item.body} />
+						</div>
+					);
+				})
+			}
+		</div>
+	);
 }
 
 class Article extends React.Component {
@@ -165,15 +184,7 @@ class Article extends React.Component {
 	}
 	renderArticle() {
 		if (this.state.showArticleSource == true) {
-			return this.state.articleContent.map((item) => {
-				return (
-					<div key={item.label}>
-						<div>標籤：{item.label}</div>
-						<div>型別：{item.evalType}</div>
-						<SourceCode code={item.body} />
-					</div>
-				);
-			});
+			return <ContentSource content={this.state.articleContent} />;
 		} else if (this.state.showArticleSource == false) {
 			const exposedData = this.createExposedDataForArticle();
 			return this.state.articleContent.map((item, index) => {
@@ -213,7 +224,7 @@ class Article extends React.Component {
 			const showCommentSource = this.state.showCommentSource.get(index);
 			return (
 				<div key={index}>
-					<div style={{marginBottom: "5px"}}>
+					<div style={{marginBottom: "5px", float: "right"}}>
 						<a className={showCommentSource ? "button is-success" : "button"}
 							style={{ fontSize: "10px" }}
 							onClick={this.toggleCommentSource(index)}
@@ -234,7 +245,9 @@ class Article extends React.Component {
 					</div>
 					{
 						showCommentSource ?
-							<SourceCode code={comment.commentContent.map(item => `${item.label}: ${item.body}`).join("\n")}/> :
+							<div className="box" style={{marginTop: "15px"}}>
+								<ContentSource content={comment.commentContent} />
+							</div> :
 							""
 					}
 					<hr style={{marginBottom: "5px", marginTop: "15px"}} />
