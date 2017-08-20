@@ -13,9 +13,11 @@ class InputComment extends React.Component {
 		this.createStatebyProps = this.createStatebyProps.bind(this);
 
 		this.state = {
-			comment: this.createStatebyProps(props)
+			comment: this.createStatebyProps(props),
+			showOnCommentSource: false,
 		};
 
+		this.toggleOnCommentSource = this.toggleOnCommentSource.bind(this);
 		this.isAllValid = this.isAllValid.bind(this);
 		this.setComment = this.setComment.bind(this);
 		this.onSubmitComment = this.onSubmitComment.bind(this);
@@ -34,6 +36,12 @@ class InputComment extends React.Component {
 				comment: this.createStatebyProps(nextProps)
 			});
 		}
+	}
+	toggleOnCommentSource() {
+		console.log(this.state.showOnCommentSource);
+		this.setState({
+			showOnCommentSource: !this.state.showOnCommentSource
+		});
 	}
 	isAllValid() {
 		const content = this.state.comment.toJS();
@@ -56,20 +64,42 @@ class InputComment extends React.Component {
 		}
 	}
 	render() {
-		return (
-			<div className="field" style={{ marginBottom: "25px" }}>
-				<VariableInput
-					oneline={true}
-					data={this.state.comment}
-					dataForm={this.props.commentForm}
-					changeUpper={this.setComment} />
-				<div className="control">
-					<a className="button" onClick={this.onSubmitComment}>
-						留言
-					</a>
+		if (this.props.authority.ok) {
+			return (
+				<div className="field" style={{ marginBottom: "25px" }}>
+					<VariableInput
+						oneline={true}
+						data={this.state.comment}
+						dataForm={this.props.commentForm}
+						changeUpper={this.setComment} />
+					<div className="control">
+						<a className="button" onClick={this.onSubmitComment}>
+							留言
+						</a>
+					</div>
 				</div>
-			</div>
-		);
+			);
+		} else if (!this.props.authority.ok) {
+			return (
+				<div>
+					{`你沒有留言權限：${this.props.authority.msg}`}
+					<div style={{marginTop: "20px"}}>
+						<a
+							className={this.state.showOnCommentSource ? "button is-success" : "button"}
+							onClick={this.toggleOnCommentSource}>
+							觀看留言權限限制
+						</a>
+					</div>
+					<div style={{marginTop: "40px"}}>
+						{
+							this.state.showOnCommentSource ?
+								<ShowOnSeries name="留言限制" funcs={this.props.onComment}/> :
+								""
+						}
+					</div>
+				</div>
+			);
+		}
 	}
 }
 
@@ -137,7 +167,6 @@ function RenderContent(props) {
 	let renderResult;
 	try {
 		renderResult = renderFunction(evaluatedContent, order);
-		console.log("renderContent: " + renderResult);
 		renderResult = newLineToBr(renderResult);
 		return <span>{renderResult}</span>;
 	} catch (error) {
@@ -169,6 +198,9 @@ class Article extends React.Component {
 		this.state = {
 			showCommentSource: new List(),
 			showArticleSource: false,
+			authority: {
+				onComment: {ok: false, msg: "尚未獲取文章資料"}
+			},
 			content: "",
 			comments: [],
 			commentForm: new List(),
@@ -243,7 +275,7 @@ class Article extends React.Component {
 					content={this.state.articleContent}
 					functionText={this.state.renderArticleContent.toString()} />
 				<div className="box">
-					<h4 className="title is-4">權限規則</h4>
+					<h4 className="title is-4">權限限制</h4>
 					{
 						["onEnter", "onComment"].map((name) => {
 							return <ShowOnSeries key={name} name={name} funcs={this.state[name]} />;
@@ -344,6 +376,7 @@ class Article extends React.Component {
 								comments: data.comment,
 								onComment: data.onComment,
 								onEnter: data.onEnter,
+								authority: data.authority,
 								renderComment: getRenderfunction(data.renderComment, defaultRenderCommentFunction),
 								renderArticleContent: getRenderfunction(data.renderArticleContent, defaultRenderArticleFunction),
 							});
@@ -403,7 +436,7 @@ class Article extends React.Component {
 		const sp = location.pathname.split("/");
 		const boardURL = sp.slice(0, sp.length - 2).join("/");
 		return (
-			<div>
+			<div style={{paddingBottom: "180p"}}>
 				<div>
 					<div style={{ float: "left" }}>
 						<Link to={boardURL}>
@@ -441,9 +474,13 @@ class Article extends React.Component {
 					<hr style={{ marginBottom: "5px" }} />
 					{this.renderComments()}
 				</div>
-				<InputComment
-					submitComment={this.submitComment}
-					commentForm={this.state.commentForm} />
+				<div>
+					<InputComment
+						onComment={this.state.onComment}
+						authority={this.state.authority.onComment}
+						submitComment={this.submitComment}
+						commentForm={this.state.commentForm} />
+				</div>
 			</div>
 		);
 	}
