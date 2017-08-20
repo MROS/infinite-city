@@ -62,7 +62,7 @@ class InputComment extends React.Component {
 					oneline={true}
 					data={this.state.comment}
 					dataForm={this.props.commentForm}
-					changeUpper={this.setComment}/>
+					changeUpper={this.setComment} />
 				<div className="control">
 					<a className="button" onClick={this.onSubmitComment}>
 						留言
@@ -75,19 +75,27 @@ class InputComment extends React.Component {
 
 function ContentSource(props) {
 	const content = props.content;
+	const functionText = props.functionText;
 	return (
 		<div>
-			{
-				content.map((item) => {
-					return (
-						<div key={item.label}>
-							<div>標籤：{item.label}</div>
-							<div>型別：<span className="tag is-info">{item.evalType}</span></div>
-							<SourceCode code={item.body} />
-						</div>
-					);
-				})
-			}
+			<div className="box" style={{marginBottom: "0px"}}>
+				<h4 className="title is-4">原始資料</h4>
+				{
+					content.map((item) => {
+						return (
+							<div key={item.label}>
+								<div>標籤：{item.label}</div>
+								<div>型別：<span className="tag is-info">{item.evalType}</span></div>
+								<SourceCode code={item.body} />
+							</div>
+						);
+					})
+				}
+			</div>
+			<div className="box">
+				<h4 className="title is-4">渲染規則</h4>
+				<SourceCode code={functionText} />
+			</div>
 		</div>
 	);
 }
@@ -119,7 +127,7 @@ function newLineToBr(str) {
 }
 
 function RenderContent(props) {
-	const { renderFunction, exposedData, content  } = props;
+	const { renderFunction, exposedData, content } = props;
 	let evaluatedContent = {};
 	content.forEach(item => {
 		evaluatedContent[item.label] = evaluateItem(item, exposedData);
@@ -134,19 +142,21 @@ function RenderContent(props) {
 		return <span>{renderResult}</span>;
 	} catch (error) {
 		console.log(error);
-		return <span style={{color: "red"}}>[∞渲染函式失敗∞]</span>;
+		return <span style={{ color: "red" }}>[∞渲染函式失敗∞]</span>;
 	}
 }
 
-function defaultRenderArticleFunction(evaluatedContent, order) {
+function defaultRenderArticleFunction(content, order) {
+	// 此爲預設渲染文章函式
 	return order.map((label) => {
-		return evaluatedContent[label];
+		return content[label];
 	}).join("\n");
 }
 
-function defaultRenderCommentFunction(evaluatedContent, order) {
+function defaultRenderCommentFunction(content, order) {
+	// 此爲預設渲染留言函式
 	return order.map((label) => {
-		return evaluatedContent[label];
+		return content[label];
 	}).join("\n");
 }
 
@@ -162,7 +172,11 @@ class Article extends React.Component {
 			content: "",
 			comments: [],
 			commentForm: new List(),
+			onComment: [],
+			onEnter: [],
 			articleContent: [],
+			renderComment: defaultRenderCommentFunction,
+			renderArticleContent: defaultRenderArticleFunction,
 		};
 		this.URLquery = {};
 		this.props.location.search.slice(1).split("&").forEach((q) => {
@@ -224,11 +238,23 @@ class Article extends React.Component {
 	}
 	renderArticle() {
 		if (this.state.showArticleSource == true) {
-			return <ContentSource content={this.state.articleContent} />;
+			return <div>
+				<ContentSource
+					content={this.state.articleContent}
+					functionText={this.state.renderArticleContent.toString()} />
+				<div className="box">
+					<h4 className="title is-4">權限規則</h4>
+					{
+						["onEnter", "onComment"].map((name) => {
+							return <ShowOnSeries key={name} name={name} funcs={this.state[name]} />;
+						})
+					}
+				</div>
+			</div>;
 		} else if (this.state.showArticleSource == false) {
 			const exposedData = this.createExposedDataForArticle();
 			return <RenderContent
-				renderFunction={defaultRenderArticleFunction}
+				renderFunction={this.state.renderArticleContent}
 				content={this.state.articleContent}
 				exposedData={exposedData} />;
 		}
@@ -252,7 +278,7 @@ class Article extends React.Component {
 			const showCommentSource = this.state.showCommentSource.get(index);
 			return (
 				<div key={index}>
-					<div style={{marginBottom: "5px", float: "right"}}>
+					<div style={{ marginBottom: "5px", float: "right" }}>
 						<a className={showCommentSource ? "button is-success" : "button"}
 							style={{ fontSize: "10px" }}
 							onClick={this.toggleCommentSource(index)}
@@ -277,12 +303,14 @@ class Article extends React.Component {
 					</div>
 					{
 						showCommentSource ?
-							<div className="box" style={{marginTop: "15px"}}>
-								<ContentSource content={comment.commentContent} />
+							<div style={{ marginTop: "15px" }}>
+								<ContentSource
+									content={comment.commentContent}
+									functionText={this.state.renderComment.toString()} />
 							</div> :
 							""
 					}
-					<hr style={{marginBottom: "5px", marginTop: "15px"}} />
+					<hr style={{ marginBottom: "5px", marginTop: "15px" }} />
 				</div>
 			);
 		});
@@ -303,8 +331,10 @@ class Article extends React.Component {
 						default:
 							console.log("取得文章資料成功");
 							console.log(data);
-							let renderComment = checkAPI.IsFunctionString(data.renderComment) ?
-								eval(`(${data.renderComment})`) : defaultRenderCommentFunction;
+							function getRenderfunction(str, defaultFunction) {
+								return checkAPI.IsFunctionString(str) ?
+									eval(`(${str})`) : defaultFunction;
+							}
 							this.setState({
 								author: data.author,
 								title: data.title,
@@ -312,7 +342,10 @@ class Article extends React.Component {
 								articleContent: data.articleContent,
 								commentForm: fromJS(data.commentForm),
 								comments: data.comment,
-								renderComment: renderComment,
+								onComment: data.onComment,
+								onEnter: data.onEnter,
+								renderComment: getRenderfunction(data.renderComment, defaultRenderCommentFunction),
+								renderArticleContent: getRenderfunction(data.renderArticleContent, defaultRenderArticleFunction),
 							});
 					}
 				});
@@ -341,19 +374,19 @@ class Article extends React.Component {
 			if (res.ok) {
 				res.json().then((data) => {
 					if (data._id) {
-						this.props.notify({message: "留言成功", level: "success"});
+						this.props.notify({ message: "留言成功", level: "success" });
 						this.getArticleData();
 					} else {
-						this.props.notify({message: `留言失敗：${data}`, level: "error"});
+						this.props.notify({ message: `留言失敗：${data}`, level: "error" });
 					}
 				});
 			} else {
 				res.text().then((data) => {
-					this.props.notify({message: `留言失敗：${data}`, level: "error"});
+					this.props.notify({ message: `留言失敗：${data}`, level: "error" });
 				});
 			}
 		}, (err) => {
-			this.props.notify({message: "AJAX失敗，留言失敗", level: "error"});
+			this.props.notify({ message: "AJAX失敗，留言失敗", level: "error" });
 		});
 	}
 	componentDidMount() {
@@ -400,13 +433,13 @@ class Article extends React.Component {
 						<div>{this.formatDate(this.state.date)}</div>
 					</div>
 				</div>
-				<div style={{marginBottom: "25px"}}>
+				<div style={{ marginBottom: "25px" }}>
 					{this.renderArticle()}
 				</div>
-				<div id="commentArea" style={{marginBottom: "35px"}}>
+				<div id="commentArea" style={{ marginBottom: "35px" }}>
 					<h5 className="title is-5">留言區</h5>
-					<hr style={{marginBottom: "5px"}}/>
-					{ this.renderComments() }
+					<hr style={{ marginBottom: "5px" }} />
+					{this.renderComments()}
 				</div>
 				<InputComment
 					submitComment={this.submitComment}
