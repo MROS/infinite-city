@@ -89,7 +89,10 @@ function checkMatchRestrict(label, content, form) {
 	return matchRestrict(content, item);
 }
 
+// coontent 是物件
 function checkAllMatchRestrict(content, form) {
+	console.log("content: " + JSON.stringify(content));
+	console.log("form: " + JSON.stringify(form));
 	for (let item of form) {
 		if (matchRestrict(content, item)) {
 			continue;
@@ -102,9 +105,17 @@ function checkAllMatchRestrict(content, form) {
 
 // 後端尚需檢驗 board ID
 function checkNewArticle(article, articleForm) {
+	// coontent 是陣列
+	function contentArrayToObj(content) {
+		let ret = {};
+		content.forEach((item) => {
+			ret[item.label] = item.body;
+		});
+		return ret;
+	}
 	let { title, articleContent, formRules, renderRules, backendRules } = article;
 	if (!checkArticleTitle(title)) { return false; }
-	if (!checkAllMatchRestrict(articleContent, articleForm)) { return false; }
+	if (!checkAllMatchRestrict(contentArrayToObj(articleContent), articleForm)) { return false; }
 	if (!allOK(Object.values(formRules), checkFormSeries)) { return false; }
 	if (!allOK(Object.values(renderRules), checkRenderSeries)) { return false; }
 	if (!allOK(Object.values(backendRules), checkOnSeries)) { return false; }
