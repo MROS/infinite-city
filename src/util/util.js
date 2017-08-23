@@ -112,7 +112,7 @@ function doRestricts(cur_pos, user_id, restricts) {
 				if(_.isString(err)) {
 					return err;
 				} else {
-					return "自定義檢查有誤";
+					return `自定義檢查有誤 ${err.message}`;
 				}
 			}
 		}

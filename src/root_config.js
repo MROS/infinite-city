@@ -13,9 +13,11 @@ const ROOT = {
 	+ "}",
 	// backend rules
 	onNewArticle: [
-		"function(cur_pos) {"
+		"function(cur_pos, user_id) {"
 		+ "if(cur_pos.board.depth == 0) {"
+		+ "if(!cur_pos.board.manager.includes(user_id)) {"
 		+ "throw '不可褻瀆無限城的根';"
+		+ "}"
 		+ "}"
 		+ "}"
 	],
