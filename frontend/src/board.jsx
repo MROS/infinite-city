@@ -402,7 +402,7 @@ class CreateBoard extends React.Component {
 				display: "渲染規則",
 				check: checkAPI.checkRenderSeries,
 				textarea: [
-					{ display: "標題渲染函式", name: "renderTitle" },
+					// { display: "標題渲染函式", name: "renderTitle" },
 					{ display: "文章內容渲染函式", name: "renderArticleContent" },
 					{ display: "留言渲染函式", name: "renderComment" },
 				],
