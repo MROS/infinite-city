@@ -1,6 +1,7 @@
 const readlineSync = require("readline-sync");
 const db = require("./database.js");
 const ROOT = require("./root_config.js");
+const { encryptUser } = require("./user/user.js");
 let env = require("./config.js").env;
 
 function clearConsole() {
@@ -154,8 +155,26 @@ async function dropDBDialog() {
 	waitEnter();
 }
 
-const [ QUIT, ADD_ROOT, ADD_MANAGER, CLEAR_MANAGER, DROP, HELP ] = [ "Q", "R", "M", "C", "D", "H" ];
+async function addUserDialog() {
+	let email = question("email > ", false);
+	let id = question("帳號 > ", false);
+	let password = question("密碼 > ", false);
+	let user = await encryptUser(id, password);
+	user.email = email;
+	user.date = new Date();
+	try {
+		await db.User.create(user);
+		console.log(`成功新增使用者 ${id}`);
+	} catch(err) {
+		console.log(err.message);
+	}
+	waitEnter();
+}
+
+const [ QUIT, ADD_ROOT, ADD_MANAGER, CLEAR_MANAGER,
+	DROP, ADD_USER, HELP ] = [ "Q", "R", "M", "C", "D", "U", "H" ];
 const OPTIONS = `請從下列選擇欲執行的指令
+	- 新增使用者：${ADD_USER}
 	- 新增／修改根看板：${ADD_ROOT}
 	- 新增根看板板主：${ADD_MANAGER}
 	- 清空根看板板主名單：${CLEAR_MANAGER}
@@ -171,6 +190,7 @@ async function main() {
 			ans = question();
 			if (ans.length != 0) {
 				if (ans == QUIT) break;
+				else if (ans == ADD_USER) await addUserDialog();
 				else if (ans == ADD_ROOT) await addRootDialog();
 				else if(ans == ADD_MANAGER) await addManagerDialog();
 				else if(ans == CLEAR_MANAGER) await clearManagerDialog();
