@@ -8,10 +8,13 @@
 
 - [指南](https://github.com/MROS/infinite-city/blob/master/doc/%E6%8C%87%E5%8D%97.md)
 - [參考手冊](https://github.com/MROS/infinite-city/blob/master/doc/%E5%8F%83%E8%80%83%E6%89%8B%E5%86%8A.md)
+- [教學影片](https://www.youtube.com/playlist?list=PLOGStDKzeLpHQWLKtazy3AYqOD6ExnJsP)
 
 指南會從最簡單的功能開始一步一步帶領讀者建立看板與文章，建議新手閱讀。
 
 參考手冊則偏向查詢功能，當瞭解基本概念後，參數、繼承規則等等細節可在此找到。
+
+教學影片基本上是以指南爲腳本拍攝的，但深度較爲不足，若想瞭解更多，請再回頭看文字教學。
 
 ## 建置
 

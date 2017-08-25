@@ -88,6 +88,9 @@ class App extends React.Component {
 									<Link to="/app" className="navbar-item">
 										首頁
 									</Link>
+									<a className="navbar-item" target="_blank" href="https://github.com/MROS/infinite-city/blob/master/doc/%E6%8C%87%E5%8D%97.md">
+										指南
+									</a>
 								</div>
 								<div className="navbar-menu">
 									<div className="navbar-end">
