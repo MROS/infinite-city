@@ -5,7 +5,7 @@ let { recursiveGetBoard, getRootId } = require("../util/db_util.js");
 
 router.get("/browse", async function(req, res) {
 	try {
-		let max = Number(req.query.max) || 10;
+		let max = Number(req.query.max) || 10000;
 		let names = [];
 		if (req.query.name) {
 			names = req.query.name.split(",");

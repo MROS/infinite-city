@@ -31,7 +31,7 @@ router.post("/new", async function (req, res) {
 
 router.get("/browse", async function(req, res) {
 	try {
-		let max = req.query.max || 20;
+		let max = req.query.max || 10000;
 		let name = [], article_id = req.query.id;
 		if (req.query.name) {
 			name = req.query.name.split(",");
