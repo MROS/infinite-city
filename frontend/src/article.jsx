@@ -1,10 +1,10 @@
 import React from "react";
-import { fromJS, Map, List } from "immutable";
+import { fromJS, List } from "immutable";
 import { Link } from "react-router-dom";
 import util from "./util";
 import VariableInput from "./variableInput.jsx";
 import checkAPI from "../../isomorphic/checkAPI.js";
-import { SourceCode, ShowFormSeries, ShowOnSeries } from "./sourceCode.jsx";
+import { SourceCode, ShowOnSeries } from "./sourceCode.jsx";
 
 class InputComment extends React.Component {
 	constructor(props) {
@@ -386,7 +386,7 @@ class Article extends React.Component {
 				console.log("取得文章資料：非正常失敗");
 			}
 		}, (err) => {
-			console.log("AJAX失敗，取得文章資料失敗");
+			console.log(`AJAX失敗，取得文章資料失敗：${err.message}`);
 		});
 	}
 	submitComment(commentContent) {
@@ -420,6 +420,7 @@ class Article extends React.Component {
 			}
 		}, (err) => {
 			this.props.notify({ message: "AJAX失敗，留言失敗", level: "error" });
+			console.log(`AJAX失敗，留言失敗：${err.message}`);
 		});
 	}
 	componentDidMount() {

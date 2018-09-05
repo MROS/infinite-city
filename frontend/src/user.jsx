@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import JumpingPage from "./jumpingPage.jsx";
 
 class IDPasswordForm extends React.Component {
@@ -93,6 +92,7 @@ function Login(props) {
 			}
 		}, (err) => {
 			this.props.notify({ message: "AJAX失敗，登入失敗", level: "error" });
+			console.log(`AJAX失敗，登入失敗：${err.message}`);
 		});
 
 	};

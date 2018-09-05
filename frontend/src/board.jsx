@@ -1,9 +1,9 @@
 import React from "react";
-import { fromJS, Map, List } from "immutable";
+import { fromJS, Map } from "immutable";
 import { Link } from "react-router-dom";
 import VariableInput from "./variableInput.jsx";
 import util from "./util";
-import { SourceCode, ShowOnSeries, ShowFormSeries } from "./sourceCode.jsx";
+import { ShowOnSeries, ShowFormSeries } from "./sourceCode.jsx";
 import checkAPI from "../../isomorphic/checkAPI.js";
 
 function ruleToState(rules, upperForm) {
@@ -549,7 +549,7 @@ class Board extends React.Component {
 	componentDidMount() {
 		this.getBoardData();
 	}
-	componentDidUpdate(prevProps, prevState) {
+	componentDidUpdate(prevProps) {
 		if (prevProps.location.pathname != this.props.location.pathname) {
 			this.state = {
 				exist: true,
@@ -602,7 +602,7 @@ class Board extends React.Component {
 				});
 			}
 		}, (err) => {
-			console.log("AJAX失敗，取得看板資料失敗");
+			console.log(`AJAX失敗，取得看板資料失敗：${err.message}`);
 		});
 	}
 	changePanel(panel) {
@@ -664,6 +664,7 @@ class Board extends React.Component {
 			}
 		}, (err) => {
 			this.props.notify({ message: "AJAX失敗，發文失敗", level: "error" });
+			console.log(`AJAX失敗，發文失敗：${err.message}`);
 		});
 	}
 	newBoard(boardDefinition) {
@@ -700,6 +701,7 @@ class Board extends React.Component {
 			}
 		}, (err) => {
 			this.props.notify({ message: "AJAX失敗，創建看板失敗", level: "error" });
+			console.log(`AJAX失敗，創建看板失敗：${err.message}`);
 		});
 	}
 	boardLocation() {

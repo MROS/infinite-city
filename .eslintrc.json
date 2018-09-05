@@ -42,6 +42,8 @@
         "semi": [
             "error",
             "always"
-        ]
+        ],
+        "react/jsx-uses-vars": "warn",
+        "react/jsx-uses-react": "warn"
     }
 }
