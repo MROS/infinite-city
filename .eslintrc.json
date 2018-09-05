@@ -5,6 +5,7 @@
         "commonjs": true,
         "es6": true
     },
+    "parser": "babel-eslint",
     "parserOptions": {
         "ecmaVersion": 2017,
         "sourceType": "module",
@@ -44,6 +45,7 @@
             "always"
         ],
         "react/jsx-uses-vars": "warn",
-        "react/jsx-uses-react": "warn"
+        "react/jsx-uses-react": "warn",
+        "react/react-in-jsx-scope": "error"
     }
 }

@@ -5,22 +5,28 @@
 	"author": "MROS",
 	"license": "MIT",
 	"dependencies": {
-		"babel-core": "^6.25.0",
-		"babel-loader": "^7.1.1",
-		"babel-preset-react": "^6.24.1",
 		"immutable": "^3.8.1",
-		"react": "^15.6.1",
-		"react-dom": "^15.6.1",
+		"react": "^16.4.2",
+		"react-dom": "^16.4.2",
+		"react-loadable": "^5.5.0",
 		"react-notification-system": "^0.2.15",
 		"react-router-dom": "^4.1.2",
-		"webpack": "^3.3.0"
+		"remove": "^0.1.5"
 	},
 	"scripts": {
-		"build": "webpack",
-		"watch": "webpack --watch",
-		"build:prod": "NODE_ENV=production webpack"
+		"build": "webpack --mode development",
+		"watch": "webpack --mode development --watch",
+		"build:prod": "webpack --mode production"
 	},
 	"devDependencies": {
-		"babili-webpack-plugin": "^0.1.2"
+		"@babel/core": "^7.0.0",
+		"@babel/plugin-syntax-dynamic-import": "^7.0.0",
+		"@babel/preset-env": "^7.0.0",
+		"@babel/preset-react": "^7.0.0",
+		"babel-eslint": "8",
+		"babel-loader": "^8.0.2",
+		"eslint": "4.x",
+		"webpack": "^4.17.2",
+		"webpack-cli": "^3.1.0"
 	}
 }

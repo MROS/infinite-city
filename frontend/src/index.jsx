@@ -7,10 +7,14 @@ import {
 	Link
 } from "react-router-dom";
 import NotificationSystem from "react-notification-system";
-import Article from "./article.jsx";
-import Board from "./board.jsx";
-import { Login } from "./user.jsx";
-import { SignUpForm, StartVerifyForm } from "./signup.jsx";
+import asyncComponent from "./asyncComponent.jsx";
+
+const Board = asyncComponent(() => import(/* webpackChunkName: "board" */ "./board.jsx"));
+const Article = asyncComponent(() => import(/* webpackChunkName: "article" */ "./article.jsx"));
+const Login = asyncComponent(() => import(/* webpackChunkName: "login" */ "./login.jsx"));
+const SignUpForm = asyncComponent(() => import(/* webpackChunkName: "signup" */ "./signup.jsx"), "SignUpForm");
+const StartVerifyForm = asyncComponent(() => import(/* webpackChunkName: "signup" */ "./signup.jsx"), "StartVerifyForm");
+
 
 class App extends React.Component {
 	constructor(props) {

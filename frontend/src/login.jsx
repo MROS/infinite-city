@@ -105,6 +105,4 @@ function Login(props) {
 }
 
 
-export {
-	Login
-};
+export default Login;
