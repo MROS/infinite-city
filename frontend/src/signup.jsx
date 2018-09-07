@@ -112,7 +112,7 @@ class CheckSamePassword extends React.Component {
 							onChange={this.onChangeData.bind(this, "password")}
 							className={ok ? "input is-sucess" : "input is-danger"}></input>
 						<span className="icon is-small is-left">
-							<i className="fa fa-lock"></i>
+							🔒
 						</span>
 					</p>
 				</div>
@@ -123,7 +123,7 @@ class CheckSamePassword extends React.Component {
 							onChange={this.onChangeData.bind(this, "valid")}
 							className={ok ? "input is-sucess" : "input is-danger"}></input>
 						<span className="icon is-small is-left">
-							<i className="fa fa-lock"></i>
+							🔒
 						</span>
 					</p>
 					{
@@ -200,7 +200,7 @@ class StartVerifyForm extends React.Component {
 						url="/api/user/email-used?email="
 						handleChange={this.changeEmail.bind(this)}
 						submitFail={this.state.submitFail}
-						check={checkEmail}> <i className="fa fa-envelope"></i> </CheckUsedInput>
+						check={checkEmail}> ✉️ </CheckUsedInput>
 					<div className="field">
 						<p className="control">
 							<button className="button" onClick={this.submitForm.bind(this)}>
@@ -314,7 +314,7 @@ class SignUpForm extends React.Component {
 						url="/api/user/id-used?id="
 						handleChange={this.handleChange.bind(this, "id")}
 						submitFail={this.state.submitFail}
-						check={checkId}> <i className="fa fa-user-o"></i> </CheckUsedInput>
+						check={checkId}> 👤 </CheckUsedInput>
 					<CheckSamePassword
 						submitFail={this.state.submitFail}
 						handleChange={this.handleChange.bind(this, "password")} />

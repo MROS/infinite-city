@@ -32,7 +32,7 @@ class Extendable extends React.Component {
 					this.props.ok ?
 						< h5 className="title is-5">{this.props.name}</h5> :
 						< h5 className="title is-5">
-							<i className="fa fa-warning" style={{marginRight: "3px"}}></i>
+							<span style={{marginRight: "3px"}}>⚠️</span>
 							{this.props.name}
 						</h5>
 				}
@@ -791,7 +791,7 @@ class Board extends React.Component {
 						<a
 							style={{ color: "purple" }}
 							onClick={() => { this.setState({ showBoard: !this.state.showBoard }); }}>
-							{this.state.showBoard ? <span><i className="fa fa-caret-down"></i> 看板</span> : <span><i className="fa fa-caret-right"></i> 看板</span>}
+							{this.state.showBoard ? <span><span className="icon">▼</span> 看板</span> : <span><span className="icon">▶</span> 看板</span>}
 						</a>
 					</h5>
 					{
@@ -815,7 +815,7 @@ class Board extends React.Component {
 						<a
 							style={{ color: "purple" }}
 							onClick={() => { this.setState({ showArticle: !this.state.showArticle }); }}>
-							{this.state.showArticle ? <span><i className="fa fa-caret-down"></i> 文章</span> : <span><i className="fa fa-caret-right"></i> 文章</span>}
+							{this.state.showArticle ? <span><span className="icon">▼</span> 文章</span> : <span><span className="icon">▶</span> 文章</span>}
 						</a>
 					</h5>
 					{

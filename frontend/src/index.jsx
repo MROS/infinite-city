@@ -1,3 +1,5 @@
+import "bulma/css/bulma.min.css";
+import "balloon-css/balloon.min.css";
 import React from "react";
 import ReactDOM from "react-dom";
 import {

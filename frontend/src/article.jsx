@@ -317,7 +317,7 @@ class Article extends React.Component {
 							data-balloon={`${showCommentSource ? "隱藏" : "顯示"}留言源碼`}
 						>
 							<span className="icon is-small">
-								<i className="fa fa-code"></i>
+								<img src="/img/code.svg" />
 							</span>
 						</a>
 					</div>
@@ -446,7 +446,7 @@ class Article extends React.Component {
 					<div style={{ float: "right" }}>
 						<a className="button" href="#commentArea">
 							<span className="icon is-small">
-								<i className="fa fa-comment-o"></i>
+								🗨️
 							</span>
 						</a>
 						<a
@@ -454,7 +454,7 @@ class Article extends React.Component {
 							onClick={this.toggleArticleSource}
 						>
 							<span className="icon is-small">
-								<i className="fa fa-code"></i>
+								<img src="/img/code.svg" />
 							</span>
 						</a>
 					</div>

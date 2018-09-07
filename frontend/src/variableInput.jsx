@@ -75,11 +75,13 @@ class VariableInput extends React.Component {
 											data-balloon-pos="up"
 											data-balloon={`${this.state.show.get(label) ? "隱藏" : "顯示"}限制條件`}
 										>
-											{
-												this.state.show.get(label) ?
-													<i className="fa fa-eye-slash"></i> :
-													<i className="fa fa-eye"></i>
-											}
+											<span className="icon is-small">
+												{
+													this.state.show.get(label) ?
+														<img src="/img/eye-off.svg" /> :
+														<img src="/img/eye.svg" />
+												}
+											</span>
 										</a>
 									</p>
 								</div>

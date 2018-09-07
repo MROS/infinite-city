@@ -43,7 +43,7 @@ class IDPasswordForm extends React.Component {
 								className="input" placeholder="使用者名稱"
 								value={this.state.id} onChange={this.handleIDChange} />
 							<span className="icon is-small is-left">
-								<i className="fa fa-user-o"></i>
+								👤
 							</span>
 						</p>
 					</div>
@@ -53,7 +53,7 @@ class IDPasswordForm extends React.Component {
 								className="input" type="password" placeholder="密碼"
 								value={this.state.password} onChange={this.handlePasswordChange} />
 							<span className="icon is-small is-left">
-								<i className="fa fa-lock"></i>
+								🔒
 							</span>
 						</p>
 					</div>

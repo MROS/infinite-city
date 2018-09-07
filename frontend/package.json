@@ -5,13 +5,13 @@
 	"author": "MROS",
 	"license": "MIT",
 	"dependencies": {
+		"balloon-css": "^0.5.0",
+		"bulma": "^0.7.1",
 		"immutable": "^3.8.1",
 		"react": "^16.4.2",
 		"react-dom": "^16.4.2",
-		"react-loadable": "^5.5.0",
 		"react-notification-system": "^0.2.15",
-		"react-router-dom": "^4.1.2",
-		"remove": "^0.1.5"
+		"react-router-dom": "^4.1.2"
 	},
 	"scripts": {
 		"build": "webpack --mode development",
@@ -25,7 +25,9 @@
 		"@babel/preset-react": "^7.0.0",
 		"babel-eslint": "8",
 		"babel-loader": "^8.0.2",
+		"css-loader": "^1.0.0",
 		"eslint": "4.x",
+		"style-loader": "^0.23.0",
 		"webpack": "^4.17.2",
 		"webpack-cli": "^3.1.0"
 	}
