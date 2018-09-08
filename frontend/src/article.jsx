@@ -459,7 +459,7 @@ class Article extends React.Component {
 						</a>
 					</div>
 				</div>
-				<div style={{ clear: "left", marginBottom: "32px", fontSize: "13px", color: "grey" }}>
+				<div style={{ clear: "left", marginBottom: "32px", fontSize: "13px", color: "#616161" }}>
 					<h3 className="title is-3">{match.params.articleName}</h3>
 					<div>
 						<div>作者：{this.state.author}</div>
