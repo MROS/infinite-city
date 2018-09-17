@@ -76,21 +76,39 @@ class App extends React.Component {
 			console.log(`取得登入資料失敗：${err}`);
 		});
 	}
+	handleBurgerClick() {
+		// Reference: https://bulma.io/documentation/components/navbar/
+		const burgers = document.querySelectorAll('.navbar-burger');
+		const menu = document.querySelectorAll('.navbar-menu');
+		if(burgers.length > 0) {
+			burgers.forEach((el) => {
+				el.classList.toggle('is-active');
+			});
+		}
+		if(menu.length > 0) {
+			menu.forEach((el) => {
+				el.classList.toggle('is-active');
+			});
+		}
+	}
 	render() {
 		return (
 			<Router>
 				<div>
-					<div style={{
-						borderBottomStyle: "solid",
-						borderBottomWidth: "1px",
-						borderBottomColor: "#BFBFBF"
-					}}>
-						<div className="container" style={{ width: "60%" }}>
-							<nav className="navbar">
-								<div className="navbar-brand">
-									<Link to="/app" className="navbar-item">
-										<h3 className="title is-3">無限城</h3>
-									</Link>
+					<nav className="navbar has-shadow is-spaced">
+						<div className="container">
+							<div className="navbar-brand">
+								<Link to="/app" className="navbar-item">
+									<h3 className="title is-3">無限城</h3>
+								</Link>
+								<div className="navbar-burger" onClick={() => this.handleBurgerClick()}>
+									<span />
+									<span />
+									<span />
+								</div>
+							</div>
+							<div className="navbar-menu">
+								<div className="navbar-start">
 									<Link to="/app" className="navbar-item">
 										首頁
 									</Link>
@@ -98,30 +116,28 @@ class App extends React.Component {
 										指南
 									</a>
 								</div>
-								<div className="navbar-menu">
-									<div className="navbar-end">
-										{
-											(() => {
-												if (this.state.login) {
-													return [
-														<a key="id" className="navbar-item">
-															{this.state.id}
-														</a>,
-														<a key="logout" onClick={this.logout} className="navbar-item">登出</a>
-													];
-												} else {
-													return [
-														<Link key="login" to="/app/login" className="navbar-item">登入</Link>,
-														<Link key="signUp" to="/app/start-verify" className="navbar-item">註冊</Link>
-													];
-												}
-											})()
-										}
-									</div>
+								<div className="navbar-end">
+									{
+										(() => {
+											if (this.state.login) {
+												return [
+													<a key="id" className="navbar-item">
+														{this.state.id}
+													</a>,
+													<a key="logout" onClick={this.logout} className="navbar-item">登出</a>
+												];
+											} else {
+												return [
+													<Link key="login" to="/app/login" className="navbar-item">登入</Link>,
+													<Link key="signUp" to="/app/start-verify" className="navbar-item">註冊</Link>
+												];
+											}
+										})()
+									}
 								</div>
-							</nav>
+							</div>
 						</div>
-					</div>
+					</nav>
 					<div className="container" style={{marginTop: "65px", width: "820px"}}>
 						<Switch>
 							<Route exact path="/app/login" render={(props) => (
