@@ -96,7 +96,7 @@ class App extends React.Component {
 			<Router>
 				<div>
 					<nav className="navbar has-shadow is-spaced">
-						<div className="container">
+						<div className="container" style={{maxWidth: "70%"}}>
 							<div className="navbar-brand">
 								<Link to="/app" className="navbar-item">
 									<h3 className="title is-3">無限城</h3>
@@ -138,7 +138,7 @@ class App extends React.Component {
 							</div>
 						</div>
 					</nav>
-					<div className="container" style={{marginTop: "65px", width: "820px"}}>
+					<div className="container" style={{marginTop: "65px"}}>
 						<Switch>
 							<Route exact path="/app/login" render={(props) => (
 								<Login appState={this.state} notify={this.notify} changeLoginState={this.changeLoginState} {...props} />
