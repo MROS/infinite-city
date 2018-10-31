@@ -28,6 +28,8 @@ class App extends React.Component {
 		this.changeLoginState = this.changeLoginState.bind(this);
 		this.logout = this.logout.bind(this);
 		this.notify = this.notify.bind(this);
+		// TODO: 動態調節視窗時不會隨之變化
+		this.isMobile = (window.innerWidth <= 1088);
 	}
 	notify(option) {
 		option.position = option.position || "tc";
@@ -96,7 +98,7 @@ class App extends React.Component {
 			<Router>
 				<div>
 					<nav className="navbar has-shadow is-spaced">
-						<div className="container" style={{maxWidth: "70%"}}>
+						<div className="container" style={this.isMobile ? {} : {maxWidth: "70%"}}>
 							<div className="navbar-brand">
 								<Link to="/app" className="navbar-item">
 									<h3 className="title is-3">無限城</h3>
@@ -138,7 +140,7 @@ class App extends React.Component {
 							</div>
 						</div>
 					</nav>
-					<div className="container" style={{marginTop: "65px"}}>
+					<div className="container" style={this.isMobile ? {marginTop: "35px", width: "90%"} : {marginTop: "65px", width: "820px"}}>
 						<Switch>
 							<Route exact path="/app/login" render={(props) => (
 								<Login appState={this.state} notify={this.notify} changeLoginState={this.changeLoginState} {...props} />
