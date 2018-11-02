@@ -23,7 +23,8 @@ class App extends React.Component {
 		super(props);
 		this.state = {
 			login: false,
-			id: ""
+			id: "",
+			burgerOpen: false,
 		};
 		this.changeLoginState = this.changeLoginState.bind(this);
 		this.logout = this.logout.bind(this);
@@ -80,18 +81,9 @@ class App extends React.Component {
 	}
 	handleBurgerClick() {
 		// Reference: https://bulma.io/documentation/components/navbar/
-		const burgers = document.querySelectorAll('.navbar-burger');
-		const menu = document.querySelectorAll('.navbar-menu');
-		if(burgers.length > 0) {
-			burgers.forEach((el) => {
-				el.classList.toggle('is-active');
-			});
-		}
-		if(menu.length > 0) {
-			menu.forEach((el) => {
-				el.classList.toggle('is-active');
-			});
-		}
+		this.setState({
+			burgerOpen: !this.state.burgerOpen
+		});
 	}
 	render() {
 		return (
@@ -109,7 +101,7 @@ class App extends React.Component {
 									<span />
 								</div>
 							</div>
-							<div className="navbar-menu">
+							<div className={this.state.burgerOpen ? "navbar-menu is-active" : "navbar-menu"}>
 								<div className="navbar-start">
 									<Link to="/app" className="navbar-item">
 										首頁
