@@ -33,12 +33,27 @@ module.exports = {
 					loader: "babel-loader",
 					options: {
 						presets: ["@babel/preset-react"],
+						plugins: [
+							[
+								"react-css-modules",
+								{ generateScopedName: "[local]-[hash:base64:10]"}
+							]
+						]
 					}
 				}
 			},
 			{
 				test: /\.css$/,
-				use: ["style-loader", "css-loader"]
+				oneOf: [
+					{
+						// import 時，後綴 ?raw 代表不使用 module
+						resourceQuery: /^\?raw$/,
+						use: ["style-loader", "css-loader"]
+					},
+					{
+						use: ["style-loader", "css-loader?modules&localIdentName=[local]-[hash:base64:10]"]
+					}
+				]
 			},
 		]
 	}

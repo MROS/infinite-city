@@ -25,6 +25,7 @@
 		"@babel/preset-react": "^7.0.0",
 		"babel-eslint": "8",
 		"babel-loader": "^8.0.2",
+		"babel-plugin-react-css-modules": "^3.4.2",
 		"css-loader": "^1.0.0",
 		"eslint": "4.x",
 		"style-loader": "^0.23.0",

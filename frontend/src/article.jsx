@@ -1,3 +1,4 @@
+import "./css/article.css";
 import React from "react";
 import { fromJS, List } from "immutable";
 import { Link } from "react-router-dom";
@@ -466,7 +467,7 @@ class Article extends React.Component {
 						<div>{this.formatDate(this.state.date)}</div>
 					</div>
 				</div>
-				<div style={{ marginBottom: "25px" }}>
+				<div styleName="article-content" style={{ marginBottom: "25px" }}>
 					{this.renderArticle()}
 				</div>
 				<div id="commentArea" style={{ marginBottom: "35px" }}>

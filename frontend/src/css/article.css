@@ -1,0 +1,9 @@
+.article-content {
+    font-size: 16px;
+}
+
+@media (max-width: 1024px) {
+    .article-content {
+        font-size: 19px;
+    }
+}

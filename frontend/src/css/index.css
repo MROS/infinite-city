@@ -1,0 +1,18 @@
+.navbar {
+    max-width: 70%;
+}
+
+.switch {
+    margin-top: 65px;
+    width: 820px;
+}
+
+@media (max-width: 1024px) {
+    .navbar {
+        max-width: 95%;
+    }
+    .switch {
+        margin-top: 35px;
+        width: 90%;
+    }
+}
