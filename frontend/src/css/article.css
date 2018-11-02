@@ -1,5 +1,6 @@
 .article-content {
     font-size: 16px;
+    color: #181818;
 }
 
 @media (max-width: 1024px) {

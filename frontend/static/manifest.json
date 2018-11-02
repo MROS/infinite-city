@@ -1,0 +1,27 @@
+{
+	"short_name": "無限城",
+	"name": "無限城",
+	"description": "可編程的深度論壇，你能夠撰寫程式來撰寫文章、限制文章格式、設定看板及文章權限",
+	"theme_color": "white",
+	"background_color": "white",
+	"display": "standalone",
+	"orientation": "portrait",
+	"icons": [
+		{
+			"src": "/img/icon-64.png",
+			"type": "image/png",
+			"sizes": "64x64"
+		},
+		{
+			"src": "/img/icon-192.png",
+			"type": "image/png",
+			"sizes": "192x192"
+		},
+		{
+			"src": "/img/icon-512.png",
+			"type": "image/png",
+			"sizes": "512x512"
+		}
+	],
+	"start_url": "/"
+}
