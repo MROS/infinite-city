@@ -1,8 +1,9 @@
-# import NewResourceRet, Field, AllowOrNot from 'api_common.gql'
+# import Reputation, EvalType, NewResourceRet, Field, AllowOrNot from 'common.gql'
 
 type Content {
     body: String!
-    label: String!
+    label: String!,
+    evalType: EvalType!
 }
 
 type FormRules {
@@ -18,7 +19,6 @@ type BackendRules {
     onComment: [String!]
 }
 
-
 type Mutation {
     newArticle(
         title: String!,
@@ -31,12 +31,20 @@ type Mutation {
     newComment(articleId: String, commentContent: [Content!]!): NewResourceRet
 }
 
+type ArticleHeader {
+    title: String!
+    date: String!
+    author: String!
+    reputations: [Reputation!]!
+}
+
 type Article {
     title: String!
     date: String!
     author: String!
+    reputations: [Reputation!]!
     renderComment: String
-    articleContent: [String]
+    articleContent: [Content!]!
     commentForm: [Field!]!
     comment: [Comment!]
     authority: {
@@ -49,5 +57,5 @@ type Query {
     # 例如：api/board/browse?base=595cb098f549af236588f88d&max=50&name=運動類,中華職棒,爪爪板&id=5498as845e4156er6115w88d
     # 參數 base，爲看板 id，預設爲根看板
     # 參數 commentNumber 限制回傳的推文數
-    getArticle(base: String, commentNumber: Int, path: [String]): Article
+    getArticle(base: String, commentNumber: Int, path: [String!]!): Article
 }

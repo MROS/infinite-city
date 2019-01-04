@@ -1,51 +1,25 @@
-enum StartVerifyRet {
-    USED
-    INVALID
-    OK # 代表系統寄了註冊網站給該信箱
-}
+# import Reputation from 'common.gql'
+# import ArticleHeader from 'article.gql'
+# import CommentWithLocation from 'comment.gql'
 
-enum NewUserRet {
-    USED
-    VERIFY_GUID_ERROR_OR_EXPIRED
-    FAIL
-    OK
-}
-
-enum LoginRet {
-    INVALID_ID_OR_PASSWORD
-    FAIL
-    OK
-}
-
-enum LogoutRet {
-    OK
-    NOT_LOGIN
-}
+# 個人頁
 
 type User {
-    login: Boolean!
     id: String!
+    reputations: [Reputation!]!
+    about: String! # 一段自我介紹
+    articles: [ArticleHeader!]!
+    comments: [CommentWithLocation!]!
 }
 
-enum UsedCheck {
-    USED
-    INVALID
-    OK
-}
-
-type Mutation {
-    startVerify(email: String!): StartVerifyRet!
-
-    # verifyGuid 爲驗證碼，須在一個小時使用
-    newUser(id: String!, password: String!, verifyGuid: String!): NewUserRet!
-    login(id: String!, password: String!): LoginRet!
-    logout: LogoutRet!
+type MoreUserInfo {
+    articles: [ArticleHeader!]!
+    comments: [CommentWithLocation!]!
 }
 
 type Query {
-    who: User!
+    user(id: String!): User
 
-    # 以下兩項是爲了讓前端能即使反饋而設計
-    emailUsed(email: String!): UsedCheck!
-    idUsed(id: String!): UsedCheck!
+    # 下拉時取得更舊的資訊，在 date 之前的前 number 筆資訊
+    moreUserInfo(id: String!, date: String!, number: Int): MoreUserInfo
 }

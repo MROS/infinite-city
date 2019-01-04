@@ -1,0 +1,19 @@
+# comment 要做幾層？兩層，還是無限？
+
+type Comment {
+    author: String!
+    date: String!
+}
+
+# 描述一個 comment 的位置
+type commentLocation {
+    boardPath: [String!]!
+    article: String!
+    commentPath: [Int!]!
+}
+
+type CommentWithLocation {
+    location: commentLocation!
+    author: String!
+    date: String!
+}

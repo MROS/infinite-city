@@ -1,4 +1,5 @@
-# import NewResourceRet, Field, AllowOrNot from 'api_common.gql'
+# import NewResourceRet, Field, AllowOrNot from 'common.gql'
+# import ArticleHeader from 'article.gql'
 
 type Authority {
     onNewArticle: AllowOrNot!
@@ -6,9 +7,9 @@ type Authority {
 }
 
 type Board {
-    isRoot: Boolean,
+    isRoot: Boolean!,
     depth: Int!,
-    date: String!,
+    date: String!, # 將 JavaScript 的 date 序列化
     parent: String,
     name: String!,
 
@@ -28,7 +29,7 @@ type Board {
 }
 
 type GetBoardRet {
-    articleList: [String]! # 文章列表
+    articleList: [ArticleHeader!]! # 文章列表
     boardList: [String]! # 看板列表
     currentBoard: Board! # 查找的這個看板名稱
     authority: Authority! # 使用者的權限 

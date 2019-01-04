@@ -1,0 +1,24 @@
+# import ArticleHeader from 'article.gql'
+# import NewResourceRet from 'common.gql'
+# 不同於一般的板可以在目錄樹中找到，虛擬板要顯示在哪裏？
+
+type BoardPath {
+    path: [String!]!
+}
+
+type VirtualBoard {
+    boardSet: [boardPath!]!
+    about: String! # 關於這個虛擬板
+    articleList: [ArticleHeader!]!
+}
+
+type Query {
+    getVirtualBoard(name: String, date: String, number: Int): VirtualBoard
+}
+
+type Mutation {
+    newVirtualBoard(
+        name: String!,
+        boardSet: [boardPath!]!
+    ): NewResourceRet
+}

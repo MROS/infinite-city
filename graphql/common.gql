@@ -20,3 +20,15 @@ type NewResourceRet {
     id: String
     msg: String
 }
+
+# 超級按讚系統，可接受任何漢字
+type Reputation {
+    char: String!
+    count: Int!
+}
+
+type ReputationWithId {
+    char: String!
+    count: Int!
+    id: [String!]!
+}
