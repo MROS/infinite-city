@@ -10,6 +10,7 @@
 		+ 返回 "ID 已被使用" 或 "認證碼錯誤或過期" 或 "OK" 或 "FAIL"
 	- POST api/user/login
 		+ { id, password }
+		+ 返回 "帳號或密碼錯誤" 或 "OK" 或 "FAIL"
 	- GET api/user/logout
 		+ 無其他參數，返回 "OK" 或 "尚未登入"
 	- GET api/user/who

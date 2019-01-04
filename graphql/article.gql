@@ -1,0 +1,53 @@
+# import NewResourceRet, Field, AllowOrNot from 'api_common.gql'
+
+type Content {
+    body: String!
+    label: String!
+}
+
+type FormRules {
+    commentForm: [Field!]!
+}
+
+type RenderRules {
+    renderComment: String! # 該字串 eval 之後必須是函式(typeof 爲 'function')
+}
+
+type BackendRules {
+    onEnter: [String!]
+    onComment: [String!]
+}
+
+
+type Mutation {
+    newArticle(
+        title: String!,
+        board: String!,
+        articleContent: [Content!]!,
+        formRules: FormRule!,
+        renderRules: RenderRules,
+        backendRules: BackendRules): NewResourceRet
+
+    newComment(articleId: String, commentContent: [Content!]!): NewResourceRet
+}
+
+type Article {
+    title: String!
+    date: String!
+    author: String!
+    renderComment: String
+    articleContent: [String]
+    commentForm: [Field!]!
+    comment: [Comment!]
+    authority: {
+        onComment: AllowOrNot!
+    }
+}
+
+type Query {
+    # 從某個基準看板（base）開始，往下根據名字（可爲中文）查找看板
+    # 例如：api/board/browse?base=595cb098f549af236588f88d&max=50&name=運動類,中華職棒,爪爪板&id=5498as845e4156er6115w88d
+    # 參數 base，爲看板 id，預設爲根看板
+    # 參數 commentNumber 限制回傳的推文數
+    getArticle(base: String, commentNumber: Int, path: [String]): Article
+}

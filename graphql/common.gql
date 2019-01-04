@@ -1,0 +1,22 @@
+type AllowOrNot {
+    ok: Boolean!
+    msg: String!
+}
+
+enum EvalType {
+    STRING
+    FUNCTION
+}
+
+type Field {
+    evalType: EvalType!
+    restrict: String! # 該字串 eval 之後必須是函式(typeof 爲 'function')
+    label: String!
+}
+
+# 若成功創建，ok 爲 true，並返回 id 表示新資源的唯一表示；若 ok 爲 false，msg 會儲存錯誤訊息
+type NewResourceRet {
+    ok: Boolean!
+    id: String
+    msg: String
+}

@@ -1,0 +1,51 @@
+enum StartVerifyRet {
+    USED
+    INVALID
+    OK # 代表系統寄了註冊網站給該信箱
+}
+
+enum NewUserRet {
+    USED
+    VERIFY_GUID_ERROR_OR_EXPIRED
+    FAIL
+    OK
+}
+
+enum LoginRet {
+    INVALID_ID_OR_PASSWORD
+    FAIL
+    OK
+}
+
+enum LogoutRet {
+    OK
+    NOT_LOGIN
+}
+
+type User {
+    login: Boolean!
+    id: String!
+}
+
+enum UsedCheck {
+    USED
+    INVALID
+    OK
+}
+
+type Mutation {
+    startVerify(email: String!): StartVerifyRet!
+
+    # verifyGuid 爲驗證碼，須在一個小時使用
+    newUser(id: String!, password: String!, verifyGuid: String!): NewUserRet!
+    login(id: String!, password: String!): LoginRet!
+    logout: LogoutRet!
+}
+
+type Query {
+    who: User!
+
+    # 以下兩項是爲了讓前端能即使反饋而設計
+    emailUsed(email: String!): UsedCheck!
+    idUsed(id: String!): UsedCheck!
+}

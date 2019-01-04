@@ -1,0 +1,68 @@
+# import NewResourceRet, Field, AllowOrNot from 'api_common.gql'
+
+type Authority {
+    onNewArticle: AllowOrNot!
+    onNewBoard: AllowOrNot!
+}
+
+type Board {
+    isRoot: Boolean,
+    depth: Int!,
+    date: String!,
+    parent: String,
+    name: String!,
+
+    renderTitle: String,
+    renderArticleContent: String,
+    renderComment: String,
+
+    onEnter: [String!],
+    onNewBoard: [String!],
+    onNewArticle: [String!],
+    onComment: [String!],
+
+    articleForm: [Field]!,
+    commentForm: [Field]!,
+
+    manager: [String],
+}
+
+type GetBoardRet {
+    articleList: [String]! # 文章列表
+    boardList: [String]! # 看板列表
+    currentBoard: Board! # 查找的這個看板名稱
+    authority: Authority! # 使用者的權限 
+}
+
+type FormRules {
+    articleForm: [Field]!
+    commentForm: [Field]!
+}
+
+type RenderRules {
+    renderTitle: String! # 該字串 eval 之後必須是函式(typeof 爲 'function')
+    renderArticleContent: String! # 該字串 eval 之後必須是函式(typeof 爲 'function')
+    renderComment: String! # 該字串 eval 之後必須是函式(typeof 爲 'function')
+}
+
+type BackendRules {
+    onEnter: [String!]
+    onNewBoard: [String!]
+    onNewArticle: [String!]
+    onComment: [String!]
+}
+
+type Query {
+    # 帶參數 max，限制返回陣列最多可以多長，預設爲10
+    # 帶參數 base，爲亂碼 _id，預設爲根看板
+    getBoard(base: String!, max: Int, name: String!): GetBoardRet
+}
+
+type Mutation {
+    newBoard(
+        name: String!,
+        parent: String!,
+        formRules: FormRules!,
+        renderRules: RenderRules!,
+        backendRules: BackendRules!): NewResourceRet
+}
