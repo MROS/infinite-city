@@ -3,8 +3,34 @@
     color: #181818;
 }
 
+.article-content h1 {
+    font-size: 180%;
+}
+.article-content h2 {
+    font-size: 160%;
+}
+.article-content h3 {
+    font-size: 140%;
+}
+.article-content h4 {
+    font-size: 120%;
+}
+.article-content h5 {
+    font-size: 120%;
+}
+.article-content h6 {
+    font-size: 110%;
+}
+
+.article-content p {
+    margin-bottom: 10px;
+}
+
 @media (max-width: 1024px) {
     .article-content {
         font-size: 19px;
+    }
+    .article-content p {
+        margin-bottom: 5px;
     }
 }

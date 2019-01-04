@@ -6,6 +6,7 @@ import util from "./util";
 import VariableInput from "./variableInput.jsx";
 import checkAPI from "../../isomorphic/checkAPI.js";
 import { SourceCode, ShowOnSeries } from "./sourceCode.jsx";
+import md from "markdown-it";
 
 class InputComment extends React.Component {
 	constructor(props) {
@@ -150,11 +151,22 @@ function evaluateItem(item, exposedData) {
 	}
 }
 
+// 僅將 '\n' 轉換爲 <br />
+// 可能廢棄
 function newLineToBr(str) {
 	return str.split("\n").map((p, index) => {
 		if (p == "") { return <br key={index} />; }
 		else { return <span key={index}>{p}<br /></span>; }
 	});
+}
+
+// 從比較語言轉成 HTML ，目前採用 markdown ，但太肥大希望能自己設計
+function fromMarkupToHTML(str) {
+	return <span dangerouslySetInnerHTML={{__html: md().render(str)}}></span>;
+}
+
+function postRender(str) {
+	return fromMarkupToHTML(str);
 }
 
 function RenderContent(props) {
@@ -168,7 +180,7 @@ function RenderContent(props) {
 	let renderResult;
 	try {
 		renderResult = renderFunction(evaluatedContent, order);
-		renderResult = newLineToBr(renderResult);
+		renderResult = postRender(renderResult);
 		return <span>{renderResult}</span>;
 	} catch (error) {
 		console.log(error);
