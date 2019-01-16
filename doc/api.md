@@ -49,6 +49,8 @@
 			1. 狀態200，{ _id: String } 代表新建立看板的 id
 			2. 狀態403與純字串的錯誤訊息，代表被板主定義的 onNewBoard 婊了（字串也是板主客製的）
 * api/article
+	- PUT api/article?id=?
+		+ { title, articleContent }
 	- POST api/article/new
 		+ { title, board, articleContent, formRules, renderRules, backendRules }
 		+ title: 字串，文章標題，不可爲空字串
