@@ -51,6 +51,7 @@
 * api/article
 	- PUT api/article?id=?
 		+ { title, articleContent }
+		+ 返回 { ok: boolean, msg: String }
 	- POST api/article/new
 		+ { title, board, articleContent, formRules, renderRules, backendRules }
 		+ title: 字串，文章標題，不可爲空字串
@@ -72,15 +73,16 @@
 		+ 帶參數 base，爲亂碼 _id，預設爲根看板
 		+ 帶參數 max 限制回傳的推文數
 		+ 返回一篇文章 
-			1. title: String
-			2. date
-			3. author: String
-			4. renderComment: String
-			5. renderArticleContent: String
-			6. articleContent: [String]
-			7. commentForm: [Object]
-			8. comment: [Object]
-			9. authority 中的資料如下，如果 ok == false，代表當前使用者無權進行該行動
+			1. id: String
+			2. title: String
+			3. date
+			4. author: String
+			5. renderComment: String
+			6. renderArticleContent: String
+			7. articleContent: [String]
+			8. commentForm: [Object]
+			9. comment: [Object]
+			10. authority 中的資料如下，如果 ok == false，代表當前使用者無權進行該行動
 				1. onComment: { ok: boolean, msg: String }
 * api/comment
 	- POST api/comment/new
