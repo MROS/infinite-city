@@ -8,8 +8,9 @@ async function createComment(author_id, article_id, commentContent) {
 	if (!article) {
 		throw `${ article_id } 文章不存在`;
 	}
+	let article_data = _.last(article.data);
 
-	processContent(commentContent, article.commentForm); // 檢查是否符合表格
+	processContent(commentContent, article_data.commentForm); // 檢查是否符合表格
 
 	let new_comment = {
 		article: article_id,
@@ -17,8 +18,8 @@ async function createComment(author_id, article_id, commentContent) {
 		commentContent: commentContent,
 		date: new Date()
 	};
-	let restricts = await findBackendRules(article.board, ["onComment", "onEnter"], article);
-	let err_msg = doRestricts({ comment: new_comment, article: article },
+	let restricts = await findBackendRules(article.board, ["onComment", "onEnter"], article_data);
+	let err_msg = doRestricts({ comment: new_comment, article: article_data },
 		author_id, restricts["onComment"] + restricts["onEnter"]);
 	if (err_msg) {
 		return { err_msg };

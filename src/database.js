@@ -62,21 +62,23 @@ const board_schema_t = {
 };
 
 const article_schema_t = {
-	"title": { type: String, required: true },
 	"board": { type: ObjectId, required: true },
-	"date": { type: Date, required: true },
-	"author": String, // 若是匿名看板，可以無作者
+	"data" : [{
+		"title": { type: String, required: true },
+		"date": { type: Date, required: true },
+		"author": String, // 若是匿名看板，可以無作者
 
-	// Render Rules
-	"renderComment": { type: String, default: null },
-	// Backend Rules
-	"onComment": [String], // 提交留言時在「後端」進行的檢查
-	"onEnter": [String], // 進入文章時在「後端」進行的檢查，可以實現告白文（之類的）
-	// Form Rules
-	"commentForm": [{ evalType: String, label: String, restrict: String }],
+		// Render Rules
+		"renderComment": { type: String, default: null },
+		// Backend Rules
+		"onComment": [String], // 提交留言時在「後端」進行的檢查
+		"onEnter": [String], // 進入文章時在「後端」進行的檢查，可以實現告白文（之類的）
+		// Form Rules
+		"commentForm": [{ evalType: String, label: String, restrict: String }],
 
-	// 底下開始是文章真正的資料
-	"articleContent": [ { evalType: String, body: String, label: String } ]
+		// 底下開始是文章真正的資料
+		"articleContent": [ { evalType: String, body: String, label: String } ]
+	}]
 };
 
 // 用來儲存板主自定義，不該被文章作者（任意）修改到的東西
