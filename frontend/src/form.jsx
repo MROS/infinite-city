@@ -112,4 +112,30 @@ class VariableInput extends React.Component {
 	}
 }
 
-export default VariableInput;
+// props 需有一個 check 函式、一個
+class InputWithCheck extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+	render() {
+		let props = fromJS(this.props).delete("ok").delete("type").toJS();
+		if (this.props.type == "text") {
+			return (
+				<input
+					className={this.props.ok ? "input is-success" : "input is-danger"}
+					{...props} />
+			);
+		} else if (this.props.type == "textarea") {
+			return (
+				<textarea
+					className={this.props.ok ? "textarea is-success" : "textarea is-danger"}
+					{...props} />
+			);
+		}
+	}
+}
+
+export {
+	VariableInput,
+	InputWithCheck
+};

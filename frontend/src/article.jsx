@@ -3,7 +3,7 @@ import React from "react";
 import { fromJS, List } from "immutable";
 import { Link } from "react-router-dom";
 import util from "./util";
-import VariableInput from "./variableInput.jsx";
+import { VariableInput, InputWithCheck } from "./form.jsx";
 import checkAPI from "../../isomorphic/checkAPI.js";
 import { SourceCode, ShowOnSeries } from "./sourceCode.jsx";
 import md from "markdown-it";
@@ -29,7 +29,6 @@ class InputComment extends React.Component {
 		props.commentForm.forEach((item) => {
 			initComment[item.get("label")] = "";
 		});
-		console.log(initComment);
 		return fromJS(initComment);
 	}
 	componentWillReceiveProps(nextProps) {
@@ -40,7 +39,6 @@ class InputComment extends React.Component {
 		}
 	}
 	toggleOnCommentSource() {
-		console.log(this.state.showOnCommentSource);
 		this.setState({
 			showOnCommentSource: !this.state.showOnCommentSource
 		});
@@ -51,7 +49,6 @@ class InputComment extends React.Component {
 		return checkAPI.checkAllMatchRestrict(content, form);
 	}
 	setComment(comment) {
-		console.log(comment.toJS());
 		this.setState({
 			comment: comment
 		});
@@ -210,9 +207,11 @@ class Article extends React.Component {
 		this.state = {
 			showCommentSource: new List(),
 			showArticleSource: false,
+			isEditing: false,
 			authority: {
 				onComment: {ok: false, msg: "尚未獲取文章資料"}
 			},
+			id: "",
 			content: "",
 			comments: [],
 			commentForm: new List(),
@@ -234,6 +233,8 @@ class Article extends React.Component {
 		this.renderArticle = this.renderArticle.bind(this);
 		this.toggleCommentSource = this.toggleCommentSource.bind(this);
 		this.toggleArticleSource = this.toggleArticleSource.bind(this);
+		this.toggleEditing = this.toggleEditing.bind(this);
+		this.refresh = this.refresh.bind(this);
 	}
 	countPath() {
 		const urlPath = this.props.location.pathname;
@@ -362,7 +363,6 @@ class Article extends React.Component {
 	getArticleData() {
 		const path = this.countPath();
 		const url = (path.length == 0) ? `/api/article/browse?id=${this.URLquery.id}` : `/api/article/browse?id=${this.URLquery.id}&name=${path.join(",")}`;
-		console.log(url);
 		fetch(url, {
 			credentials: "same-origin"
 		}).then((res) => {
@@ -374,16 +374,17 @@ class Article extends React.Component {
 							break;
 						default:
 							console.log("取得文章資料成功");
-							console.log(data);
 							function getRenderfunction(str, defaultFunction) {
 								return checkAPI.IsFunctionString(str) ?
 									eval(`(${str})`) : defaultFunction;
 							}
 							this.setState({
+								id: data.id,
 								author: data.author,
 								title: data.title,
 								date: new Date(data.date),
 								articleContent: data.articleContent,
+								articleForm: fromJS(data.board.articleForm),
 								commentForm: fromJS(data.commentForm),
 								comments: data.comment,
 								onComment: data.onComment,
@@ -407,7 +408,6 @@ class Article extends React.Component {
 			commentContent,
 			article: this.URLquery.id
 		};
-		console.log(JSON.stringify(body));
 		fetch(url, {
 			method: "POST",
 			credentials: "same-origin",
@@ -443,13 +443,39 @@ class Article extends React.Component {
 			showArticleSource: !this.state.showArticleSource
 		});
 	}
+	toggleEditing() {
+		this.setState({
+			isEditing: !this.state.isEditing
+		});
+	}
+	refresh() {
+		this.setState({
+			isEditing: false
+		});
+		this.getArticleData();
+	}
+	renderUpdateModal() {
+		if (this.state.isEditing) {
+			return (
+				<UpdateModal
+					id={this.state.id}
+					toggleEditing={this.toggleEditing}
+					refresh={this.refresh}
+					title={this.state.title}
+					articleContent={util.LabelArrayToObject(this.state.articleContent, item => item.body)}
+					articleForm={this.state.articleForm}/>
+			);
+		} else {
+			return;
+		}
+	}
 	render() {
-		const match = this.props.match;
 		const location = this.props.location;
 		const sp = location.pathname.split("/");
 		const boardURL = sp.slice(0, sp.length - 2).join("/");
 		return (
 			<div style={{paddingBottom: "180p"}}>
+				{this.renderUpdateModal()}
 				<div>
 					<div style={{ float: "left" }}>
 						<Link to={boardURL}>
@@ -457,6 +483,11 @@ class Article extends React.Component {
 						</Link>
 					</div>
 					<div style={{ float: "right" }}>
+						<a className="button" onClick={this.toggleEditing}>
+							<span className="icon is-small">
+								✎
+							</span>
+						</a>
 						<a className="button" href="#commentArea">
 							<span className="icon is-small">
 								🗨️
@@ -473,7 +504,7 @@ class Article extends React.Component {
 					</div>
 				</div>
 				<div style={{ clear: "left", marginBottom: "32px", fontSize: "13px", color: "#616161" }}>
-					<h3 className="title is-3">{match.params.articleName}</h3>
+					<h3 className="title is-3">{this.state.title}</h3>
 					<div>
 						<div>作者：{this.state.author}</div>
 						<div>{this.formatDate(this.state.date)}</div>
@@ -495,6 +526,130 @@ class Article extends React.Component {
 						commentForm={this.state.commentForm} />
 				</div>
 			</div>
+		);
+	}
+}
+
+class UpdateModal extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			title: props.title,
+			articleContent: fromJS(props.articleContent),
+			requested: false,
+			ever_success: false,
+			success: false,
+			msg: "",
+		};
+		this.handleTitleChange = this.handleTitleChange.bind(this);
+		this.setArticleContent = this.setArticleContent.bind(this);
+		this.handleUpdate = this.handleUpdate.bind(this);
+		this.end = this.end.bind(this);
+	}
+	end() {
+		if (this.state.ever_success) {
+			this.props.refresh();
+		} else {
+			this.props.toggleEditing();
+		}
+	}
+	handleTitleChange(event) {
+		this.setState({
+			title: event.target.value,
+		});
+	}
+	setArticleContent(articleContent) {
+		this.setState({
+			articleContent: articleContent
+		});
+	}
+	handleUpdate() {
+		const body = JSON.stringify({
+			title: this.state.title,
+			articleContent: util.LabelObjectToArray(this.state.articleContent.toJS(), this.props.articleForm.toJS())
+		});
+		fetch(`/api/article?id=${this.props.id}`, {
+			method: "PUT",
+			credentials: "same-origin",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: body
+		}).then((res) => {
+			if (res.ok) {
+				res.json().then((data) => {
+					if (data.ok) {
+						this.setState({ requested: true, success: true, msg: "更新成功", ever_success: true });
+						console.log("更新成功");
+					} else {
+						this.setState({ requested: true, success: false, msg: `更新失敗：${data.msg}` });
+						console.log(`更新失敗：${data.msg}`);
+					}
+				});
+			} else {
+				this.setState({ requested: true, success: false, msg: `非預期錯誤，更新失敗，狀態碼：${res.status}` });
+				console.log(`非預期錯誤，更新失敗，狀態碼：${res.status}`);
+			}
+		}, (err) => {
+			this.setState({ requested: true, success: false, msg: "AJAX失敗，更新失敗" });
+			console.log(`AJAX失敗，更新失敗：${err.message}`);
+		});
+	}
+	render() {
+		return (
+			<div className="modal is-active">
+				<div className="modal-background"></div>
+				<div className="modal-card">
+					<header className="modal-card-head">
+						<p className="modal-card-title">修改文章</p>
+						<button
+							className="delete" aria-label="close"
+							onClick={this.end} >
+						</button>
+					</header>
+					<section className="modal-card-body">
+						<div className="field" style={{ marginBottom: "35px" }}>
+							<label className="label">標題</label>
+							<div className="control">
+								<InputWithCheck
+									ok={checkAPI.checkArticleTitle(this.state.title)}
+									value={this.state.title}
+									type="text"
+									onChange={this.handleTitleChange}
+									placeholder="標題" />
+							</div>
+						</div>
+						<div className="field" style={{ marginBottom: "35px" }}>
+							<label className="label">文章內容</label>
+							<VariableInput
+								data={this.state.articleContent}
+								dataForm={this.props.articleForm}
+								changeUpper={this.setArticleContent} />
+						</div>
+						{
+							this.state.requested ?
+								<div className={this.state.success ? "message is-success" : "message is-danger"}>
+									{this.state.msg}
+								</div>
+								:
+								<div></div>
+						}
+					</section>
+					<footer className="modal-card-foot">
+						<button
+							className="button is-success"
+							onClick={this.handleUpdate} >
+							更新
+						</button>
+						<button
+							className="button"
+							onClick={this.end}>
+							返回
+						</button>
+					</footer>
+				</div>
+			</div>
+
 		);
 	}
 }

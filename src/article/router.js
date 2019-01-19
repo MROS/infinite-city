@@ -42,6 +42,7 @@ router.get("/browse", async function(req, res) {
 		}
 		let board = await recursiveGetBoard(root_id, name);
 		let article = await getArticle(board, article_id, max, req.session.user_id);
+		article.id = article_id;
 		if(article.err_msg) {
 			res.status(400).send(article.err_msg);
 		} else {
@@ -63,8 +64,9 @@ router.put("/", async function (req, res) {
 		let ret = await updateArticle(req.query.id, req.body.title, req.body.articleContent);
 		if (ret.err_msg) {
 			res.json({ok: false, msg: ret.err_msg});
+		} else {
+			res.json({ok: true, msg: ""});
 		}
-		res.json({ok: true, msg: ""});
 	} catch (err) {
 		console.log(err);
 		res.json({ok: false, msg: err});
