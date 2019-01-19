@@ -45,6 +45,7 @@ router.get("/browse", async function(req, res) {
 		if(article.err_msg) {
 			res.status(400).send(article.err_msg);
 		} else {
+			article.board = board;
 			res.json(article);
 		}
 	} catch (err) {
