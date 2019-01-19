@@ -1,11 +1,13 @@
 const db = require("../database.js");
 const { doRestricts, setRule, deleteIDs } = require("../util/util.js");
 const { findBackendRules } = require("../util/db_util.js");
+const _ = require("lodash");
+
 /**
- * @param {String} manager_id 
- * @param {String} name 
- * @param {String} parent_id 
- * @param {Object} rules 
+ * @param {String} manager_id
+ * @param {String} name
+ * @param {String} parent_id
+ * @param {Object} rules
  */
 async function createBoard(manager_id, name, parent_id,
 	formRules, renderRules, backendRules) {
@@ -52,10 +54,10 @@ async function createBoard(manager_id, name, parent_id,
 }
 
 const ARTICLE_INFO_SELECT = {
-	title: 1,
-	date: 1,
-	author: 1,
-	articleContent: 1,
+	"data.title": 1,
+	"data.date": 1,
+	"data.author": 1,
+	"data.articleCount": 1
 };
 const BOARD_INFO_SELECT = {
 	name: 1,
@@ -86,6 +88,9 @@ async function getList(board, max, user_id) {
 	}
 	deleteIDs(board.articleForm);
 	deleteIDs(board.commentForm);
+	for (let i = 0; i < a_list.length; i++) {
+		a_list[i] = {_id: a_list[i]._id, ...(_.last(a_list[i].data))};
+	}
 	return { a_list, b_list, board, authority };
 }
 

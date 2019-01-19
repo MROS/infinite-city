@@ -1,9 +1,11 @@
 const db = require("../database.js");
 const { doRestricts, setRule, processContent, deleteIDs } = require("../util/util.js");
 const { findBackendRules } = require("../util/db_util.js");
+const _ = require("lodash");
+
 /**
  * @param {String} author
- * @param {String} title 
+ * @param {String} title
  * @param {String} board_id
  * @param {Object} rules
  */
@@ -17,7 +19,7 @@ async function createArticle(author_id, title, board_id, articleContent,
 
 	processContent(articleContent, board.articleForm); // 檢查是否符合表格
 
-	let new_article = { board: board_id };
+	let new_article = {};
 	new_article.title = title;
 	new_article.author = author_id;
 	new_article.articleContent = articleContent;
@@ -35,7 +37,7 @@ async function createArticle(author_id, title, board_id, articleContent,
 	if(err_msg) {
 		return { err_msg };
 	}
-	let new_id = (await db.Article.create(new_article))._id;
+	let new_id = (await db.Article.create({ board: board_id, data: [new_article] }))._id;
 	return { _id: new_id };
 }
 
@@ -44,6 +46,7 @@ async function getArticle(board, article_id, max, user_id) {
 	if(!article) {
 		throw `無此文章 ${article_id}`;
 	}
+	article = _.last(article["data"]);
 
 	let backend_rules = await findBackendRules(board, ["onEnter", "onComment"], article);
 	let err_msg = doRestricts({ board, article }, user_id, backend_rules["onEnter"]);
@@ -71,6 +74,23 @@ async function getArticle(board, article_id, max, user_id) {
 	return article;
 }
 
+async function updateArticle(article_id, article_title, article_content) {
+	let article = await db.Article.findOne({ _id: article_id}).lean().exec();
+	let board = await db.Board.findOne({ _id: article.board }).exec();
+	let article_data = _.last(article.data);
+	article_data.title = article_title;
+	article_data.articleContent = article_content;
+	article_data.date = new Date();
+	processContent(article_data.articleContent, board.articleForm); // 檢查是否符合表格
+	let restricts = await findBackendRules(board, "onNewArticle");
+	let err_msg = doRestricts({ article: article_data, board: board }, article_data.author, restricts);
+	if (err_msg) {
+		return {err_msg};
+	}
+	await db.Article.findByIdAndUpdate(article_id, { $push: { data: article_data } });
+	return "";
+}
+
 module.exports = {
-	createArticle, getArticle
+	createArticle, getArticle, updateArticle
 };

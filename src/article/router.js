@@ -1,6 +1,6 @@
 let router = require("express").Router();
 let _ = require("lodash");
-let { createArticle, getArticle } = require("./article.js");
+let { createArticle, getArticle, updateArticle } = require("./article.js");
 let { recursiveGetBoard, getRootId } = require("../util/db_util.js");
 
 router.post("/new", async function (req, res) {
@@ -57,5 +57,17 @@ router.get("/browse", async function(req, res) {
 	}
 });
 
+router.put("/", async function (req, res) {
+	try {
+		let ret = await updateArticle(req.query.id, req.body.title, req.body.articleContent);
+		if (ret.err_msg) {
+			res.json({ok: false, msg: ret.err_msg});
+		}
+		res.json({ok: true, msg: ""});
+	} catch (err) {
+		console.log(err);
+		res.json({ok: false, msg: err});
+	}
+});
 
 module.exports = router;
