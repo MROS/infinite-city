@@ -63,6 +63,8 @@ const board_schema_t = {
 
 const article_schema_t = {
 	"board": { type: ObjectId, required: true },
+	"createdDate": { type: Date, required: true },
+	"lastUpdatedDate": { type: Date, required: true },
 	"data" : [{
 		"title": { type: String, required: true },
 		"date": { type: Date, required: true },

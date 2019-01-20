@@ -37,16 +37,28 @@ async function createArticle(author_id, title, board_id, articleContent,
 	if(err_msg) {
 		return { err_msg };
 	}
-	let new_id = (await db.Article.create({ board: board_id, data: [new_article] }))._id;
+	let date = new Date();
+	let article = {
+		board: board_id,
+		createdDate: date,
+		lastUpdatedDate: date,
+		data: [new_article]
+	};
+	let new_id = (await db.Article.create(article))._id;
 	return { _id: new_id };
 }
 
 async function getArticle(board, article_id, max, user_id) {
 	let article = await db.Article.findOne({ _id: article_id, board: board._id }).lean().exec();
+	article = {
+		createdDate: article.createdDate,
+		lastUpdatedDate: article.lastUpdatedDate,
+		...(_.last(article.data))
+	};
+	delete article.date;
 	if(!article) {
 		throw `無此文章 ${article_id}`;
 	}
-	article = _.last(article["data"]);
 
 	let backend_rules = await findBackendRules(board, ["onEnter", "onComment"], article);
 	let err_msg = doRestricts({ board, article }, user_id, backend_rules["onEnter"]);
@@ -87,7 +99,11 @@ async function updateArticle(article_id, article_title, article_content) {
 	if (err_msg) {
 		return {err_msg};
 	}
-	await db.Article.findByIdAndUpdate(article_id, { $push: { data: article_data } });
+	let updated_data = {
+		lastUpdatedDate: article_data.date,
+		$push: { data: article_data }
+	};
+	await db.Article.findByIdAndUpdate(article_id, updated_data);
 	return "";
 }
 
