@@ -199,6 +199,27 @@ function defaultRenderCommentFunction(content, order) {
 	}).join("\n");
 }
 
+function formatDate(date) {
+	if (date == undefined) {
+		return "";
+	} else {
+		const y = date.getFullYear();
+		const m = date.getMonth() + 1;
+		const d = date.getDate();
+		return `${y}年${m}月${d}日 ${date.toLocaleTimeString()}`;
+	}
+}
+
+function ArticleDate(props) {
+	if (props.createdDate == undefined || props.lastUpdatedDate == undefined) {
+		return <div></div>;
+	} else if (props.createdDate.toString() == props.lastUpdatedDate.toString()) {
+		return <div>創建時間：{formatDate(props.createdDate)}</div>;
+	} else {
+		return <div>創建時間：{formatDate(props.createdDate)}, 最後修改：{formatDate(props.lastUpdatedDate)}</div>;
+	}
+}
+
 class Article extends React.Component {
 	constructor(props) {
 		// props 要有屬性 commentForm, renderComment, content, renderArticleContent
@@ -241,16 +262,6 @@ class Article extends React.Component {
 		let path = urlPath.split("/").slice(2).filter((ele, index) => index % 2 == 1);
 		path = path.slice(0, path.length - 1);
 		return path;
-	}
-	formatDate(date) {
-		if (date == undefined) {
-			return "";
-		} else {
-			const y = date.getFullYear();
-			const m = date.getMonth() + 1;
-			const d = date.getDate();
-			return `${y}年${m}月${d}日 ${date.toLocaleTimeString()}`;
-		}
 	}
 	createContent(arr) {    // 過濾掉 evalType 不是字串的項目，並且將原陣列轉爲物件
 		const onlyString = arr.filter(item => item.evalType == "string");
@@ -378,11 +389,13 @@ class Article extends React.Component {
 								return checkAPI.IsFunctionString(str) ?
 									eval(`(${str})`) : defaultFunction;
 							}
+							console.log(data.createdDate);
 							this.setState({
 								id: data.id,
 								author: data.author,
 								title: data.title,
-								date: new Date(data.date),
+								createdDate: new Date(data.createdDate),
+								lastUpdatedDate: new Date(data.lastUpdatedDate),
 								articleContent: data.articleContent,
 								articleForm: fromJS(data.board.articleForm),
 								commentForm: fromJS(data.commentForm),
@@ -507,7 +520,7 @@ class Article extends React.Component {
 					<h3 className="title is-3">{this.state.title}</h3>
 					<div>
 						<div>作者：{this.state.author}</div>
-						<div>{this.formatDate(this.state.date)}</div>
+						<ArticleDate createdDate={this.state.createdDate} lastUpdatedDate={this.state.lastUpdatedDate}/>
 					</div>
 				</div>
 				<div styleName="article-content" style={{ marginBottom: "25px" }}>
