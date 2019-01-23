@@ -14,6 +14,7 @@ import asyncComponent from "./asyncComponent.jsx";
 
 const Board = asyncComponent(() => import(/* webpackChunkName: "board" */ "./board.jsx"));
 const Article = asyncComponent(() => import(/* webpackChunkName: "article" */ "./article.jsx"));
+const Profile = asyncComponent(() => import(/* webpackChunkName: "profile" */ "./profile.jsx"));
 const Login = asyncComponent(() => import(/* webpackChunkName: "login" */ "./login.jsx"));
 const SignUpForm = asyncComponent(() => import(/* webpackChunkName: "signup" */ "./signup.jsx"), "SignUpForm");
 const StartVerifyForm = asyncComponent(() => import(/* webpackChunkName: "signup" */ "./signup.jsx"), "StartVerifyForm");
@@ -114,9 +115,7 @@ class App extends React.Component {
 										(() => {
 											if (this.state.login) {
 												return [
-													<a key="id" className="navbar-item">
-														{this.state.id}
-													</a>,
+													<Link key="id" to={`/app/profile/${this.state.id}`}>{this.state.id}</Link>,
 													<a key="logout" onClick={this.logout} className="navbar-item">登出</a>
 												];
 											} else {
@@ -147,6 +146,9 @@ class App extends React.Component {
 							)} />
 							<Route path="/app(/b/[^/]+)*/a/:articleName" render={(props) => (
 								<Article appState={this.state} notify={this.notify} {...props} />
+							)} />
+							<Route path="/app/profile/:id" render={(props) => (
+								<Profile appState={this.state} notify={this.notify} {...props} />
 							)} />
 						</Switch>
 					</div>

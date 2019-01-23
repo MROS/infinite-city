@@ -519,7 +519,8 @@ class Article extends React.Component {
 				<div style={{ clear: "left", marginBottom: "32px", fontSize: "13px", color: "#616161" }}>
 					<h3 className="title is-3">{this.state.title}</h3>
 					<div>
-						<div>作者：{this.state.author}</div>
+						<div>作者：<Link to={`/app/profile/${this.state.author}`}>{this.state.author}</Link>
+						</div>
 						<ArticleDate createdDate={this.state.createdDate} lastUpdatedDate={this.state.lastUpdatedDate}/>
 					</div>
 				</div>
