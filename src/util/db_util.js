@@ -72,6 +72,24 @@ async function recursiveGetBoard(id, names, depth=0) {
 	return await recursiveGetBoard(next_b._id, names, depth+1);
 }
 
+// TODO: 考慮到整個論壇的 board 也不會太多（頂多幾千個）
+// 往後利用 redis 來緩存整個看板的樹狀結構，便能有效加速
+async function getPathToRoot(board_id) {
+	let path = [];
+	const fields = {
+		"_id": 1,
+		"parent": 1,
+		"isRoot": 1,
+		"name": 1
+	};
+	let board = await db.Board.findOne({ _id: board_id }, fields).lean().exec();
+	while (!board.isRoot) { // 並不包含根
+		path.push(board.name);
+		board = await db.Board.findOne({ _id: board.parent }, fields).lean().exec();
+	}
+	return path.reverse();
+}
+
 async function getRootId() {
 	let root = (await db.Board.findOne({ isRoot: true }, { _id: 1 }).lean().exec());
 	if(!root) {
@@ -83,5 +101,6 @@ async function getRootId() {
 module.exports = {
 	findBackendRules,
 	recursiveGetBoard,
-	getRootId
+	getRootId,
+	getPathToRoot
 };

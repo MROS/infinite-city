@@ -19,8 +19,8 @@
 		+ 為了即時前端回饋而有的 api，回傳 used/invalid/OK
 * api/profile
 	- GET api/profile?id=XXX
-		+ 返回 200 { a_list }
-
+		+ 返回 200 { articles }
+		+ articles 內部結構爲 { board: String, title: String, id: String }
 * api/board
 	- GET api/board/browse?base=?&max=?&name=?,?,?,...
 		+ 從某個基準看板（base）開始，往下根據名字（可爲中文）查找看板

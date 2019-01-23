@@ -247,7 +247,7 @@ class Article extends React.Component {
 			let [key, value] = q.split("=");
 			this.URLquery[key] = value;
 		});
-		this.countPath = this.countPath.bind(this);
+		this.countUrl = this.countUrl.bind(this);
 		this.getArticleData = this.getArticleData.bind(this);
 		this.submitComment = this.submitComment.bind(this);
 		this.renderComments = this.renderComments.bind(this);
@@ -257,11 +257,19 @@ class Article extends React.Component {
 		this.toggleEditing = this.toggleEditing.bind(this);
 		this.refresh = this.refresh.bind(this);
 	}
-	countPath() {
+	countUrl() {
 		const urlPath = this.props.location.pathname;
+		console.log(JSON.stringify(this.props.location));
 		let path = urlPath.split("/").slice(2).filter((ele, index) => index % 2 == 1);
 		path = path.slice(0, path.length - 1);
-		return path;
+
+		let url = "";
+		if (path.length == 0) {
+			url = `/api/article/browse?id=${this.URLquery.id}&base=${this.URLquery.base}`;
+		} else {
+			url = `/api/article/browse?id=${this.URLquery.id}&name=${path.join(",")}`;
+		}
+		return url;
 	}
 	createContent(arr) {    // 過濾掉 evalType 不是字串的項目，並且將原陣列轉爲物件
 		const onlyString = arr.filter(item => item.evalType == "string");
@@ -372,8 +380,7 @@ class Article extends React.Component {
 		});
 	}
 	getArticleData() {
-		const path = this.countPath();
-		const url = (path.length == 0) ? `/api/article/browse?id=${this.URLquery.id}` : `/api/article/browse?id=${this.URLquery.id}&name=${path.join(",")}`;
+		const url = this.countUrl();
 		fetch(url, {
 			credentials: "same-origin"
 		}).then((res) => {
