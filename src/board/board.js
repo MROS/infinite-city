@@ -55,9 +55,8 @@ async function createBoard(manager_id, name, parent_id,
 
 const ARTICLE_INFO_SELECT = {
 	"data.title": 1,
-	"data.date": 1,
+	"createdDate": 1,
 	"data.author": 1,
-	"data.articleCount": 1
 };
 const BOARD_INFO_SELECT = {
 	name: 1,
@@ -72,8 +71,8 @@ async function getList(board, max, user_id) {
 		return { err_msg };
 	}
 	let [ b_list, a_list, backend_rules ] = await Promise.all([
-		db.Board.find({ parent: board._id }, BOARD_INFO_SELECT).sort({ date: 1 }).limit(max).lean().exec(),
-		db.Article.find({ board: board._id }, ARTICLE_INFO_SELECT).sort({ date: 1 }).limit(max).lean().exec(),
+		db.Board.find({ parent: board._id }, BOARD_INFO_SELECT).sort({ createdDate: 1 }).limit(max).lean().exec(),
+		db.Article.find({ board: board._id }, ARTICLE_INFO_SELECT).sort({ createdDate: 1 }).limit(max).lean().exec(),
 		findBackendRules(board, ["onNewArticle", "onNewBoard"])
 	]);
 

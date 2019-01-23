@@ -47,5 +47,6 @@ app.use("/api/user", require("./user/router.js"));
 app.use("/api/board", require("./board/router.js"));
 app.use("/api/article", require("./article/router.js"));
 app.use("/api/comment", require("./comment/router.js"));
+app.use("/api/profile", require("./profile/router.js"));
 
 module.exports = app;
