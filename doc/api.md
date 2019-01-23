@@ -75,15 +75,17 @@
 		+ 返回一篇文章 
 			1. id: String
 			2. title: String
-			3. date
-			4. author: String
-			5. renderComment: String
-			6. renderArticleContent: String
-			7. articleContent: [String]
-			8. commentForm: [Object]
-			9. comment: [Object]
-			10. authority 中的資料如下，如果 ok == false，代表當前使用者無權進行該行動
+			3. createdDate
+			4. lastUpdatedDate
+			5. author: String
+			6. renderComment: String
+			7. renderArticleContent: String
+			8. articleContent: [String]
+			9. commentForm: [Object]
+			10. comment: [Object]
+			11. authority 中的資料如下，如果 ok == false，代表當前使用者無權進行該行動
 				1. onComment: { ok: boolean, msg: String }
+			12. board [Object]
 * api/comment
 	- POST api/comment/new
 		+ { article, commentContent }
