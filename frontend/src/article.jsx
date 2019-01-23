@@ -355,7 +355,9 @@ class Article extends React.Component {
 						</a>
 					</div>
 					<div>
-						<span style={{ color: "blue" }}>{comment.author}</span>
+						<span style={{ color: "blue" }}>
+							<Link key="id" to={`/app/profile/${comment.author}`}>{comment.author}</Link>
+						</span>
 						<span>：</span>
 						<span>
 							<RenderContent
