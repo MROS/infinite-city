@@ -22,7 +22,7 @@ router.put("/", async function(req, res) {
 	try {
 		let user_id = req.session.user_id;
 		let description = req.body.description;
-		updateProfile(user_id, description);
+		await updateProfile(user_id, description);
 		res.status(200).send("OK");
 	} catch (err) {
 		console.log(err);

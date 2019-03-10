@@ -148,15 +148,6 @@ function evaluateItem(item, exposedData) {
 	}
 }
 
-// 僅將 '\n' 轉換爲 <br />
-// 可能廢棄
-function newLineToBr(str) {
-	return str.split("\n").map((p, index) => {
-		if (p == "") { return <br key={index} />; }
-		else { return <span key={index}>{p}<br /></span>; }
-	});
-}
-
 // 從比較語言轉成 HTML ，目前採用 markdown ，但太肥大希望能自己設計
 function fromMarkupToHTML(str) {
 	return <span dangerouslySetInnerHTML={{__html: md().render(str)}}></span>;
@@ -232,6 +223,7 @@ class Article extends React.Component {
 			authority: {
 				onComment: {ok: false, msg: "尚未獲取文章資料"}
 			},
+			author: { id: "", description: "" },
 			id: "",
 			content: "",
 			comments: [],
@@ -398,7 +390,7 @@ class Article extends React.Component {
 								return checkAPI.IsFunctionString(str) ?
 									eval(`(${str})`) : defaultFunction;
 							}
-							console.log(data.createdDate);
+							console.log(data);
 							this.setState({
 								id: data.id,
 								author: data.author,
@@ -528,7 +520,12 @@ class Article extends React.Component {
 				<div style={{ clear: "left", marginBottom: "32px", fontSize: "13px", color: "#616161" }}>
 					<h3 className="title is-3">{this.state.title}</h3>
 					<div>
-						<div>作者：<Link to={`/app/profile/${this.state.author}`}>{this.state.author}</Link>
+						<div>
+							<span>作者：</span>
+							<span>
+								<Link to={`/app/profile/${this.state.author.id}`}>{this.state.author.id}</Link>
+							</span>
+							<span>，{this.state.author.description}</span>
 						</div>
 						<ArticleDate createdDate={this.state.createdDate} lastUpdatedDate={this.state.lastUpdatedDate}/>
 					</div>

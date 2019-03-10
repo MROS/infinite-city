@@ -54,12 +54,16 @@ async function getArticle(board, article_id, max, user_id) {
 		throw `無此文章 ${article_id}`;
 	}
 
+
 	article = {
 		createdDate: article.createdDate,
 		lastUpdatedDate: article.lastUpdatedDate,
 		...(_.last(article.data))
 	};
 	delete article.date;
+
+	let author = await db.User.findOne({id: article.author}, "id description").lean().exec();;
+	article.author = author;
 
 	let backend_rules = await findBackendRules(board, ["onEnter", "onComment"], article);
 	let err_msg = doRestricts({ board, article }, user_id, backend_rules["onEnter"]);

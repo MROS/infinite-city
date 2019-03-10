@@ -1,0 +1,12 @@
+div.infoBlock {
+    margin-top: 40px;
+}
+
+.description {
+    margin-bottom: 10px;
+}
+
+.userId {
+    color: #45c0ba;
+    font-weight: 800;
+}

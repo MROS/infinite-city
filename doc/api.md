@@ -85,7 +85,7 @@
 			2. title: String
 			3. createdDate
 			4. lastUpdatedDate
-			5. author: String
+			5. author: {id: String, description: String}
 			6. renderComment: String
 			7. renderArticleContent: String
 			8. articleContent: [String]

@@ -32,6 +32,7 @@ const ROOT = {
 		{ label: "內容", restrict: "", evalType: "string" }
 	],
 
+	description: "無線城的所有看板，以樹狀結構組織，根看板即爲這顆樹的根節點",
 	isRoot: true,
 	depth: 0,
 	manager: [],

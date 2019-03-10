@@ -1,3 +1,4 @@
+import "./css/board.css";
 import React from "react";
 import { fromJS, Map } from "immutable";
 import { Link } from "react-router-dom";
@@ -5,6 +6,8 @@ import { VariableInput, InputWithCheck } from "./form.jsx";
 import util from "./util";
 import { ShowOnSeries, ShowFormSeries } from "./sourceCode.jsx";
 import checkAPI from "../../isomorphic/checkAPI.js";
+import { BOARD_DESCRIPTION_LENGTH } from "../../isomorphic/config.js";
+import { newLineToBr } from "./util.jsx";
 
 function ruleToState(rules, upperForm) {
 	let ret = {};
@@ -403,9 +406,11 @@ class CreateBoard extends React.Component {
 		};
 		this.state = {
 			name: "",
+			description: "",
 			rules: ruleToState(this.rules, upperForm),
 		};
 		this.handleNameChange = this.handleNameChange.bind(this);
+		this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
 		this.handleOnSubmit = this.handleOnSubmit.bind(this);
 		this.setRules = this.setRules.bind(this);
 	}
@@ -414,10 +419,16 @@ class CreateBoard extends React.Component {
 			name: event.target.value
 		});
 	}
+	handleDescriptionChange(event) {
+		this.setState({
+			description: event.target.value
+		});
+	}
 	handleOnSubmit() {
-		let { name, rules } = this.state;
+		let { name, rules, description } = this.state;
 		let board = {
 			name,
+			description,
 			formRules: rules.get("formRules").toJS(),
 			renderRules: rules.get("renderRules").toJS(),
 			backendRules: rules.get("backendRules").toJS()
@@ -440,6 +451,17 @@ class CreateBoard extends React.Component {
 							value={this.state.name}
 							type="text"
 							onChange={this.handleNameChange}
+							placeholder="標題" />
+					</div>
+				</div>
+				<div className="field" style={{ marginBottom: "35px" }}>
+					<label className="label">{`看板簡介（選填，字數限制 ${BOARD_DESCRIPTION_LENGTH}）`}</label>
+					<div className="control">
+						<InputWithCheck
+							ok={checkAPI.checkBoardDescription(this.state.description)}
+							value={this.state.description}
+							type="textarea"
+							onChange={this.handleDescriptionChange}
 							placeholder="標題" />
 					</div>
 				</div>
@@ -504,6 +526,7 @@ class Board extends React.Component {
 			exist: true,
 			errorInfo: "",
 			showPanel: "",             // 要顯示發文 or 創板 or 看板原始碼
+			description: "",
 			boards: [],
 			articles: [],
 			showBoard: false,
@@ -532,6 +555,7 @@ class Board extends React.Component {
 				exist: true,
 				errorInfo: "",
 				showPanel: "",             // 要顯示發文 or 創板 or 看板原始碼
+				description: "",
 				boards: [],
 				articles: [],
 				showBoard: false,
@@ -565,6 +589,7 @@ class Board extends React.Component {
 								boards, articles, showBoard, showArticle,
 								articleForm: fromJS(data.board.articleForm),
 								board: data.board,
+								description: data.board.description,
 								authority: data.authority,
 							});
 					}
@@ -683,8 +708,7 @@ class Board extends React.Component {
 	}
 	boardLocation() {
 		return (
-			<div style={{ fontSize: "24px", marginBottom: "30px" }}>
-				當前看板：
+			<p className="card-header-title" style={{ fontSize: "22px"}}>
 				{
 					(() => {
 						let urlPath = "/app";
@@ -699,14 +723,18 @@ class Board extends React.Component {
 						return result;
 					})()
 				}
-			</div>
+			</p>
 		);
 	}
 	boardContent() {
 		const location = this.props.location;
 		return (
 			<div>
-				<div style={{ marginBottom: "30px" }}>
+				<div styleName="description" className="card">
+					<header className="card-header">{this.boardLocation()}</header>
+					<div className="card-content">{newLineToBr(this.state.description)}</div>
+				</div>
+				<div styleName="boardButton">
 					<a className={this.state.showPanel == "createArticle" ? "button is-success" : "button"}
 						key="createArticle"
 						disabled={!this.state.authority.onNewArticle.ok}
@@ -817,7 +845,6 @@ class Board extends React.Component {
 	render() {
 		return (
 			<div>
-				{this.boardLocation()}
 				{
 					(() => {
 						if (this.state.exist) {

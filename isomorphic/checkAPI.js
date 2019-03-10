@@ -170,6 +170,7 @@ module.exports = {
 	checkRenderSeries,
 	checkOnSeries,
 	checkBoardName,
+	checkUserDescription,
 	checkBoardDescription,
 	checkArticleTitle,
 	checkMatchRestrict,

@@ -2,6 +2,8 @@ import React from "react";
 import { checkId, checkEmail } from "../../isomorphic/checkAPI.js";
 import JumpingPage from "./jumpingPage.jsx";
 import { Link } from "react-router-dom";
+import { USER_DESCRIPTION_LENGTH }  from "../../isomorphic/config.js";
+
 const WARNING_STYLE = {
 	fontSize: "10px",
 	color: "red"
@@ -143,6 +145,40 @@ class CheckSamePassword extends React.Component {
 	}
 }
 
+class CheckDescription extends React.Component {
+	constructor(props) {
+		super(props);
+		this.handleChange = this.handleChange.bind(this);
+	}
+	handleChange(event) {
+		this.props.handleChange(event.target.value);
+	}
+	render() {
+		let ok = (this.props.description.length <= USER_DESCRIPTION_LENGTH);
+		return (
+			<div className="field">
+				<p className="control has-icons-left">
+					<input
+						placeholder={`一句話介紹自己， ${USER_DESCRIPTION_LENGTH} 字以內（選填）`}
+						onChange={this.handleChange}
+						value={this.props.description}
+						className="input is-sucess"></input>
+					<span className="icon is-small is-left">❤️</span>
+				</p>
+				{
+					(() => {
+						if(ok) {
+							return;
+						} else {
+							return <p style={WARNING_STYLE}> {`已超過 ${USER_DESCRIPTION_LENGTH} 字`}  </p>;
+						}
+					})()
+				}
+			</div>
+		);
+	}
+}
+
 class StartVerifyForm extends React.Component {
 	constructor(props) {
 		super(props);
@@ -221,6 +257,7 @@ class SignUpForm extends React.Component {
 			id: null,
 			password: null,
 			email: null,
+			description: "",
 			submitFail: false,
 			justSuccess: false,
 			guidFail: false,
@@ -245,9 +282,10 @@ class SignUpForm extends React.Component {
 			}
 		});
 	}
+	// TODO: submit 之前，在前端阻止不合法的輸入
 	submitForm() {
 		let request = { guid: this.URLquery.guid };
-		for(let key of ["id", "password"]) {
+		for(let key of ["id", "password", "description"]) {
 			if(this.state[key]) {
 				request[key] = this.state[key];
 			} else {
@@ -318,6 +356,9 @@ class SignUpForm extends React.Component {
 					<CheckSamePassword
 						submitFail={this.state.submitFail}
 						handleChange={this.handleChange.bind(this, "password")} />
+					<CheckDescription
+						description={this.state.description}
+						handleChange={this.handleChange.bind(this, "description")} />
 					<div className="field">
 						<p className="control">
 							<button className="button" onClick={this.submitForm.bind(this)}>
@@ -332,6 +373,7 @@ class SignUpForm extends React.Component {
 }
 
 export {
+	CheckDescription,
 	SignUpForm,
 	StartVerifyForm
 };

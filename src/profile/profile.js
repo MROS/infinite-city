@@ -1,6 +1,7 @@
 const db = require("../database.js");
 const db_util = require("../util/db_util.js");
 const _ = require("lodash");
+const { checkUserDescription } = require("../../isomorphic/checkAPI.js");
 
 const ARTICLE_INFO_SELECT = {
 	"data.title": 1,
@@ -34,8 +35,12 @@ async function getProfile(id) {
 }
 
 async function updateProfile(id, description) {
-	await db.User.findOneAndUpdate({ id }, { description });
-	return;
+	if (checkUserDescription(description)) {
+		await db.User.findOneAndUpdate({ id }, { description });
+		return;
+	} else {
+		throw "字數太多";
+	}
 }
 
 module.exports = {
