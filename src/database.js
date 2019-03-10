@@ -35,6 +35,7 @@ const board_schema_t = {
 		}
 	},
 	"name": { type: String, required: true },
+	"description": { type: String, required: true },
 
 	// 以下為 renderRules
 	"renderTitle": { type: String, default: null },
@@ -107,6 +108,7 @@ const user_schema_t = {
 	"salt": { type: String, required: true },
 	"date": { type: Date, required: true },
 	"email": { type: String, required: true, index: { unique: true } },
+	"description": { type: String, required: true }
 };
 
 const user_verification_schema_t = {

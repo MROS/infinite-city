@@ -41,7 +41,7 @@ router.post("/new", async function(req, res) {
 		else {
 			let query = req.body;
 			let new_b = await createBoard(user_id, query.name, query.parent,
-				query.formRules, query.renderRules, query.backendRules);
+				query.description, query.formRules, query.renderRules, query.backendRules);
 			if(new_b.err_msg) {
 				res.status(403).send(new_b.err_msg);
 			}

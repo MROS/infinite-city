@@ -17,12 +17,13 @@ async function isExist(id) {
 	}
 }
 
-async function getArticles(id) {
+async function getProfile(id) {
 	let articles = await db.Article.find({ "data.author": id }, ARTICLE_INFO_SELECT).sort({ createdDate: 1 }).lean().exec();
-	let ret = [];
+	let user = await db.User.findOne({ id }).exec();
+	let ret = { articles: [], description: user.description };
 	for (let a of articles) {
 		let path = await db_util.getPathToRoot(a.board);
-		ret.push({
+		ret.articles.push({
 			title: _.last(a.data).title,
 			id: a._id,
 			board: a.board,
@@ -32,6 +33,11 @@ async function getArticles(id) {
 	return ret;
 }
 
+async function updateProfile(id, description) {
+	await db.User.findOneAndUpdate({ id }, { description });
+	return;
+}
+
 module.exports = {
-	isExist, getArticles
+	isExist, getProfile, updateProfile
 };

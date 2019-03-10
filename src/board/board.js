@@ -9,7 +9,7 @@ const _ = require("lodash");
  * @param {String} parent_id
  * @param {Object} rules
  */
-async function createBoard(manager_id, name, parent_id,
+async function createBoard(manager_id, name, parent_id, description,
 	formRules, renderRules, backendRules) {
 
 	let parent = await db.Board.findOne({ _id: parent_id }).exec();
@@ -28,6 +28,7 @@ async function createBoard(manager_id, name, parent_id,
 	new_board.manager = [manager_id];
 	new_board.depth = parent.depth + 1;
 	new_board.date = new Date();
+	new_board.description = description;
 	// Form Rules
 	setRule(new_board, formRules, "articleForm");
 	setRule(new_board, formRules, "commentForm");

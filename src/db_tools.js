@@ -159,9 +159,11 @@ async function addUserDialog() {
 	let email = question("email > ", false);
 	let id = question("帳號 > ", false);
 	let password = question("密碼 > ", false);
+	let description = question("個人簡介 > ", false);
 	let user = await encryptUser(id, password);
 	user.email = email;
 	user.date = new Date();
+	user.description = description;
 	try {
 		await db.User.create(user);
 		console.log(`成功新增使用者 ${id}`);

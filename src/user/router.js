@@ -30,6 +30,7 @@ router.post("/new", async function(req, res) {
 			user = await encryptUser(query.id, query.password);
 			user.date = new Date();
 			user.email = email;
+			user.description = query.description;
 			await Promise.all([
 				db.User.create(user),
 				deleteGUID(query.guid)
