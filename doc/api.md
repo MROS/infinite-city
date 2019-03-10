@@ -5,7 +5,7 @@
 		+ 回傳 "email 已被使用" 或 "不合法的 email" 或 "OK"
 		+ 若回傳 OK 代表系統寄了註冊網址給該信箱
 	- POST api/user/new
-		+ { id, password, guid }，id 和 password 皆爲字串，例如 { id: "david0u0", password: "1234" }
+		+ { id, password, description, guid }，id, password, description 皆爲字串，例如 { id: "冬木士度", password: "1234", description: "馴獸師。魔裡人四木族冬木的後代，有把動物的能力移到自己身上的「百獸擬態」的能力。" }
 			- guid 為認證碼，字串，須在生成的一小時內使用
 		+ 返回 "ID 已被使用" 或 "認證碼錯誤或過期" 或 "OK" 或 "FAIL"
 	- POST api/user/login
@@ -19,8 +19,11 @@
 		+ 為了即時前端回饋而有的 api，回傳 used/invalid/OK
 * api/profile
 	- GET api/profile?id=XXX
-		+ 返回 200 { articles }
+		+ 返回 200 { articles: [articles], description: String }
 		+ articles 內部結構爲 { board: String, title: String, id: String }
+	- PUT api/profile
+		+ { description: String }
+		+ 返回 "OK" 或 "FAIL"
 * api/board
 	- GET api/board/browse?base=?&max=?&name=?,?,?,...
 		+ 從某個基準看板（base）開始，往下根據名字（可爲中文）查找看板
@@ -28,14 +31,15 @@
 		+ 帶參數 max，限制返回陣列最多可以多長，預設爲10
 		+ 帶參數 base，爲亂碼 _id，預設爲根看板
 		+ 返回根看板下的所有東西，{ b_list, a_list, board, authority }
-		+ a_list 爲文章列表，b_list 爲看板列表，board 為查找的這個看板，authority 為使用者的權限
+		+ a_list 爲文章列表，b_list 爲看板列表，board 為查找的這個看板，authority 為使用者的權限, description 為看板介紹
 			- authority 中的資料如下，如果 ok == false，代表當前使用者無權進行該行動
 				1. onNewArticle: { ok: boolean, msg: String }
 				2. onNewBoard: { ok: boolean, msg: String }
 	- POST api/board/new
-		+ { name, parent, formRules, renderRules, backendRules }
+		+ { name, parent, description, formRules, renderRules, backendRules }
 		+ name: 字串，看板的名字，不可爲空字串
 		+ parent: 字串，母看板的 id
+		+ description: 看板介紹
 		+ formRules: 鍵值對
 			1. articleForm: [{ evalType, restrict, label }] evalType 爲 "string" 或 "function"、label 不得重複、restrict 需 eval 之後是函式(typeof 爲 'function')
 			2. commentForm: [{ evalType, restrict, label }] evalType 爲 "string" 或 "function"、label 不得重複、restrict 需 eval 之後是函式(typeof 爲 'function')
