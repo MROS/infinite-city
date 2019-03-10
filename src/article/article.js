@@ -87,10 +87,13 @@ async function getArticle(board, article_id, max, user_id) {
 	return article;
 }
 
-async function updateArticle(article_id, article_title, article_content) {
+async function updateArticle(article_id, article_title, article_content, user_id) {
 	let article = await db.Article.findOne({ _id: article_id}).lean().exec();
 	let board = await db.Board.findOne({ _id: article.board }).exec();
 	let article_data = _.last(article.data);
+	if (article_data.author != user_id) {
+		return { err_msg: "無權限更新文章" };
+	}
 	article_data.title = article_title;
 	article_data.articleContent = article_content;
 	article_data.date = new Date();

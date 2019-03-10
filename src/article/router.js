@@ -61,7 +61,8 @@ router.get("/browse", async function(req, res) {
 
 router.put("/", async function (req, res) {
 	try {
-		let ret = await updateArticle(req.query.id, req.body.title, req.body.articleContent);
+		let ret = await updateArticle(req.query.id, req.body.title,
+			req.body.articleContent, req.session.user_id);
 		if (ret.err_msg) {
 			res.json({ok: false, msg: ret.err_msg});
 		} else {
