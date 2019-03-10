@@ -1,3 +1,5 @@
+const config = require("./config.js");
+
 function strictlyIncludes(tar, keys) {
 	if(Object.keys(tar).length != keys.length) {
 		return false;
@@ -143,9 +145,18 @@ function checkEmail(email) {
 function checkId(id) {
 	return id && NotOnlyEmpty(id) && (id.search(/[ |\n]/) == -1);
 }
+
+function checkUserDescription(description) {
+	return description.length <= config.USER_DESCRIPTION_LENGTH;
+}
+
+function checkBoardDescription(description) {
+	return description.length <= config.BOARD_DESCRIPTION_LENGTH;
+}
+
 function checkCreateUser(user) {
-	return strictlyIncludes(user, ["guid", "id", "password"])
-		&& checkId(user["id"]) && NotOnlyEmpty(user["password"]);
+	return strictlyIncludes(user, ["guid", "id", "password", "description"])
+		&& checkId(user["id"]) && NotOnlyEmpty(user["password"]) && checkUserDescription(user["description"]);
 }
 
 module.exports = {
@@ -159,6 +170,7 @@ module.exports = {
 	checkRenderSeries,
 	checkOnSeries,
 	checkBoardName,
+	checkBoardDescription,
 	checkArticleTitle,
 	checkMatchRestrict,
 	checkAllMatchRestrict,

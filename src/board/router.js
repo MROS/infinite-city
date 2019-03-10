@@ -2,6 +2,7 @@ let router = require("express").Router();
 let _ = require("lodash");
 let { createBoard, getList } = require("./board.js");
 let { recursiveGetBoard, getRootId } = require("../util/db_util.js");
+let { checkBoardDescription } = require("../../isomorphic/checkAPI.js");
 
 router.get("/browse", async function(req, res) {
 	try {
@@ -37,15 +38,15 @@ router.post("/new", async function(req, res) {
 	try {
 		if (!user_id) {
 			res.status(401).send("尚未登入");
-		}
-		else {
+		} else if (!checkBoardDescription(req.body.description)) {
+			res.status(403).send("看板簡介字數過多");
+		} else {
 			let query = req.body;
 			let new_b = await createBoard(user_id, query.name, query.parent,
 				query.description, query.formRules, query.renderRules, query.backendRules);
 			if(new_b.err_msg) {
 				res.status(403).send(new_b.err_msg);
-			}
-			else {
+			} else {
 				res.json(new_b);
 			}
 		}
