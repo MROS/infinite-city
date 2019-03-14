@@ -4,26 +4,85 @@
 }
 
 .article-content h1 {
-    font-size: 180%;
+    font-size: 220%;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eaeaea;
+    font-weight: bold;
 }
 .article-content h2 {
-    font-size: 160%;
+    font-size: 170%;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eaeaea;
+    font-weight: bold;
 }
 .article-content h3 {
     font-size: 140%;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    font-weight: bold;
 }
 .article-content h4 {
-    font-size: 120%;
+    font-size: 130%;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    font-weight: bold;
 }
 .article-content h5 {
     font-size: 120%;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    font-weight: bold;
 }
 .article-content h6 {
     font-size: 110%;
+    margin-top: 12px;
+    margin-bottom: 12px;
 }
 
 .article-content p {
+    margin-top: 10px;
     margin-bottom: 10px;
+}
+
+.article-content img {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.article-content ul {
+    margin-left: 20px;
+    list-style-type: disc;
+    list-style-position: inside;
+}
+
+.article-content ul ul {
+    margin-left: 20px;
+    list-style-type: circle;
+    list-style-position: inside;
+}
+
+.article-content blockquote {
+    background: #f9f9f9;
+    border-left: 10px solid #ccc;
+    margin: 1.5em 10px;
+    padding: 0.5em 10px;
+}
+
+.article-content table {
+    border: 1px solid black;
+}
+.article-content th {
+    border: 1px solid black;
+}
+.article-content td {
+    border: 1px solid black;
+}
+
+.article-content ol {
+    margin-left: 20px;
+    list-style-position: inside;
 }
 
 @media (max-width: 1024px) {
