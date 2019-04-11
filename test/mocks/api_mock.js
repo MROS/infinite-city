@@ -2,6 +2,7 @@ function defaultBoard(name, parent) {
 	return {
 		name: name,
 		parent: parent,
+		description: "description",
 		formRules: {
 			articleForm: [
 				{ label: "內容", restrict: "", evalType: "string" }

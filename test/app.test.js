@@ -5,9 +5,9 @@ const mock = require("./mocks/api_mock.js");
 
 //TODO: 即使把 tester1, tester2, tester3 的 id 或 email　改成重復，後端仍不會報錯，顯然有線程安全的問題！
 const ROOT = require("../src/root_config.js");
-const tester1 = { id: "測試者一號5566", password: "testtest" , guid: "1" };
-const tester2 = { id: "測試者二號5566", password: "testtest", guid: "2" };
-const tester3 = { id: "測試者三號911", password: "testtest", guid: "3" };
+const tester1 = { id: "測試者一號5566", password: "testtest" , guid: "1", description: "description1" };
+const tester2 = { id: "測試者二號5566", password: "testtest", guid: "2", description: "description2" };
+const tester3 = { id: "測試者三號911", password: "testtest", guid: "3", description: "description3" };
 let env = require("optimist").argv.env || process.env.env || "dev";
 
 async function clearDB() {
@@ -45,7 +45,7 @@ describe("測試 api", () => {
 			await session.get("/api/user/logout").expect("OK");
 		});
 		test("重名的使用者不給注冊", async () => {
-			await session.post("/api/user/new").send({ id: tester1.id, password: "2134", guid: "4" })
+			await session.post("/api/user/new").send({ id: tester1.id, password: "2134", guid: "4", description: "description4" })
 			.expect("ID 已被使用");
 		});
 	});
@@ -178,7 +178,7 @@ describe("測試 api", () => {
 					.get(`/api/article/browse?name=b2,b3&id=${aid_array[2]}`).expect(200);
 
 					let article = res.body;
-					expect(article._id).toBe(aid_array[2]);
+					expect(article.id).toBe(aid_array[2]);
 					expect(article.title).toBe("a2");
 					assertList(article.comment, [cid_array[1], cid_array[2]]);
 
