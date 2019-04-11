@@ -12,6 +12,7 @@
     "morgan": "^1.8.2",
     "optimist": "^0.6.1",
     "pm2": "^2.6.1",
+    "prerender-node": "^3.2.4",
     "readline-sync": "^1.4.7"
   },
   "scripts": {
