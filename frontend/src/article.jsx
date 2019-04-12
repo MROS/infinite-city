@@ -6,7 +6,11 @@ import util from "./util";
 import { VariableInput, InputWithCheck } from "./form.jsx";
 import checkAPI from "../../isomorphic/checkAPI.js";
 import { SourceCode, ShowOnSeries } from "./sourceCode.jsx";
+
 import md from "markdown-it";
+import mk from "markdown-it-katex";
+const md_instance = md();
+md_instance.use(mk);
 
 class InputComment extends React.Component {
 	constructor(props) {
@@ -150,7 +154,7 @@ function evaluateItem(item, exposedData) {
 
 // 從比較語言轉成 HTML ，目前採用 markdown ，但太肥大希望能自己設計
 function fromMarkupToHTML(str) {
-	return <span dangerouslySetInnerHTML={{__html: md().render(str)}}></span>;
+	return <span dangerouslySetInnerHTML={{__html: md_instance.render(str)}}></span>;
 }
 
 function postRender(str) {

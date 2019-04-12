@@ -455,7 +455,7 @@ class CreateBoard extends React.Component {
 					</div>
 				</div>
 				<div className="field" style={{ marginBottom: "35px" }}>
-					<label className="label">{`看板簡介（選填，字數限制 ${BOARD_DESCRIPTION_LENGTH}）`}</label>
+					<label className="label">{`看板簡介（不可爲空，字數限制 ${BOARD_DESCRIPTION_LENGTH}）`}</label>
 					<div className="control">
 						<InputWithCheck
 							ok={checkAPI.checkBoardDescription(this.state.description)}

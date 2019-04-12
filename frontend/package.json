@@ -9,6 +9,7 @@
 		"bulma": "^0.7.1",
 		"immutable": "^3.8.1",
 		"markdown-it": "^8.4.2",
+		"markdown-it-katex": "^2.0.3",
 		"react": "^16.4.2",
 		"react-dom": "^16.4.2",
 		"react-notification-system": "^0.2.15",
