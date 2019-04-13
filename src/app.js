@@ -32,8 +32,13 @@ app.use(session({
 	saveUninitialized: true
 }));
 
-const prerender_token = require("./util/prerender_token.js");
-app.use(require("prerender-node").set("prerenderToken", prerender_token));
+// 只在生產環境 prerender ，優化 SEO
+if (config.env == "production") {
+	const prerender_token = require("./util/prerender_token.js");
+	const prerender = require("prerender-node");
+	prerender.protocol = "https";
+	app.use(prerender.set("prerenderToken", prerender_token));
+}
 
 app.get("/", function (req, res) {
 	res.redirect("/app");
