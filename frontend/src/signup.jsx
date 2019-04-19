@@ -296,6 +296,7 @@ class SignUpForm extends React.Component {
 				return;
 			}
 		}
+		request["description"] = this.state.description;
 		fetch("/api/user/new", {
 			method: "POST",
 			credentials: "same-origin",
