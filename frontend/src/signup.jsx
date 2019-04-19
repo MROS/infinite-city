@@ -1,4 +1,5 @@
 import React from "react";
+import { Helmet } from "react-helmet";
 import { checkId, checkEmail } from "../../isomorphic/checkAPI.js";
 import JumpingPage from "./jumpingPage.jsx";
 import { Link } from "react-router-dom";
@@ -231,6 +232,7 @@ class StartVerifyForm extends React.Component {
 		} else {
 			return (
 				<div>
+					<Helmet><title>寄送認證信</title></Helmet>
 					<CheckUsedInput
 						label="email"
 						url="/api/user/email-used?email="
@@ -285,7 +287,7 @@ class SignUpForm extends React.Component {
 	// TODO: submit 之前，在前端阻止不合法的輸入
 	submitForm() {
 		let request = { guid: this.URLquery.guid };
-		for(let key of ["id", "password", "description"]) {
+		for(let key of ["id", "password"]) {
 			if(this.state[key]) {
 				request[key] = this.state[key];
 			} else {
@@ -346,6 +348,7 @@ class SignUpForm extends React.Component {
 		} else {
 			return (
 				<div>
+					<Helmet><title>註冊</title></Helmet>
 					<h5 className="title is-5">{this.state.email}</h5>
 					<CheckUsedInput
 						label="使用者名稱"

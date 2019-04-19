@@ -1,5 +1,6 @@
 import "./css/article.css";
 import React from "react";
+import { Helmet } from "react-helmet";
 import { fromJS, List } from "immutable";
 import { Link } from "react-router-dom";
 import util from "./util";
@@ -228,6 +229,7 @@ class Article extends React.Component {
 				onComment: {ok: false, msg: "尚未獲取文章資料"}
 			},
 			author: { id: "", description: "" },
+			title: "",
 			id: "",
 			content: "",
 			comments: [],
@@ -493,6 +495,9 @@ class Article extends React.Component {
 		const boardURL = sp.slice(0, sp.length - 2).join("/");
 		return (
 			<div style={{paddingBottom: "180p"}}>
+				<Helmet>
+					<title>{this.state.title} | 無限城</title>
+				</Helmet>
 				{this.renderUpdateModal()}
 				<div>
 					<div style={{ float: "left" }}>

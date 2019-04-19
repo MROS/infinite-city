@@ -1,4 +1,5 @@
 import React from "react";
+import { Helmet } from "react-helmet";
 export default class JumpingPage extends React.Component {
 	constructor(props) {
 		super(props);
@@ -30,6 +31,7 @@ export default class JumpingPage extends React.Component {
 	render() {
 		return (
 			<div>
+				<Helmet><title>跳轉頁</title></Helmet>
 				{this.props.children}
 			</div>
 		);

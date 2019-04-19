@@ -1,4 +1,5 @@
 import React from "react";
+import { Helmet } from "react-helmet";
 import JumpingPage from "./jumpingPage.jsx";
 
 class IDPasswordForm extends React.Component {
@@ -30,6 +31,7 @@ class IDPasswordForm extends React.Component {
 		else if (this.props.appState.login == true) {
 			return (
 				<div>
+					<Helmet><title>登入</title></Helmet>
 					<p>您好！{this.props.appState.id}</p>
 					<p>請先登出再{this.props.buttonName}</p>
 				</div>
@@ -37,6 +39,7 @@ class IDPasswordForm extends React.Component {
 		} else {
 			return (
 				<div>
+					<Helmet><title>登入</title></Helmet>
 					<div className="field">
 						<p className="control has-icons-left has-icons-right">
 							<input

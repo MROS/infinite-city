@@ -1,5 +1,6 @@
 import "./css/board.css";
 import React from "react";
+import { Helmet } from "react-helmet";
 import { fromJS, Map } from "immutable";
 import { Link } from "react-router-dom";
 import { VariableInput, InputWithCheck } from "./form.jsx";
@@ -726,10 +727,21 @@ class Board extends React.Component {
 			</p>
 		);
 	}
+	countTitle() {
+		const countPath = this.countPath();
+		if (countPath.length == 0) {
+			return "無限城 | 可編程的現代論壇";
+		} else {
+			return `${countPath.slice(-1)[0]} | 無限城`;
+		}
+	}
 	boardContent() {
 		const location = this.props.location;
 		return (
 			<div>
+				<Helmet>
+					<title>{this.countTitle()}</title>
+				</Helmet>
 				<div styleName="description" className="card">
 					<header className="card-header">{this.boardLocation()}</header>
 					<div className="card-content">{newLineToBr(this.state.description)}</div>

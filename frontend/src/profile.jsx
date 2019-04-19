@@ -1,5 +1,6 @@
 import "./css/profile.css";
 import React from "react";
+import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import { CheckDescription } from "./signup.jsx";
 
@@ -48,6 +49,9 @@ class Profile extends React.Component {
 		if (this.state.isExist) {
 			return (
 				<div>
+					<Helmet>
+						<title>{this.id} | 無限城</title>
+					</Helmet>
 					<div styleName="infoBlock">
 						<h3 className="title is-5"><span styleName="userId">{this.id}</span> 的一句話簡介</h3>
 						<hr />
@@ -66,6 +70,9 @@ class Profile extends React.Component {
 		} else {
 			return (
 				<div>
+					<Helmet>
+						<title>查無此 id</title>
+					</Helmet>
 					<h3 className="title is-5">{`${this.id} 的所有文章`}</h3>
 					<hr />
 					<div>查無此 id</div>
